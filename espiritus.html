@@ -83,8 +83,14 @@ label{font-size:.7rem;color:var(--gold);letter-spacing:1px;text-transform:upperc
 
 /* columnas */
 .cols{display:flex;flex-direction:column;gap:6px}
-.crow{display:grid;grid-template-columns:1fr 150px auto;gap:6px;align-items:center}
+.crow{display:grid;grid-template-columns:1fr 200px auto;gap:6px;align-items:center}
 .crow .acts{display:flex;gap:4px}
+.crow .opts{grid-column:1/-1;display:flex;gap:8px;align-items:center;margin:-2px 0 6px}
+.crow .opts span{font-size:.7rem;color:var(--gold);white-space:nowrap;letter-spacing:1px;text-transform:uppercase}
+.pill.opt{border:1px solid hsla(var(--h),85%,60%,.9);background:hsla(var(--h),85%,45%,.18);color:hsl(var(--h),100%,85%)}
+.edit td select.cellsel{border:none;border-radius:0;background:transparent;padding:9px 10px;min-width:130px;font-family:Georgia,serif;cursor:pointer}
+.edit td select.cellsel:focus{background:rgba(255,150,0,.12);box-shadow:inset 0 0 0 2px var(--gold)}
+.edit td select.cellsel option{background:#1a0402;color:#fff}
 
 /* hoja editable */
 .edit-wrap{border:1px solid var(--gold-dark);border-radius:12px;overflow:auto;max-height:52vh;background:#0b0202}
@@ -139,7 +145,6 @@ body.editing .sheet-wrap{border-color:var(--gold);box-shadow:0 12px 30px rgba(0,
       <div class="stat ok" id="stDoneBox">Entregados <b id="stDone">0</b></div>
       <div class="stat" id="stPendBox">Pendientes <b id="stPend">0</b></div>
     </div>
-    <input type="search" class="search" id="search" placeholder="Buscar…">
   </div>
 
   <div class="editbar" id="editbar">
@@ -183,7 +188,7 @@ body.editing .sheet-wrap{border-color:var(--gold);box-shadow:0 12px 30px rgba(0,
     </div>
 
     <div class="section-title"><span>COLUMNAS</span><button class="btn sm" id="addCol">+ Columna</button></div>
-    <div class="hint">La primera columna es el nombre. Las de tipo «Casilla» se marcan como Sí/No, y la primera de ellas cuenta como «Entregado».</div>
+    <div class="hint">La primera columna es el nombre. «Desplegable» te deja elegir entre las opciones que escribas. Las de tipo «Casilla» se marcan como Sí/No, y la primera cuenta como «Entregado».</div>
     <div class="cols" id="colList"></div>
 
     <div class="section-title">
@@ -258,6 +263,19 @@ let state = load(), draft = null, unlocked = false, editing = false, sort = { co
 if(new URLSearchParams(location.search).has('obs')) document.body.classList.add('obs');
 
 const checkCol = cols => cols.find(c => c.type === 'check');
+// Columnas de tipo desplegable
+const optHue = (c, v) => { const i = (c.options || []).indexOf(v); return (i < 0 ? 0 : i) * 57 + 20; };
+function makeSelect(c, value, onChange){
+  const sel = document.createElement('select'); sel.className = 'cellsel';
+  const opts = [...(c.options || [])];
+  if(value && !opts.includes(value)) opts.push(value);
+  sel.append(new Option('—', ''));
+  opts.forEach(o => sel.append(new Option(o, o)));
+  sel.value = value || '';
+  sel.onchange = () => onChange(sel.value);
+  return sel;
+}
+function uniqueValues(rows, id){ const seen = []; rows.forEach(r => { const v = String(r[id] ?? '').trim(); if(v && !seen.includes(v)) seen.push(v); }); return seen.slice(0, 30); }
 const isEmptyRow = (r, cols) => cols.every(c => c.type === 'check' ? !r[c.id] : !String(r[c.id] ?? '').trim());
 
 /* ---------- Vista pública ---------- */
@@ -279,7 +297,7 @@ function render(){
   const thead = $('#sheet thead'); thead.innerHTML = ''; thead.append(hr);
 
   // datos
-  const q = $('#search').value.trim().toLowerCase();
+  const q = '';
   let rows = state.rows.map((r,i) => ({ r, i }));
   if(q) rows = rows.filter(({r}) => cols.some(c => c.type !== 'check' && String(r[c.id] ?? '').toLowerCase().includes(q)));
   if(sort.col){
@@ -301,6 +319,7 @@ function render(){
     cols.forEach((c,ci) => {
       const td = document.createElement('td');
       if(c.type === 'check'){ const p = document.createElement('span'); p.className = 'pill ' + (r[c.id] ? 'yes' : 'no'); p.textContent = r[c.id] ? 'Sí' : 'No'; td.append(p); }
+      else if(c.type === 'select'){ if(r[c.id]){ const p = document.createElement('span'); p.className = 'pill opt'; p.style.setProperty('--h', optHue(c, r[c.id])); p.textContent = r[c.id]; td.append(p); } }
       else { td.textContent = r[c.id] ?? ''; if(ci === 0) td.className = 'name'; }
       tr.append(td);
     });
@@ -315,7 +334,6 @@ function updateStats(){
   $('#stDoneBox').style.display = $('#stPendBox').style.display = cc ? '' : 'none';
   if(cc){ const d = state.rows.filter(r => r[cc.id]).length; $('#stDone').textContent = d; $('#stPend').textContent = state.rows.length - d; }
 }
-$('#search').oninput = render;
 
 /* ---------- Autocompletar estilo Excel ---------- */
 // Al escribir, completa con un valor ya usado en la misma columna y deja seleccionado el resto.
@@ -370,7 +388,7 @@ function renderEditMain(focus){
   hr.append(document.createElement('th'));
   const thead = $('#sheet thead'); thead.innerHTML = ''; thead.append(hr);
 
-  const q = $('#search').value.trim().toLowerCase();
+  const q = '';
   let idx = state.rows.map((r,i) => i);
   if(q) idx = idx.filter(i => cols.some(c => c.type !== 'check' && String(state.rows[i][c.id] ?? '').toLowerCase().includes(q)));
   const tbody = $('#sheet tbody'); tbody.innerHTML = '';
@@ -390,6 +408,9 @@ function renderEditMain(focus){
         const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !!r[c.id]; cb.dataset.r = ri; cb.dataset.c = ci;
         cb.onchange = () => { r[c.id] = cb.checked; if(c === cc) tr.classList.toggle('done', cb.checked); updateStats(); autosave(); };
         td.append(cb);
+      } else if(c.type === 'select'){
+        const sel = makeSelect(c, r[c.id], v => { r[c.id] = v; autosave(); });
+        sel.dataset.r = ri; sel.dataset.c = ci; td.append(sel);
       } else {
         const inp = document.createElement('input'); inp.type = 'text'; inp.value = r[c.id] ?? ''; inp.dataset.r = ri; inp.dataset.c = ci;
         inp.oninput = e => { autoComplete(inp, e, columnValues(state.rows, c.id, ri)); r[c.id] = inp.value; autosave(); };
@@ -419,7 +440,7 @@ function mainKey(e, ri, ci, idx){
     e.preventDefault();
     if(e.shiftKey){ if(pos > 0) focusMain(idx[pos-1], ci); return; }
     if(pos < idx.length-1) focusMain(idx[pos+1], ci);
-    else { $('#search').value = ''; state.rows.push(newRowFor(state.columns)); autosave(); renderEditMain({ r: state.rows.length-1, c: ci }); updateStats(); }
+    else { state.rows.push(newRowFor(state.columns)); autosave(); renderEditMain({ r: state.rows.length-1, c: ci }); updateStats(); }
   } else if(e.key === 'ArrowDown' && pos < idx.length-1){ e.preventDefault(); focusMain(idx[pos+1], ci); }
   else if(e.key === 'ArrowUp' && pos > 0){ e.preventDefault(); focusMain(idx[pos-1], ci); }
 }
@@ -434,6 +455,7 @@ function pasteInto(rows, cols, e, ri, ci){
     cells.forEach((val, k) => {
       const c = cols[ci + k]; if(!c) return;
       rows[r][c.id] = c.type === 'check' ? /^(s[ií]|x|1|true|ok|verdadero)$/i.test(val.trim()) : val.trim();
+      if(c.type === 'select' && val.trim() && !(c.options || []).includes(val.trim())) (c.options = c.options || []).push(val.trim());
     });
   });
   return lines.length;
@@ -448,7 +470,7 @@ function setEditing(on){
   else { clearTimeout(saveT); state.rows = state.rows.filter(r => !isEmptyRow(r, state.columns)); save(); }
   render();
 }
-$('#eAddRow').onclick = () => { $('#search').value = ''; state.rows.push(newRowFor(state.columns)); autosave(); renderEditMain({ r: state.rows.length-1, c: 0 }); updateStats(); };
+$('#eAddRow').onclick = () => { state.rows.push(newRowFor(state.columns)); autosave(); renderEditMain({ r: state.rows.length-1, c: 0 }); updateStats(); };
 $('#eAddCol').onclick = () => {
   const c = { id: 'c' + uid(), label: 'Nueva columna', type: 'text' };
   state.columns.push(c); state.rows.forEach(r => r[c.id] = ''); autosave(); renderEditMain();
@@ -494,19 +516,31 @@ function renderCols(){
     const name = document.createElement('input'); name.type = 'text'; name.value = c.label; name.placeholder = 'Nombre de la columna';
     name.oninput = () => { c.label = name.value; const th = $('#editSheet thead th[data-col="'+c.id+'"] input'); if(th) th.value = c.label; };
     const type = document.createElement('select');
-    type.innerHTML = '<option value="text">Texto</option><option value="check">Casilla (Sí/No)</option>';
+    type.innerHTML = '<option value="text">Texto</option><option value="select">Desplegable (opciones)</option><option value="check">Casilla (Sí/No)</option>';
     type.value = c.type; type.disabled = i === 0;
     type.onchange = () => {
-      c.type = type.value;
-      draft.rows.forEach(r => { r[c.id] = c.type === 'check' ? /^(s[ií]|x|1|true|ok)$/i.test(String(r[c.id] ?? '').trim()) : (r[c.id] ? 'Sí' : ''); });
-      renderEdit();
+      const prev = c.type; c.type = type.value;
+      if(c.type === 'check') draft.rows.forEach(r => { r[c.id] = r[c.id] === true || /^(s[ií]|x|1|true|ok)$/i.test(String(r[c.id] ?? '').trim()); });
+      else if(prev === 'check') draft.rows.forEach(r => { r[c.id] = r[c.id] ? 'Sí' : (c.type === 'select' ? 'No' : ''); });
+      if(c.type === 'select' && !(c.options || []).length) c.options = uniqueValues(draft.rows, c.id);
+      if(!c.options?.length && c.type === 'select') c.options = ['Opción 1', 'Opción 2'];
+      renderCols(); renderEdit();
     };
     const acts = document.createElement('div'); acts.className = 'acts';
     const mk = (t, title, fn, cls = '') => { const b = document.createElement('button'); b.className = 'btn sm ' + cls; b.textContent = t; b.title = title; b.onclick = fn; acts.append(b); return b; };
     mk('◀', 'Mover a la izquierda', () => { if(i > 1){ [draft.columns[i-1], draft.columns[i]] = [draft.columns[i], draft.columns[i-1]]; renderCols(); renderEdit(); } }).disabled = i <= 1;
     mk('▶', 'Mover a la derecha', () => { if(i > 0 && i < draft.columns.length-1){ [draft.columns[i+1], draft.columns[i]] = [draft.columns[i], draft.columns[i+1]]; renderCols(); renderEdit(); } }).disabled = i === 0 || i === draft.columns.length-1;
     mk('✕', 'Eliminar columna', () => { draft.columns.splice(i,1); draft.rows.forEach(r => delete r[c.id]); renderCols(); renderEdit(); }, 'danger').disabled = i === 0;
-    row.append(name, type, acts); box.append(row);
+    row.append(name, type, acts);
+    if(c.type === 'select'){
+      const o = document.createElement('div'); o.className = 'opts';
+      const lb = document.createElement('span'); lb.textContent = 'Opciones';
+      const inp = document.createElement('input'); inp.type = 'text'; inp.placeholder = 'Separadas por comas: Pendiente, Enviado, Entregado';
+      inp.value = (c.options || []).join(', ');
+      inp.onchange = () => { c.options = [...new Set(inp.value.split(',').map(x => x.trim()).filter(Boolean))]; inp.value = c.options.join(', '); renderEdit(); };
+      o.append(lb, inp); row.append(o);
+    }
+    box.append(row);
   });
 }
 $('#addCol').onclick = () => { draft.columns.push({ id: 'c' + uid(), label: 'Nueva columna', type: 'text' }); renderCols(); renderEdit(); const inp = $('#colList').lastElementChild.querySelector('input'); inp.select(); };
@@ -538,6 +572,9 @@ function renderEdit(focus){
         cb.onchange = () => r[c.id] = cb.checked;
         cb.dataset.r = ri; cb.dataset.c = ci;
         td.append(cb);
+      } else if(c.type === 'select'){
+        const sel = makeSelect(c, r[c.id], v => { r[c.id] = v; });
+        sel.dataset.r = ri; sel.dataset.c = ci; td.append(sel);
       } else {
         const inp = document.createElement('input'); inp.type = 'text'; inp.value = r[c.id] ?? '';
         inp.dataset.r = ri; inp.dataset.c = ci;
