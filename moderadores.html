@@ -75,8 +75,9 @@ body.obs .corner,body.obs .back{display:none}
 .att-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;justify-content:center;margin-bottom:14px;padding:12px;border-radius:12px;border:1px solid var(--gold);background:linear-gradient(90deg,rgba(255,120,0,.2),rgba(255,120,0,.05))}
 .att-bar .editor-only{display:none}
 body.unlocked .att-bar .editor-only{display:inline-block}
-body.unlocked .att-bar .viewer-only{display:none}
-.att-bar :disabled{opacity:.55;cursor:not-allowed}
+.att thead th.sel{background:linear-gradient(180deg,#fff3b0,#ffb300 55%,#ff7a00);box-shadow:inset 0 -3px 0 #ff5a00}
+.att td.sel{background:rgba(255,160,0,.12)}
+.att .nodate{font-size:.72rem;color:#c9a46a;align-self:center}
 .att-bar label{margin:0 0 3px}
 .att-bar input,.att-bar select{width:auto}
 .att-bar .hint{width:100%;text-align:center;margin:4px 0 0}
@@ -173,9 +174,9 @@ label{font-size:.7rem;color:var(--gold);letter-spacing:1px;text-transform:upperc
     <p class="sub" id="attSub"></p>
     <div class="att-bar">
       <div><label>Día del directo</label><input type="date" id="dDate"></div>
-      <button class="btn sm primary" id="addDay">+ Añadir día</button>
+      <button class="btn sm primary editor-only" id="addDay">+ Añadir día</button>
+      <span class="nodate" id="noDate"></span>
       <button class="btn sm editor-only" id="lockBtn">Terminar</button>
-      <button class="btn sm viewer-only" id="editorBtn">🔒 Modo editor</button>
       <div class="hint editor-only" style="width:100%">Pulsa una casilla para marcar: ✓ estuvo → ✗ faltó → vacío.</div>
     </div>
     <div class="att-wrap"><table id="attTable"><thead></thead><tbody></tbody></table></div>
@@ -358,7 +359,7 @@ function renderAtt(){
     th.title = dt.toLocaleDateString('es-ES', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
     const x = document.createElement('button'); x.className = 'xday'; x.textContent = '✕'; x.title = 'Borrar este día';
     x.onclick = () => { if(!confirmDel(x)) return; state.days = state.days.filter(dd => dd.id !== day.id); delete state.att[day.id]; save(); renderAtt(); };
-    th.append(x); hr.append(th);
+    th.dataset.date = day.date; th.append(x); hr.append(th);
   });
   const thead = $('#attTable thead'); thead.innerHTML = ''; thead.append(hr);
   // filas
@@ -391,11 +392,12 @@ function renderAtt(){
           save(); renderAtt();
         };
       }
-      td.append(c); tr.append(td);
+      td.dataset.date = day.date; td.append(c); tr.append(td);
     });
     tbody.append(tr);
   });
   const wrap = document.querySelector('.att-wrap'); wrap.scrollLeft = wrap.scrollWidth;   // último día a la vista
+  markDay(false);
 }
 let delArmed = null;
 function confirmDel(btn){
@@ -405,6 +407,16 @@ function confirmDel(btn){
   return false;
 }
 $('#dDate').value = todayISO();
+// Resalta la columna del día elegido (cualquiera puede consultarlo)
+function markDay(scroll){
+  const date = $('#dDate').value;
+  const cells = document.querySelectorAll('#attTable [data-date]');
+  cells.forEach(el => el.classList.toggle('sel', el.dataset.date === date));
+  const th = document.querySelector(`#attTable thead th[data-date="${date}"]`);
+  $('#noDate').textContent = !date || th ? '' : (unlocked ? 'Ese día aún no está añadido' : 'No hubo directo ese día');
+  if(th && scroll){ const wrap = document.querySelector('.att-wrap'); wrap.scrollLeft = th.offsetLeft - wrap.clientWidth/2 + th.offsetWidth/2; }
+}
+$('#dDate').onchange = () => markDay(true);
 $('#addDay').onclick = () => {
   if(!unlocked) return;
   const date = $('#dDate').value || todayISO();
@@ -413,7 +425,6 @@ $('#addDay').onclick = () => {
 };
 function setUnlocked(on){
   unlocked = on; document.body.classList.toggle('unlocked', on);
-  $('#dDate').disabled = $('#addDay').disabled = !on;
   renderAtt();
 }
 setUnlocked(false);
@@ -447,7 +458,7 @@ function askLogin(target){
   $('#pwd').value = ''; $('#loginErr').textContent = ''; $('#loginModal').classList.add('show'); setTimeout(() => $('#pwd').focus(), 50);
 }
 $('#adminBtn').onclick = () => { if(unlocked) return openAdmin(); askLogin('admin'); };
-$('#editorBtn').onclick = () => askLogin('editor');
+
 async function tryLogin(){
   const pwd = $('#pwd').value; let ok;
   if(KDB.enabled){
