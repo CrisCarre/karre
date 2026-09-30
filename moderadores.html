@@ -72,8 +72,11 @@ body.obs .corner,body.obs .back{display:none}
 .att h2{font-family:'Metal Mania',cursive;font-weight:400;font-size:clamp(1.8rem,5vw,2.6rem);text-align:center;letter-spacing:1px;
   background:linear-gradient(180deg,#fff3b0,#ffb300 45%,#ff4d00);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 10px rgba(255,80,0,.6))}
 .att .sub{text-align:center;color:#c9a46a;font-size:.8rem;letter-spacing:2px;margin:4px 0 16px}
-.att-bar{display:none;gap:8px;flex-wrap:wrap;align-items:flex-end;justify-content:center;margin-bottom:14px;padding:12px;border-radius:12px;border:1px solid var(--gold);background:linear-gradient(90deg,rgba(255,120,0,.2),rgba(255,120,0,.05))}
-body.unlocked .att-bar{display:flex}
+.att-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;justify-content:center;margin-bottom:14px;padding:12px;border-radius:12px;border:1px solid var(--gold);background:linear-gradient(90deg,rgba(255,120,0,.2),rgba(255,120,0,.05))}
+.att-bar .editor-only{display:none}
+body.unlocked .att-bar .editor-only{display:inline-block}
+body.unlocked .att-bar .viewer-only{display:none}
+.att-bar :disabled{opacity:.55;cursor:not-allowed}
 .att-bar label{margin:0 0 3px}
 .att-bar input,.att-bar select{width:auto}
 .att-bar .hint{width:100%;text-align:center;margin:4px 0 0}
@@ -137,11 +140,11 @@ label{font-size:.7rem;color:var(--gold);letter-spacing:1px;text-transform:upperc
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .section-title{margin:20px 0 10px;color:var(--gold);font-size:.9rem;letter-spacing:2px;border-bottom:1px solid var(--gold-dark);padding-bottom:6px;display:flex;justify-content:space-between;align-items:center}
 .list{display:flex;flex-direction:column;gap:10px}
-.mrow{display:grid;grid-template-columns:84px 1fr auto;gap:12px;align-items:start;background:rgba(0,0,0,.35);padding:10px;border-radius:12px;border:1px solid rgba(138,90,18,.45)}
+.mrow{display:grid;grid-template-columns:112px 1fr auto;gap:12px;align-items:start;background:rgba(0,0,0,.35);padding:10px;border-radius:12px;border:1px solid rgba(138,90,18,.45)}
 .av-edit{display:flex;flex-direction:column;align-items:center;gap:6px}
 .av-edit .av{width:72px;font-size:1.8rem;cursor:pointer;box-shadow:0 0 0 2px #1a0402,0 0 0 4px var(--gold)}
 .av-edit .av:hover{filter:brightness(1.2)}
-.av-edit .btn{width:100%;white-space:nowrap}
+.av-edit .btn{width:100%;white-space:normal;line-height:1.15;font-size:.72rem;padding:6px 4px;overflow-wrap:anywhere}
 .fields{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
 .fields .wide{grid-column:span 2}.fields .full{grid-column:1/-1}
 .acts{display:flex;flex-direction:column;gap:4px}
@@ -170,16 +173,14 @@ label{font-size:.7rem;color:var(--gold);letter-spacing:1px;text-transform:upperc
     <p class="sub" id="attSub"></p>
     <div class="att-bar">
       <div><label>Día del directo</label><input type="date" id="dDate"></div>
-      <div><label>Plataforma</label>
-        <select id="dPlat"><option value="">Todas</option><option value="youtube">YouTube</option><option value="tiktok">TikTok</option><option value="kick">Kick</option></select>
-      </div>
       <button class="btn sm primary" id="addDay">+ Añadir día</button>
-      <button class="btn sm" id="lockBtn">Terminar</button>
-      <div class="hint">Pulsa una casilla para marcar: ✓ estuvo → ✗ faltó → vacío. Si el día es de una plataforma, solo cuenta a sus moderadores.</div>
+      <button class="btn sm editor-only" id="lockBtn">Terminar</button>
+      <button class="btn sm viewer-only" id="editorBtn">🔒 Modo editor</button>
+      <div class="hint editor-only" style="width:100%">Pulsa una casilla para marcar: ✓ estuvo → ✗ faltó → vacío.</div>
     </div>
     <div class="att-wrap"><table id="attTable"><thead></thead><tbody></tbody></table></div>
     <div class="legend">
-      <span><i class="cell y">✓</i> Estuvo</span><span><i class="cell n">✗</i> Faltó</span><span><i class="cell e">·</i> Sin marcar</span><span><i class="cell na">—</i> No modera en esa plataforma</span>
+      <span><i class="cell y">✓</i> Estuvo</span><span><i class="cell n">✗</i> Faltó</span><span><i class="cell e">·</i> Sin marcar</span>
     </div>
   </section>
 </main>
@@ -341,7 +342,7 @@ function render(){
 /* ---------- Asistencia ---------- */
 const WD = ['dom','lun','mar','mié','jue','vie','sáb'];
 const todayISO = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0,10); };
-const applies = (m, day) => !day.platform || !m.platforms.length || m.platforms.includes(day.platform);
+
 function renderAtt(){
   const days = [...state.days].sort((a,b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id));
   const isCreator = m => /creador|admin/i.test(m.role || '');   // el creador no cuenta en la asistencia
@@ -354,8 +355,7 @@ function renderAtt(){
   days.forEach(day => {
     const th = document.createElement('th'); const [y,mo,d] = day.date.split('-').map(Number); const dt = new Date(y, mo-1, d);
     th.innerHTML = `<span class="w">${WD[dt.getDay()]}</span><span class="d">${String(d).padStart(2,'0')}/${String(mo).padStart(2,'0')}</span>`;
-    th.title = dt.toLocaleDateString('es-ES', { weekday:'long', day:'numeric', month:'long', year:'numeric' }) + (day.platform ? ' · ' + PLAT_NAME[day.platform] : '');
-    if(day.platform) th.append(icon(day.platform));
+    th.title = dt.toLocaleDateString('es-ES', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
     const x = document.createElement('button'); x.className = 'xday'; x.textContent = '✕'; x.title = 'Borrar este día';
     x.onclick = () => { if(!confirmDel(x)) return; state.days = state.days.filter(dd => dd.id !== day.id); delete state.att[day.id]; save(); renderAtt(); };
     th.append(x); hr.append(th);
@@ -374,15 +374,14 @@ function renderAtt(){
     who.append(wi); tr.append(who);
     // porcentaje
     let yes = 0, marked = 0;
-    days.forEach(day => { if(!applies(m, day)) return; const v = state.att[day.id]?.[m.id]; if(v === 1 || v === 0){ marked++; if(v === 1) yes++; } });
+    days.forEach(day => { const v = state.att[day.id]?.[m.id]; if(v === 1 || v === 0){ marked++; if(v === 1) yes++; } });
     const pc = document.createElement('td'); pc.className = 'pct';
     const pct = marked ? Math.round(yes/marked*100) : null;
     pc.innerHTML = marked ? `<b>${pct}%</b> <small>(${yes}/${marked})</small><div class="bar"><i style="width:${pct}%"></i></div>` : '<small>—</small>';
     tr.append(pc);
     days.forEach(day => {
       const td = document.createElement('td'); const c = document.createElement('span');
-      if(!applies(m, day)){ c.className = 'cell na'; c.textContent = '—'; c.title = `${m.name} no modera en ${PLAT_NAME[day.platform]}`; }
-      else {
+      {
         const v = state.att[day.id]?.[m.id];
         c.className = 'cell ' + (v === 1 ? 'y' : v === 0 ? 'n' : 'e'); c.textContent = v === 1 ? '✓' : v === 0 ? '✗' : '·';
         c.onclick = () => {
@@ -407,11 +406,17 @@ function confirmDel(btn){
 }
 $('#dDate').value = todayISO();
 $('#addDay').onclick = () => {
-  const date = $('#dDate').value || todayISO(), platform = $('#dPlat').value;
-  if(state.days.some(d => d.date === date && d.platform === platform)){ KDB.toast('Ese día ya está añadido', false); return; }
-  state.days.push({ id: uid(), date, platform }); save(); renderAtt();
+  if(!unlocked) return;
+  const date = $('#dDate').value || todayISO();
+  if(state.days.some(d => d.date === date)){ KDB.toast('Ese día ya está añadido', false); return; }
+  state.days.push({ id: uid(), date }); save(); renderAtt();
 };
-function setUnlocked(on){ unlocked = on; document.body.classList.toggle('unlocked', on); renderAtt(); }
+function setUnlocked(on){
+  unlocked = on; document.body.classList.toggle('unlocked', on);
+  $('#dDate').disabled = $('#addDay').disabled = !on;
+  renderAtt();
+}
+setUnlocked(false);
 $('#lockBtn').onclick = () => setUnlocked(false);
 
 /* ---------- Imágenes ---------- */
@@ -436,10 +441,13 @@ function readImage(file, max = 256){
 
 /* ---------- Login ---------- */
 document.querySelectorAll('[data-close]').forEach(b => b.onclick = () => $('#'+b.dataset.close).classList.remove('show'));
-$('#adminBtn').onclick = () => {
-  if(unlocked){ if(!document.body.classList.contains('unlocked')) setUnlocked(true); return openAdmin(); }
+let loginTarget = 'admin';          // 'admin' abre el panel; 'editor' solo activa la edición de asistencia
+function askLogin(target){
+  loginTarget = target;
   $('#pwd').value = ''; $('#loginErr').textContent = ''; $('#loginModal').classList.add('show'); setTimeout(() => $('#pwd').focus(), 50);
-};
+}
+$('#adminBtn').onclick = () => { if(unlocked) return openAdmin(); askLogin('admin'); };
+$('#editorBtn').onclick = () => askLogin('editor');
 async function tryLogin(){
   const pwd = $('#pwd').value; let ok;
   if(KDB.enabled){
@@ -450,7 +458,7 @@ async function tryLogin(){
     sessionPwd = pwd; unlocked = true; $('#loginErr').textContent = ''; $('#loginModal').classList.remove('show');
     if(remoteEmpty){ remoteEmpty = false; save(); }   // primera vez: sube lo que había en este navegador
     setUnlocked(true);
-    openAdmin();
+    if(loginTarget === 'admin') openAdmin();
   }
   else $('#loginErr').textContent = 'Contraseña incorrecta';
 }
