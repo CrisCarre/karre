@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ranking</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Metal+Mania&display=swap" rel="stylesheet">
+<style>
+:root{--gold:#f5c451;--gold-dark:#8a5a12}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Cinzel',serif;color:#fff;min-height:100vh;overflow-x:hidden;
+  background:radial-gradient(ellipse at 50% 30%,rgba(160,25,5,.55) 0%,rgba(40,4,2,.9) 45%,#050101 80%),radial-gradient(circle at 50% 110%,rgba(255,90,0,.35),transparent 50%),#050101;background-attachment:fixed}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.10;background-image:radial-gradient(circle at 50% 0,transparent 55%,#ff9a3c 57%,transparent 62%);background-size:34px 22px}
+#embers{position:fixed;inset:0;pointer-events:none;z-index:0}
+.page{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:60px 16px 90px}
+.title{font-family:'Metal Mania',cursive;font-weight:400;text-align:center;line-height:1;font-size:clamp(2.4rem,7vw,4.4rem);letter-spacing:2px;
+  background:linear-gradient(180deg,#fff6c2 0%,#ffc53d 35%,#ff5a00 70%,#a80f07 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  filter:drop-shadow(0 0 14px rgba(255,80,0,.75)) drop-shadow(0 3px 0 #2a0402)}
+.subtitle{margin-top:6px;color:var(--gold);letter-spacing:6px;text-transform:uppercase;font-size:clamp(.75rem,2vw,1rem);text-shadow:0 0 10px rgba(255,120,0,.8);text-align:center}
+.back{position:fixed;top:14px;left:14px;z-index:20;font-family:'Cinzel',serif;font-weight:700;font-size:.85rem;letter-spacing:2px;text-decoration:none;color:#ffe3a0;
+  padding:9px 18px;border-radius:30px;border:2px solid var(--gold-dark);background:rgba(20,4,2,.85);transition:.2s}
+.back:hover{border-color:var(--gold);color:#fff;box-shadow:0 0 12px rgba(255,150,0,.6)}
+.corner{position:fixed;right:14px;bottom:14px;z-index:20}
+.corner button{width:44px;height:44px;border-radius:50%;border:2px solid var(--gold-dark);background:rgba(20,4,2,.85);font-size:1.2rem;cursor:pointer;transition:.2s}
+.corner button:hover{border-color:var(--gold);box-shadow:0 0 12px rgba(255,150,0,.6)}
+body.obs .corner,body.obs .back{display:none}
+
+/* ===== PODIO ===== */
+.podium{display:grid;grid-template-columns:1fr 1.15fr 1fr;align-items:end;gap:14px;margin-top:46px}
+.spot{--c:245,196,81;display:flex;flex-direction:column;align-items:center;text-align:center;animation:rise .6s both}
+.spot.p1{--c:255,200,40;animation-delay:.25s}.spot.p2{--c:200,210,225;animation-delay:.1s}.spot.p3{--c:205,127,50;animation-delay:.4s}
+@keyframes rise{from{opacity:0;transform:translateY(40px)}}
+.crown{font-size:2.2rem;height:2.6rem;filter:drop-shadow(0 0 10px rgba(255,200,40,.9));animation:bob 2s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-6px) rotate(-6deg)}}
+.av{width:96px;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;font-family:'Metal Mania',cursive;font-size:2.6rem;color:#fff;flex:none;
+  background:radial-gradient(circle at 40% 35%,rgba(var(--c),.7),#1a0402 75%) center/cover no-repeat;
+  box-shadow:0 0 0 4px #1a0402,0 0 0 7px rgb(var(--c)),0 0 28px rgba(var(--c),.6)}
+.p1 .av{width:124px;font-size:3.2rem}
+.spot .name{font-weight:900;margin-top:12px;font-size:1rem;word-break:break-word;max-width:100%}
+.p1 .name{font-size:1.2rem}
+.spot .pts{color:rgb(var(--c));font-size:.9rem;margin:4px 0 10px;text-shadow:0 0 10px rgba(var(--c),.8)}
+.base{width:100%;border-radius:14px 14px 4px 4px;display:grid;place-items:center;font-family:'Metal Mania',cursive;font-size:3rem;color:#fff;
+  background:linear-gradient(180deg,rgba(var(--c),.55),rgba(var(--c),.12) 70%),linear-gradient(180deg,#2a0704,#120302);
+  border:2px solid rgb(var(--c));border-bottom:none;box-shadow:0 0 30px rgba(var(--c),.35),inset 0 0 20px rgba(0,0,0,.6);text-shadow:0 3px 0 rgba(0,0,0,.6),0 0 14px rgba(var(--c),.9)}
+.p1 .base{height:170px;font-size:4rem}.p2 .base{height:120px}.p3 .base{height:90px}
+.spot.none{visibility:hidden}
+
+/* ===== LISTA ===== */
+.rest{display:flex;flex-direction:column;gap:10px;margin-top:26px}
+.item{display:grid;grid-template-columns:44px 52px 1fr auto;gap:14px;align-items:center;padding:10px 16px;border-radius:14px;
+  background:linear-gradient(90deg,#2a0704,#150302);border:1px solid var(--gold-dark);box-shadow:inset 0 0 20px rgba(0,0,0,.7);animation:rise .5s both;position:relative;overflow:hidden}
+.item .pos{font-family:'Metal Mania',cursive;font-size:1.6rem;color:var(--gold);text-align:center}
+.item .av{--c:245,196,81;width:48px;font-size:1.3rem;box-shadow:0 0 0 2px #1a0402,0 0 0 4px var(--gold-dark)}
+.item .name{font-weight:700;word-break:break-word}
+.item .bar{position:absolute;left:0;bottom:0;height:3px;background:linear-gradient(90deg,#ff5a00,#ffb300);box-shadow:0 0 8px #ff7a00}
+.item .pts{color:#ffd98a;font-weight:900;white-space:nowrap}
+.empty{text-align:center;color:#c9a46a;margin-top:50px}
+
+/* ===== MODALES / ADMIN ===== */
+.modal{position:fixed;inset:0;z-index:30;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.72);backdrop-filter:blur(4px)}
+.modal.show{display:flex}
+.card{position:relative;background:linear-gradient(180deg,#2a0704,#120302);border:2px solid var(--gold);border-radius:18px;padding:26px;
+  box-shadow:0 0 40px rgba(255,80,0,.5),inset 0 0 30px rgba(0,0,0,.8);width:100%;max-width:440px;animation:pop .35s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pop{from{transform:scale(.5);opacity:0}}
+.card h2{font-family:'Metal Mania',cursive;font-weight:400;font-size:2rem;text-align:center;margin-bottom:14px;
+  background:linear-gradient(180deg,#fff3b0,#ffb300 45%,#ff4d00);-webkit-background-clip:text;background-clip:text;color:transparent}
+.admin-card{max-width:820px;max-height:92vh;overflow:auto}
+.btn{font-family:'Cinzel',serif;font-weight:700;padding:10px 18px;border-radius:10px;cursor:pointer;border:1px solid var(--gold-dark);
+  background:linear-gradient(180deg,#5a1206,#2a0704);color:#ffe3a0;font-size:.85rem;transition:.15s}
+.btn:hover{border-color:var(--gold);color:#fff}
+.btn.primary{background:linear-gradient(180deg,#ffb300,#ff5a00 50%,#b3130f);color:#fff;border-color:var(--gold);text-shadow:0 1px 0 #5a0704}
+.btn.danger{background:linear-gradient(180deg,#6b0a0a,#2a0303)}
+.btn.sm{padding:6px 9px;font-size:.78rem}
+input[type=text],input[type=password],input[type=number]{font-family:inherit;background:#0b0202;border:1px solid var(--gold-dark);color:#fff;border-radius:8px;padding:8px 10px;font-size:.85rem;width:100%}
+input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 8px rgba(255,150,0,.5)}
+label{font-size:.7rem;color:var(--gold);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:3px}
+.err{color:#ff6b6b;font-size:.8rem;margin-top:6px;min-height:1em;text-align:center}
+.close-x{position:absolute;top:10px;right:14px;background:none;border:none;color:var(--gold);font-size:1.6rem;cursor:pointer}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.section-title{margin:20px 0 10px;color:var(--gold);font-size:.9rem;letter-spacing:2px;border-bottom:1px solid var(--gold-dark);padding-bottom:6px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.section-title div{display:flex;gap:6px}
+.list{display:flex;flex-direction:column;gap:8px}
+.prow{display:grid;grid-template-columns:48px 1fr 1fr 90px auto auto;gap:8px;align-items:center;background:rgba(0,0,0,.35);padding:8px;border-radius:12px;border:1px solid rgba(138,90,18,.45)}
+.prow .av{--c:245,196,81;width:44px;font-size:1.2rem;cursor:pointer;box-shadow:0 0 0 2px #1a0402,0 0 0 3px var(--gold)}
+.prow .av:hover{filter:brightness(1.2)}
+.quick,.acts{display:flex;gap:4px}
+.admin-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;position:sticky;bottom:-26px;background:#120302;padding:12px 0 4px}
+.hint{font-size:.7rem;color:#c9a46a}
+@media (max-width:640px){
+  .podium{gap:8px}.av{width:70px;font-size:1.9rem}.p1 .av{width:88px;font-size:2.3rem}
+  .p1 .base{height:120px;font-size:3rem}.p2 .base{height:86px;font-size:2.4rem}.p3 .base{height:64px;font-size:2.2rem}
+  .spot .name{font-size:.8rem}.p1 .name{font-size:.9rem}
+  .item{grid-template-columns:34px 44px 1fr auto;gap:10px;padding:8px 12px}.item .av{width:40px}
+  .grid2{grid-template-columns:1fr}
+  .prow{grid-template-columns:44px 1fr 80px}
+  .prow .url{grid-column:1/-1}.quick{grid-column:1/3}.acts{justify-content:flex-end}
+}
+</style>
+</head>
+<body>
+<canvas id="embers"></canvas>
+<a class="back" href="index.html">Menú</a>
+
+<main class="page">
+  <h1 class="title" id="titleText">Ranking</h1>
+  <p class="subtitle" id="subtitleText">Los más top de la comunidad</p>
+  <section class="podium" id="podium"></section>
+  <section class="rest" id="rest"></section>
+</main>
+
+<div class="corner"><button id="adminBtn" title="Admin">⚙️</button></div>
+
+<!-- Login -->
+<div class="modal" id="loginModal">
+  <div class="card">
+    <button type="button" class="close-x" data-close="loginModal">×</button>
+    <h2>Admin Ranking</h2>
+    <label for="pwd">Contraseña</label>
+    <input type="password" id="pwd" autocomplete="current-password">
+    <div class="err" id="loginErr"></div>
+    <div style="text-align:center;margin-top:10px"><button class="btn primary" type="button" id="loginBtn">Entrar</button></div>
+  </div>
+</div>
+
+<!-- Admin -->
+<div class="modal" id="adminModal">
+  <div class="card admin-card">
+    <button class="close-x" data-close="adminModal">×</button>
+    <h2>Panel del Ranking</h2>
+    <div class="grid2">
+      <div><label>Título</label><input type="text" id="aTitle"></div>
+      <div><label>Subtítulo</label><input type="text" id="aSubtitle"></div>
+      <div><label>Nombre de los puntos</label><input type="text" id="aUnit" placeholder="puntos, victorias, pavos…"></div>
+      <div><label>Nueva contraseña (opcional)</label><input type="text" id="aPassword" placeholder="Dejar vacío para no cambiar"></div>
+    </div>
+    <div class="section-title"><span>JUGADORES</span><div><button class="btn sm danger" id="resetPts">Poner todos a 0</button><button class="btn sm" id="addPlayer">+ Añadir</button></div></div>
+    <div class="hint" style="margin:-4px 0 10px">Pulsa la foto para subir una imagen. El orden se calcula solo según los puntos.</div>
+    <div class="list" id="playerList"></div>
+    <div class="admin-actions">
+      <button class="btn" data-close="adminModal">Cancelar</button>
+      <button class="btn primary" id="saveBtn">Guardar</button>
+    </div>
+    <div class="err" id="adminErr"></div>
+  </div>
+</div>
+<input type="file" id="avFile" accept="image/*" hidden>
+
+<script src="db.js"></script>
+<script>
+(() => {
+'use strict';
+const $ = s => document.querySelector(s);
+const KEY = 'karreRanking_v1';
+const DEFAULTS = {
+  title: 'Ranking',
+  subtitle: 'Los más top de la comunidad',
+  unit: 'puntos',
+  password: 'dragon',
+  players: [
+    { name: 'Jugador 1', avatar: '', points: 150 },
+    { name: 'Jugador 2', avatar: '', points: 120 },
+    { name: 'Jugador 3', avatar: '', points: 95 },
+    { name: 'Jugador 4', avatar: '', points: 70 },
+    { name: 'Jugador 5', avatar: '', points: 40 }
+  ]
+};
+const clone = o => JSON.parse(JSON.stringify(o));
+function fromData(d){ return d && Array.isArray(d.players) ? { ...clone(DEFAULTS), ...d } : clone(DEFAULTS); }
+function load(){ try{ return fromData(JSON.parse(localStorage.getItem(KEY))); }catch(e){ return clone(DEFAULTS); } }
+/* ---------- Base de datos (Supabase, ver db.js) ---------- */
+const PAGE = 'ranking';
+const PRIVATE = ['password'];                 // nunca se suben a la BBDD
+let sessionPwd = '', remoteEmpty = false;
+let onSaved = ok => { if(ok) KDB.toast('✓ Guardado en la base de datos'); };
+const publicData = () => { const o = clone(state); PRIVATE.forEach(k => delete o[k]); return o; };
+function saveLocal(){ try{ localStorage.setItem(KEY, JSON.stringify(state)); return true; }catch(e){ return false; } }
+function save(){
+  const okLocal = saveLocal();
+  if(KDB.enabled && sessionPwd){
+    KDB.save(PAGE, publicData(), () => sessionPwd).then(() => onSaved(true)).catch(err => { onSaved(false); KDB.toast('⚠ No se guardó: ' + err.message, false); });
+    return true;
+  }
+  return okLocal;
+}
+let state = load(), draft = null, unlocked = false;
+if(new URLSearchParams(location.search).has('obs')) document.body.classList.add('obs');
+
+const cssUrl = u => `url("${String(u).replace(/"/g,'%22')}")`;
+const fmt = n => Number(n||0).toLocaleString('es-ES');
+function makeAv(p){
+  const el = document.createElement('div'); el.className = 'av';
+  el.style.backgroundImage = p.avatar ? cssUrl(p.avatar) : '';
+  el.textContent = p.avatar ? '' : ((p.name||'?').trim()[0] || '?').toUpperCase();
+  return el;
+}
+const sorted = () => state.players.map(p => ({ ...p, points: +p.points || 0 })).sort((a,b) => b.points - a.points);
+
+/* ---------- Vista pública ---------- */
+function render(){
+  $('#titleText').textContent = state.title; $('#subtitleText').textContent = state.subtitle; document.title = state.title;
+  const list = sorted(), pod = $('#podium'), rest = $('#rest');
+  pod.innerHTML = ''; rest.innerHTML = '';
+  if(!list.length){ pod.style.display = 'none'; rest.innerHTML = '<p class="empty">Todavía no hay jugadores en el ranking.</p>'; return; }
+  pod.style.display = '';
+  // posiciones con empates: mismo puntaje = misma posición
+  let pos = 0, last = null;
+  list.forEach((p,i) => { if(p.points !== last){ pos = i+1; last = p.points; } p.pos = pos; });
+
+  [1,0,2].forEach(idx => {
+    const p = list[idx], s = document.createElement('div');
+    s.className = 'spot p' + (idx+1) + (p ? '' : ' none');
+    if(p){
+      const crown = document.createElement('div'); crown.className = 'crown'; crown.textContent = idx === 0 ? '👑' : '';
+      const n = document.createElement('div'); n.className = 'name'; n.textContent = p.name;
+      const pts = document.createElement('div'); pts.className = 'pts'; pts.textContent = `${fmt(p.points)} ${state.unit}`;
+      const b = document.createElement('div'); b.className = 'base'; b.textContent = p.pos;
+      s.append(crown, makeAv(p), n, pts, b);
+    }
+    pod.append(s);
+  });
+
+  const max = Math.max(1, list[0].points);
+  list.slice(3).forEach((p,i) => {
+    const it = document.createElement('div'); it.className = 'item'; it.style.animationDelay = (.5 + i*.05)+'s';
+    const ps = document.createElement('div'); ps.className = 'pos'; ps.textContent = p.pos;
+    const n = document.createElement('div'); n.className = 'name'; n.textContent = p.name;
+    const pts = document.createElement('div'); pts.className = 'pts'; pts.textContent = `${fmt(p.points)} ${state.unit}`;
+    const bar = document.createElement('div'); bar.className = 'bar'; bar.style.width = Math.max(0, p.points/max*100)+'%';
+    it.append(ps, makeAv(p), n, pts, bar); rest.append(it);
+  });
+}
+
+/* ---------- Imágenes ---------- */
+function readImage(file, max = 256){
+  return new Promise((res, rej) => {
+    if(!file.type.startsWith('image/')) return rej('Ese archivo no es una imagen.');
+    if(file.type === 'image/gif'){
+      if(file.size > 1.5*1024*1024) return rej('El GIF pesa más de 1,5 MB.');
+      const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(file); return;
+    }
+    const img = new Image();
+    img.onload = () => {
+      const s = Math.min(1, max/Math.max(img.width, img.height)), c = document.createElement('canvas');
+      c.width = Math.round(img.width*s); c.height = Math.round(img.height*s);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(img.src); res(c.toDataURL('image/webp', .85));
+    };
+    img.onerror = () => rej('No se pudo leer la imagen.');
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+/* ---------- Login ---------- */
+document.querySelectorAll('[data-close]').forEach(b => b.onclick = () => $('#'+b.dataset.close).classList.remove('show'));
+$('#adminBtn').onclick = () => {
+  if(unlocked) return openAdmin();
+  $('#pwd').value = ''; $('#loginErr').textContent = ''; $('#loginModal').classList.add('show'); setTimeout(() => $('#pwd').focus(), 50);
+};
+async function tryLogin(){
+  const pwd = $('#pwd').value; let ok;
+  if(KDB.enabled){
+    $('#loginErr').textContent = 'Comprobando…';
+    try{ ok = await KDB.login(PAGE, pwd); }catch(e){ $('#loginErr').textContent = 'Error de conexión: ' + e.message; return; }
+  } else ok = pwd === state.password;
+  if(ok){
+    sessionPwd = pwd; unlocked = true; $('#loginErr').textContent = ''; $('#loginModal').classList.remove('show');
+    if(remoteEmpty){ remoteEmpty = false; save(); }   // primera vez: sube lo que había en este navegador
+    openAdmin();
+  }
+  else $('#loginErr').textContent = 'Contraseña incorrecta';
+}
+$('#loginBtn').onclick = tryLogin;
+$('#pwd').addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); tryLogin(); } });
+
+/* ---------- Admin ---------- */
+let avTarget = -1, resetArmed = null;
+function openAdmin(){
+  draft = clone(state);
+  $('#aTitle').value = draft.title; $('#aSubtitle').value = draft.subtitle; $('#aUnit').value = draft.unit;
+  $('#aPassword').value = ''; $('#adminErr').textContent = '';
+  renderList(); $('#adminModal').classList.add('show');
+}
+function renderList(){
+  const list = $('#playerList'); list.innerHTML = '';
+  draft.players.forEach((p,i) => {
+    const row = document.createElement('div'); row.className = 'prow';
+    const av = makeAv(p); av.title = 'Cambiar foto'; av.onclick = () => { avTarget = i; $('#avFile').click(); };
+    const name = document.createElement('input'); name.type = 'text'; name.value = p.name; name.placeholder = 'Nombre';
+    name.oninput = () => { p.name = name.value; if(!p.avatar) av.textContent = ((p.name||'?').trim()[0]||'?').toUpperCase(); };
+    const url = document.createElement('input'); url.type = 'text'; url.className = 'url'; url.placeholder = 'Foto (URL) o pulsa la foto';
+    url.value = (p.avatar||'').startsWith('data:') ? '' : (p.avatar||'');
+    url.oninput = () => { p.avatar = url.value.trim(); av.style.backgroundImage = p.avatar ? cssUrl(p.avatar) : ''; av.textContent = p.avatar ? '' : ((p.name||'?').trim()[0]||'?').toUpperCase(); };
+    const pts = document.createElement('input'); pts.type = 'number'; pts.value = p.points; pts.title = 'Puntos';
+    pts.oninput = () => p.points = parseFloat(pts.value) || 0;
+    const quick = document.createElement('div'); quick.className = 'quick';
+    [-10,-1,1,10].forEach(d => {
+      const b = document.createElement('button'); b.className = 'btn sm'; b.textContent = (d > 0 ? '+' : '') + d;
+      b.onclick = () => { p.points = (+p.points || 0) + d; pts.value = p.points; };
+      quick.append(b);
+    });
+    const acts = document.createElement('div'); acts.className = 'acts';
+    const noav = document.createElement('button'); noav.className = 'btn sm'; noav.textContent = 'Sin foto'; noav.onclick = () => { p.avatar = ''; renderList(); };
+    const del = document.createElement('button'); del.className = 'btn sm danger'; del.textContent = '✕'; del.title = 'Eliminar'; del.onclick = () => { draft.players.splice(i,1); renderList(); };
+    acts.append(noav, del);
+    row.append(av, name, url, pts, quick, acts); list.append(row);
+  });
+}
+$('#avFile').onchange = async e => {
+  const f = e.target.files[0]; e.target.value = ''; if(!f || avTarget < 0) return;
+  try{ draft.players[avTarget].avatar = await readImage(f); $('#adminErr').textContent = ''; renderList(); }
+  catch(err){ $('#adminErr').textContent = err; }
+};
+$('#addPlayer').onclick = () => {
+  draft.players.push({ name: 'Nuevo jugador', avatar: '', points: 0 });
+  renderList(); const last = $('#playerList').lastElementChild; last.scrollIntoView({ block: 'nearest' }); last.querySelector('input').select();
+};
+$('#resetPts').onclick = () => {
+  const b = $('#resetPts');
+  if(!resetArmed){ b.textContent = '¿Seguro? Pulsa otra vez'; resetArmed = setTimeout(() => { resetArmed = null; b.textContent = 'Poner todos a 0'; }, 3000); return; }
+  clearTimeout(resetArmed); resetArmed = null; b.textContent = 'Poner todos a 0';
+  draft.players.forEach(p => p.points = 0); renderList();
+};
+$('#saveBtn').onclick = () => {
+  draft.players = draft.players.filter(p => (p.name||'').trim()).map(p => ({ ...p, points: +p.points || 0 }));
+  draft.title = $('#aTitle').value.trim() || DEFAULTS.title;
+  draft.subtitle = $('#aSubtitle').value.trim();
+  draft.unit = $('#aUnit').value.trim() || 'puntos';
+  const np = $('#aPassword').value.trim();
+  if(np){
+    if(KDB.enabled) KDB.changePassword(PAGE, () => sessionPwd, np, () => { sessionPwd = np; KDB.toast('✓ Contraseña cambiada'); }).catch(e => KDB.toast('⚠ ' + e.message, false));
+    else draft.password = np;
+  }
+  const prev = state; state = draft;
+  if(!save()){ state = prev; $('#adminErr').textContent = 'No se pudo guardar: las fotos ocupan demasiado. Usa URLs o imágenes más ligeras.'; return; }
+  render(); $('#adminModal').classList.remove('show');
+};
+
+/* ---------- Brasas ---------- */
+const ec = $('#embers'), ex = ec.getContext('2d'); let parts = [];
+const resize = () => { ec.width = innerWidth; ec.height = innerHeight; }; resize(); addEventListener('resize', resize);
+(function loop(){
+  ex.clearRect(0,0,ec.width,ec.height);
+  if(parts.length < 250 && Math.random() < .5) parts.push({x:Math.random()*ec.width,y:ec.height+10,vx:(Math.random()-.5)*.6,vy:-(.6+Math.random()*1.6),life:260+Math.random()*200,max:460,size:1+Math.random()*2.5,h:15+Math.random()*30});
+  ex.globalCompositeOperation = 'lighter';
+  parts = parts.filter(p => {
+    p.x += p.vx + Math.sin(p.life*.05)*.3; p.y += p.vy; p.life--;
+    const a = Math.max(0,p.life/p.max), g = ex.createRadialGradient(p.x,p.y,0,p.x,p.y,p.size*3);
+    g.addColorStop(0,`hsla(${p.h+20},100%,75%,${a})`); g.addColorStop(.4,`hsla(${p.h},100%,50%,${a*.6})`); g.addColorStop(1,'hsla(0,100%,40%,0)');
+    ex.fillStyle = g; ex.beginPath(); ex.arc(p.x,p.y,p.size*3,0,Math.PI*2); ex.fill();
+    return p.life > 0;
+  });
+  ex.globalCompositeOperation = 'source-over';
+  requestAnimationFrame(loop);
+})();
+
+render();
+
+/* ---------- Cargar de la BBDD y escuchar cambios de otros dispositivos ---------- */
+if(KDB.enabled){
+  const apply = d => { const keep = { password: state.password }; state = { ...fromData(d), ...keep }; saveLocal(); render(); };
+  KDB.load(PAGE).then(row => {
+    if(row && row.data && Object.keys(row.data).length) apply(row.data);
+    else remoteEmpty = true;
+  }).catch(e => KDB.toast('⚠ ' + e.message, false));
+  KDB.watch(PAGE, apply, () => !!document.querySelector('.modal.show'));
+}
+})();
+</script>
+</body>
+</html>
