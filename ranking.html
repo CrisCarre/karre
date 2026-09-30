@@ -17,6 +17,16 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.10;b
 .title{font-family:'Metal Mania',cursive;font-weight:400;text-align:center;line-height:1;font-size:clamp(2.4rem,7vw,4.4rem);letter-spacing:2px;
   background:linear-gradient(180deg,#fff6c2 0%,#ffc53d 35%,#ff5a00 70%,#a80f07 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
   filter:drop-shadow(0 0 14px rgba(255,80,0,.75)) drop-shadow(0 3px 0 #2a0402)}
+.countdown{display:flex;flex-direction:column;align-items:center;gap:6px;margin:22px auto 0;padding:12px 22px;width:fit-content;max-width:100%;border-radius:14px;
+  border:1px solid var(--gold-dark);background:rgba(0,0,0,.45);box-shadow:0 0 20px rgba(255,90,0,.2),inset 0 0 20px rgba(0,0,0,.6)}
+.countdown .lbl{font-size:.68rem;letter-spacing:3px;text-transform:uppercase;color:#c9a46a;text-align:center}
+.countdown .clock{display:flex;gap:10px}
+.countdown .u{display:flex;flex-direction:column;align-items:center;min-width:52px}
+.countdown .u b{font-family:'Metal Mania',cursive;font-weight:400;font-size:2rem;line-height:1;color:#fff;text-shadow:0 0 12px rgba(255,120,0,.9)}
+.countdown .u small{font-size:.6rem;letter-spacing:2px;color:#c9a46a;text-transform:uppercase;margin-top:3px}
+.countdown .last{font-size:.65rem;color:rgba(232,207,154,.6);letter-spacing:1px}
+.reset-box{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:space-between;margin-top:14px;padding:10px 12px;border-radius:12px;border:1px solid rgba(255,90,0,.5);background:rgba(120,20,0,.2)}
+.reset-box span{font-size:.75rem;color:#e8cf9a}
 .subtitle{margin-top:6px;color:var(--gold);letter-spacing:6px;text-transform:uppercase;font-size:clamp(.75rem,2vw,1rem);text-shadow:0 0 10px rgba(255,120,0,.8);text-align:center}
 .back{position:fixed;top:14px;left:14px;z-index:20;font-family:'Cinzel',serif;font-weight:700;font-size:.85rem;letter-spacing:2px;text-decoration:none;color:#ffe3a0;
   padding:9px 18px;border-radius:30px;border:2px solid var(--gold-dark);background:rgba(20,4,2,.85);transition:.2s}
@@ -81,7 +91,7 @@ label{font-size:.7rem;color:var(--gold);letter-spacing:1px;text-transform:upperc
 .section-title{margin:20px 0 10px;color:var(--gold);font-size:.9rem;letter-spacing:2px;border-bottom:1px solid var(--gold-dark);padding-bottom:6px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
 .section-title div{display:flex;gap:6px}
 .list{display:flex;flex-direction:column;gap:8px}
-.prow{display:grid;grid-template-columns:48px 1fr 1fr 90px auto auto;gap:8px;align-items:center;background:rgba(0,0,0,.35);padding:8px;border-radius:12px;border:1px solid rgba(138,90,18,.45)}
+.prow{display:grid;grid-template-columns:48px 1fr 90px auto auto;gap:8px;align-items:center;background:rgba(0,0,0,.35);padding:8px;border-radius:12px;border:1px solid rgba(138,90,18,.45)}
 .prow .av{--c:245,196,81;width:44px;font-size:1.2rem;cursor:pointer;box-shadow:0 0 0 2px #1a0402,0 0 0 3px var(--gold)}
 .prow .av:hover{filter:brightness(1.2)}
 .quick,.acts{display:flex;gap:4px}
@@ -94,7 +104,7 @@ label{font-size:.7rem;color:var(--gold);letter-spacing:1px;text-transform:upperc
   .item{grid-template-columns:34px 44px 1fr auto;gap:10px;padding:8px 12px}.item .av{width:40px}
   .grid2{grid-template-columns:1fr}
   .prow{grid-template-columns:44px 1fr 80px}
-  .prow .url{grid-column:1/-1}.quick{grid-column:1/3}.acts{justify-content:flex-end}
+  .quick{grid-column:1/3}.acts{justify-content:flex-end}
 }
 </style>
 </head>
@@ -105,6 +115,16 @@ label{font-size:.7rem;color:var(--gold);letter-spacing:1px;text-transform:upperc
 <main class="page">
   <h1 class="title" id="titleText">Ranking</h1>
   <p class="subtitle" id="subtitleText">Los más top de la comunidad</p>
+  <div class="countdown" id="countdown">
+    <span class="lbl">Los puntos se reinician el día 1 · faltan</span>
+    <div class="clock">
+      <div class="u"><b id="cdD">0</b><small>días</small></div>
+      <div class="u"><b id="cdH">00</b><small>horas</small></div>
+      <div class="u"><b id="cdM">00</b><small>min</small></div>
+      <div class="u"><b id="cdS">00</b><small>seg</small></div>
+    </div>
+    <span class="last" id="cdLast"></span>
+  </div>
   <section class="podium" id="podium"></section>
   <section class="rest" id="rest"></section>
 </main>
@@ -134,8 +154,12 @@ label{font-size:.7rem;color:var(--gold);letter-spacing:1px;text-transform:upperc
       <div><label>Nombre de los puntos</label><input type="text" id="aUnit" placeholder="puntos, victorias, pavos…"></div>
       <div><label>Nueva contraseña (opcional)</label><input type="text" id="aPassword" placeholder="Dejar vacío para no cambiar"></div>
     </div>
-    <div class="section-title"><span>JUGADORES</span><div><button class="btn sm danger" id="resetPts">Poner todos a 0</button><button class="btn sm" id="addPlayer">+ Añadir</button></div></div>
-    <div class="hint" style="margin:-4px 0 10px">Pulsa la foto para subir una imagen. El orden se calcula solo según los puntos.</div>
+    <div class="reset-box">
+      <span id="resetInfo">Reinicio mensual: el día 1 de cada mes pon los puntos a 0.</span>
+      <button class="btn sm danger" id="resetPts">🔄 Reiniciar puntos del mes</button>
+    </div>
+    <div class="section-title"><span>JUGADORES</span><div><button class="btn sm" id="addPlayer">+ Añadir</button></div></div>
+    <div class="hint" style="margin:-4px 0 10px">Pulsa «📁 Foto» (o la propia foto) para subir una imagen desde tu ordenador. El orden se calcula solo según los puntos.</div>
     <div class="list" id="playerList"></div>
     <div class="admin-actions">
       <button class="btn" data-close="adminModal">Cancelar</button>
@@ -156,6 +180,7 @@ const DEFAULTS = {
   title: 'Ranking',
   subtitle: 'Los más top de la comunidad',
   unit: 'puntos',
+  lastReset: '',   // 'AAAA-MM-DD' del último reinicio manual
   password: 'dragon',
   players: [
     { name: 'Jugador 1', avatar: '', points: 150 },
@@ -194,11 +219,24 @@ function makeAv(p){
   el.textContent = p.avatar ? '' : ((p.name||'?').trim()[0] || '?').toUpperCase();
   return el;
 }
+/* ---------- Cuenta atrás del reinicio (día 1 de cada mes, 00:00) ---------- */
+const todayISO = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0,10); };
+const fmtDate = iso => { const [y,m,d] = iso.split('-'); return `${d}/${m}/${y}`; };
+const pad = n => String(n).padStart(2, '0');
+function tickCountdown(){
+  const now = new Date(), next = new Date(now.getFullYear(), now.getMonth() + 1, 1, 0, 0, 0);
+  let t = Math.max(0, Math.floor((next - now) / 1000));
+  const d = Math.floor(t / 86400); t %= 86400;
+  $('#cdD').textContent = d; $('#cdH').textContent = pad(Math.floor(t / 3600)); $('#cdM').textContent = pad(Math.floor(t % 3600 / 60)); $('#cdS').textContent = pad(t % 60);
+  $('#cdLast').textContent = state.lastReset ? `Último reinicio: ${fmtDate(state.lastReset)}` : '';
+}
+tickCountdown(); setInterval(tickCountdown, 1000);
 const sorted = () => state.players.map(p => ({ ...p, points: +p.points || 0 })).sort((a,b) => b.points - a.points);
 
 /* ---------- Vista pública ---------- */
 function render(){
   $('#titleText').textContent = state.title; $('#subtitleText').textContent = state.subtitle; document.title = state.title;
+  tickCountdown();
   const list = sorted(), pod = $('#podium'), rest = $('#rest');
   pod.innerHTML = ''; rest.innerHTML = '';
   if(!list.length){ pod.style.display = 'none'; rest.innerHTML = '<p class="empty">Todavía no hay jugadores en el ranking.</p>'; return; }
@@ -279,6 +317,7 @@ function openAdmin(){
   draft = clone(state);
   $('#aTitle').value = draft.title; $('#aSubtitle').value = draft.subtitle; $('#aUnit').value = draft.unit;
   $('#aPassword').value = ''; $('#adminErr').textContent = '';
+  $('#resetInfo').textContent = draft.lastReset ? `Último reinicio: ${fmtDate(draft.lastReset)}. Toca el día 1 de cada mes.` : 'Reinicio mensual: el día 1 de cada mes pon los puntos a 0.';
   renderList(); $('#adminModal').classList.add('show');
 }
 function renderList(){
@@ -288,9 +327,6 @@ function renderList(){
     const av = makeAv(p); av.title = 'Cambiar foto'; av.onclick = () => { avTarget = i; $('#avFile').click(); };
     const name = document.createElement('input'); name.type = 'text'; name.value = p.name; name.placeholder = 'Nombre';
     name.oninput = () => { p.name = name.value; if(!p.avatar) av.textContent = ((p.name||'?').trim()[0]||'?').toUpperCase(); };
-    const url = document.createElement('input'); url.type = 'text'; url.className = 'url'; url.placeholder = 'Foto (URL) o pulsa la foto';
-    url.value = (p.avatar||'').startsWith('data:') ? '' : (p.avatar||'');
-    url.oninput = () => { p.avatar = url.value.trim(); av.style.backgroundImage = p.avatar ? cssUrl(p.avatar) : ''; av.textContent = p.avatar ? '' : ((p.name||'?').trim()[0]||'?').toUpperCase(); };
     const pts = document.createElement('input'); pts.type = 'number'; pts.value = p.points; pts.title = 'Puntos';
     pts.oninput = () => p.points = parseFloat(pts.value) || 0;
     const quick = document.createElement('div'); quick.className = 'quick';
@@ -300,10 +336,11 @@ function renderList(){
       quick.append(b);
     });
     const acts = document.createElement('div'); acts.className = 'acts';
+    const up = document.createElement('button'); up.className = 'btn sm'; up.textContent = '📁 Foto'; up.title = 'Subir foto desde el ordenador'; up.onclick = () => { avTarget = i; $('#avFile').click(); };
     const noav = document.createElement('button'); noav.className = 'btn sm'; noav.textContent = 'Sin foto'; noav.onclick = () => { p.avatar = ''; renderList(); };
     const del = document.createElement('button'); del.className = 'btn sm danger'; del.textContent = '✕'; del.title = 'Eliminar'; del.onclick = () => { draft.players.splice(i,1); renderList(); };
-    acts.append(noav, del);
-    row.append(av, name, url, pts, quick, acts); list.append(row);
+    acts.append(up, noav, del);
+    row.append(av, name, pts, quick, acts); list.append(row);
   });
 }
 $('#avFile').onchange = async e => {
@@ -317,9 +354,12 @@ $('#addPlayer').onclick = () => {
 };
 $('#resetPts').onclick = () => {
   const b = $('#resetPts');
-  if(!resetArmed){ b.textContent = '¿Seguro? Pulsa otra vez'; resetArmed = setTimeout(() => { resetArmed = null; b.textContent = 'Poner todos a 0'; }, 3000); return; }
-  clearTimeout(resetArmed); resetArmed = null; b.textContent = 'Poner todos a 0';
-  draft.players.forEach(p => p.points = 0); renderList();
+  if(!resetArmed){ b.textContent = '¿Seguro? Pulsa otra vez'; resetArmed = setTimeout(() => { resetArmed = null; b.textContent = '🔄 Reiniciar puntos del mes'; }, 3000); return; }
+  clearTimeout(resetArmed); resetArmed = null; b.textContent = '🔄 Reiniciar puntos del mes';
+  draft.players.forEach(p => p.points = 0);
+  draft.lastReset = todayISO();
+  $('#resetInfo').textContent = '✓ Puntos a 0. Pulsa «Guardar» para aplicarlo.';
+  renderList();
 };
 $('#saveBtn').onclick = () => {
   draft.players = draft.players.filter(p => (p.name||'').trim()).map(p => ({ ...p, points: +p.points || 0 }));
