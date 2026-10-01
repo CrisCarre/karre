@@ -16,6 +16,15 @@ body{font-family:'Cinzel',serif;color:#fff;min-height:100vh;overflow-x:hidden;
 body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.10;background-image:radial-gradient(circle at 50% 0,transparent 55%,#ff9a3c 57%,transparent 62%);background-size:34px 22px}
 #embers{position:fixed;inset:0;pointer-events:none;z-index:0}
 .page{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:60px 16px 90px}
+.help-btn{position:absolute;top:64px;right:16px;z-index:3;width:50px;height:50px;border-radius:50%;cursor:pointer;
+  font-family:'Metal Mania',cursive;font-size:1.9rem;line-height:1;color:#fff;border:2px solid var(--gold);
+  background:radial-gradient(circle at 40% 35%,#ffb300,#ff5a00 55%,#8a1206);text-shadow:0 2px 0 #5a0704;
+  box-shadow:0 0 0 4px rgba(26,4,2,.8),0 0 22px rgba(255,120,0,.7);animation:helpPulse 2.4s ease-in-out infinite;transition:transform .2s}
+.help-btn:hover{transform:scale(1.1) rotate(-8deg)}
+@keyframes helpPulse{50%{box-shadow:0 0 0 4px rgba(26,4,2,.8),0 0 34px rgba(255,150,0,1)}}
+.card.earn-modal-card{max-width:880px;max-height:90vh;overflow:auto}
+.earn-modal-card .sub{text-align:center;color:#c9a46a;font-size:.8rem;letter-spacing:2px;margin:-6px 0 18px;font-family:Georgia,serif}
+@media (max-width:640px){ .help-btn{top:14px;right:70px;width:42px;height:42px;font-size:1.5rem} }
 .title{font-family:'Metal Mania',cursive;font-weight:400;text-align:center;line-height:1;font-size:clamp(2.4rem,7vw,4.4rem);letter-spacing:2px;
   background:linear-gradient(180deg,#fff6c2 0%,#ffc53d 35%,#ff5a00 70%,#a80f07 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
   filter:drop-shadow(0 0 14px rgba(255,80,0,.75)) drop-shadow(0 3px 0 #2a0402)}
@@ -194,6 +203,7 @@ label{font-size:.7rem;color:var(--gold);letter-spacing:1px;text-transform:upperc
 <a class="back" href="index.html">Menú</a>
 
 <main class="page">
+  <button class="help-btn" id="helpBtn" title="¿Cómo conseguir puntos?" aria-label="¿Cómo conseguir puntos?">?</button>
   <h1 class="title" id="titleText">Ranking</h1>
   <p class="subtitle" id="subtitleText">Los más top de la comunidad</p>
   <div class="countdown" id="countdown">
@@ -223,6 +233,16 @@ label{font-size:.7rem;color:var(--gold);letter-spacing:1px;text-transform:upperc
 </main>
 
 <div class="corner"><button id="adminBtn" title="Admin">⚙️</button></div>
+
+<!-- Cómo conseguir puntos (ventana) -->
+<div class="modal" id="earnModal">
+  <div class="card earn-modal-card">
+    <button type="button" class="close-x" data-close="earnModal">×</button>
+    <h2 id="earnModalTitle">¿Cómo conseguir puntos?</h2>
+    <p class="sub" id="earnModalSub"></p>
+    <div class="earn-grid" id="earnModalGrid"></div>
+  </div>
+</div>
 
 <!-- Login -->
 <div class="modal" id="loginModal">
@@ -402,11 +422,15 @@ function renderPrizes(){
 function renderEarn(){
   const items = (state.earn || []).filter(e => (e.title || e.desc || '').trim());
   $('#earn').style.display = items.length ? '' : 'none';
+  $('#helpBtn').style.display = items.length ? '' : 'none';
   const unit = state.unit || 'puntos';
   $('#earnTitle').textContent = `¿Cómo conseguir ${unit}?`;
   $('#earnSub').textContent = `Así se suman ${unit} para subir en el ranking`;
-  const grid = $('#earnGrid'); grid.innerHTML = '';
-  items.forEach((e, i) => {
+  $('#earnModalTitle').textContent = $('#earnTitle').textContent;
+  $('#earnModalSub').textContent = $('#earnSub').textContent;
+  const grids = [$('#earnGrid'), $('#earnModalGrid')];
+  grids.forEach(g => g.innerHTML = '');
+  grids.forEach(grid => items.forEach((e, i) => {
     const c = document.createElement('div'); c.className = 'ecard'; c.style.animationDelay = (.4 + i * .06) + 's';
     const top = document.createElement('div'); top.className = 'top';
     const em = document.createElement('div'); em.className = 'em'; em.textContent = e.emoji || '🐉';
@@ -421,8 +445,11 @@ function renderEarn(){
     c.append(top);
     if(e.desc){ const d = document.createElement('div'); d.className = 'desc'; d.textContent = e.desc; c.append(d); }
     grid.append(c);
-  });
+  }));
 }
+$('#helpBtn').onclick = () => $('#earnModal').classList.add('show');
+$('#earnModal').addEventListener('click', e => { if(e.target.id === 'earnModal') $('#earnModal').classList.remove('show'); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape') $('#earnModal').classList.remove('show'); });
 
 function applyBoardBg(){
   const b = $('#board'), bg = $('#boardBg');

@@ -277,6 +277,7 @@ body.legend #wheel{box-shadow:0 0 0 3px #12032e,0 0 0 6px #b99bff}
       <div><label>Nueva contraseña (opcional)</label><input type="text" id="aPassword" placeholder="Dejar vacío para no cambiar"></div>
     </div>
     <label class="check"><input type="checkbox" id="aRemove"> Eliminar el premio de la ruleta cuando salga</label>
+    <label class="check"><input type="checkbox" id="aHidden"> Probabilidad oculta: todas las casillas se ven del mismo tamaño (el sorteo sigue usando el peso)</label>
 
     <div class="tabs">
       <button class="btn tab" data-tab="normal">🔥 Ruleta Normal</button>
@@ -297,7 +298,7 @@ body.legend #wheel{box-shadow:0 0 0 3px #12032e,0 0 0 6px #b99bff}
     <div class="hint">Los archivos subidos se guardan en el navegador (máx. ~2,5 MB). Para GIFs pesados usa una URL.</div>
 
     <div class="section-title"><span>PREMIOS / RETOS</span><button class="btn sm" id="addItem">+ Añadir</button></div>
-    <div style="font-size:.72rem;color:#c9a46a;margin-bottom:8px">Color · Emoji · Texto · Peso (más peso = casilla más grande y más probabilidad)</div>
+    <div style="font-size:.72rem;color:#c9a46a;margin-bottom:8px">Color · Emoji · Texto · Peso (más peso = más probabilidad de salir)</div>
     <div class="items" id="itemsList"></div>
 
     <div class="admin-actions">
@@ -347,6 +348,7 @@ const DEFAULTS = {
   duration: 14,
   password: 'dragon',
   removeOnWin: false,
+  hiddenOdds: true,
   muted: false,
   current: 'normal',
   wheels: {
@@ -426,9 +428,10 @@ function scalePattern(size){
 }
 
 function computeSegs(){
-  const total = W().items.reduce((s,it)=>s+Math.max(0.1, +it.weight||1),0);
+  const total = W().items.reduce((s,it)=>s+Math.max(0.1, +it.weight||1),0), n = W().items.length;
   let acc = 0;
-  segs = W().items.map(it => { const size = Math.max(0.1,+it.weight||1)/total*360; const s = { start: acc, size, item: it }; acc += size; return s; });
+  // con "probabilidad oculta" todas las casillas miden lo mismo; el sorteo sigue usando el peso
+  segs = W().items.map(it => { const size = state.hiddenOdds ? 360 / n : Math.max(0.1,+it.weight||1)/total*360; const s = { start: acc, size, item: it }; acc += size; return s; });
 }
 
 function wrapLines(text, maxW){
@@ -809,6 +812,7 @@ $('#saveBtn').onclick = () => {
   }
   draft.duration = Math.min(40, Math.max(3, parseFloat($('#aDuration').value)||14));
   draft.removeOnWin = $('#aRemove').checked;
+  draft.hiddenOdds = $('#aHidden').checked;
   const np = $('#aPassword').value.trim();
   if(np){
     if(KDB.enabled) KDB.changePassword(PAGE, () => sessionPwd, np, () => { sessionPwd = np; KDB.toast('✓ Contraseña cambiada'); }).catch(e => KDB.toast('⚠ ' + e.message, false));
@@ -830,7 +834,7 @@ $('#resetBtn').onclick = () => {
   clearTimeout(resetArmed); resetArmed = null; b.textContent = 'Restaurar';
   const pwd = draft.password; draft = clone(DEFAULTS); draft.password = pwd; draft.muted = state.muted; openAdminFromDraft();
 };
-function openAdminFromDraft(){ $('#aDuration').value = draft.duration; $('#aRemove').checked = !!draft.removeOnWin; $('#adminErr').textContent = ''; renderAdminWheel(); }
+function openAdminFromDraft(){ $('#aDuration').value = draft.duration; $('#aRemove').checked = !!draft.removeOnWin; $('#aHidden').checked = draft.hiddenOdds !== false; $('#adminErr').textContent = ''; renderAdminWheel(); }
 
 $('#exportBtn').onclick = () => {
   const { password, ...data } = draft;
