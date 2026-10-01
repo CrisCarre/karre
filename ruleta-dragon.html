@@ -484,13 +484,20 @@ function drawWheel(){
     ctx.save(); ctx.rotate(mid);
     const hasEmoji = !!(s.item.emoji||'').trim();
     const outer = hasEmoji ? r*.72 : r*.9;
-    let fs = Math.min(r*.075, r*.62*sweep*.34), lines;
-    for(let k=0;k<12;k++){
+    // Ajuste del texto: el bloque debe caber dentro de la casilla incluso en su punto
+    // más estrecho (el más cercano al centro), sin pisar el ojo central.
+    const minInner = r*.34, maxW = outer - minInner, half = Math.min(sweep, Math.PI*.9) / 2;
+    let fs = Math.min(r*.075, r*sweep*.32), lines;
+    for(let k=0;k<45;k++){
       ctx.font = `900 ${fs}px Cinzel, serif`;
-      lines = wrapLines(s.item.text||'', outer - r*.36);
-      const tooWide = lines.some(l => ctx.measureText(l).width > outer - r*.36);
-      if(lines.length <= 3 && !tooWide && lines.length*fs*1.1 < r*.6*sweep*1.05) break;
-      fs *= .9;
+      lines = wrapLines(s.item.text||'', maxW);
+      const widest = Math.max(...lines.map(l => ctx.measureText(l).width));
+      const innerX = outer - widest;
+      const avail = 2 * innerX * Math.tan(half) * .86;          // alto disponible donde empieza el texto
+      const need = lines.length * fs * 1.08 + fs * .25;
+      if(widest <= maxW && lines.length <= 4 && need <= avail) break;
+      if(fs < r*.028) break;
+      fs *= .93;
     }
     ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
     ctx.lineJoin = 'round'; ctx.lineWidth = fs*.22; ctx.strokeStyle = 'rgba(20,2,0,.85)';
