@@ -37,7 +37,19 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.10;b
 body.obs .corner,body.obs .back{display:none}
 
 /* ===== PODIO ===== */
-.podium{display:grid;grid-template-columns:1fr 1.15fr 1fr;align-items:end;gap:14px;margin-top:46px}
+/* fondo solo detrás del ranking */
+.board{position:relative;isolation:isolate;margin-top:30px;border-radius:26px}
+.board.has-bg{padding:6px 22px 30px}
+.board-bg{position:absolute;inset:0;z-index:-1;border-radius:26px;pointer-events:none;display:none;
+  background:var(--img) center/cover no-repeat;opacity:var(--op,.5);
+  -webkit-mask-image:radial-gradient(ellipse 75% 70% at 50% 50%,#000 45%,transparent 100%);mask-image:radial-gradient(ellipse 75% 70% at 50% 50%,#000 45%,transparent 100%)}
+.board-bg::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,rgba(20,3,1,.15),rgba(10,2,1,.55))}
+.board.has-bg .board-bg{display:block}
+.bg-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;padding:10px 12px;border-radius:12px;border:1px solid var(--gold-dark);background:rgba(0,0,0,.3)}
+.bg-prev{width:120px;height:62px;border-radius:8px;border:1px solid var(--gold-dark);background:#0b0202 center/cover no-repeat;display:grid;place-items:center;font-size:.65rem;color:#8a6a3a;flex:none}
+.bg-row label{margin:0}
+.bg-row input[type=range]{accent-color:#ff7a00;width:130px}
+.podium{display:grid;grid-template-columns:1fr 1.15fr 1fr;align-items:end;gap:14px;margin-top:16px}
 .spot{--c:245,196,81;display:flex;flex-direction:column;align-items:center;text-align:center;animation:rise .6s both}
 .spot.p1{--c:255,200,40;animation-delay:.25s}.spot.p2{--c:200,210,225;animation-delay:.1s}.spot.p3{--c:205,127,50;animation-delay:.4s}
 @keyframes rise{from{opacity:0;transform:translateY(40px)}}
@@ -129,6 +141,27 @@ label{font-size:.7rem;color:var(--gold);letter-spacing:1px;text-transform:upperc
 @keyframes floatLeft{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 @media (max-width:1400px){ .pfloat{display:none} .pstrip.has{display:block} }
 @media (prefers-reduced-motion:reduce){ .ptrack,.pcard{animation:none} }
+/* ===== CÓMO CONSEGUIR PUNTOS ===== */
+.earn{margin-top:50px}
+.earn h2{font-family:'Metal Mania',cursive;font-weight:400;font-size:clamp(1.7rem,5vw,2.4rem);text-align:center;letter-spacing:1px;
+  background:linear-gradient(180deg,#fff3b0,#ffb300 45%,#ff4d00);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 10px rgba(255,80,0,.55))}
+.earn .sub{text-align:center;color:#c9a46a;font-size:.8rem;letter-spacing:2px;margin:4px 0 18px;font-family:Georgia,serif}
+.earn-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.ecard{display:grid;grid-template-columns:52px 1fr auto;gap:12px;align-items:center;padding:14px 16px;border-radius:16px;
+  background:linear-gradient(160deg,#2a0704,#120302);border:1px solid var(--gold-dark);box-shadow:0 8px 20px rgba(0,0,0,.5),inset 0 0 24px rgba(0,0,0,.7);
+  transition:transform .2s,border-color .2s,box-shadow .2s;animation:rise .5s both}
+.ecard:hover{transform:translateY(-4px);border-color:var(--gold);box-shadow:0 12px 26px rgba(0,0,0,.6),0 0 22px rgba(255,120,0,.35)}
+.ecard .em{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-size:1.7rem;
+  background:radial-gradient(circle at 40% 35%,rgba(255,150,0,.45),#1a0402 75%);box-shadow:0 0 0 2px #1a0402,0 0 0 3px var(--gold-dark)}
+.ecard .tx b{display:block;font-size:.95rem;color:#fff;margin-bottom:2px}
+.ecard .tx span{font-size:.78rem;color:#e8cf9a;font-family:Georgia,serif;line-height:1.35}
+.ecard .amt{font-family:'Metal Mania',cursive;font-size:1.5rem;color:#ffe08a;text-shadow:0 0 12px rgba(255,140,0,.8);white-space:nowrap;text-align:right;line-height:1}
+.ecard .amt small{display:block;font-family:'Cinzel',serif;font-size:.55rem;letter-spacing:1px;color:#c9a46a;text-transform:uppercase;margin-top:3px}
+.erow{display:grid;grid-template-columns:64px 1fr 1.6fr 90px auto;gap:8px;align-items:center;background:rgba(0,0,0,.35);padding:8px;border-radius:12px;border:1px solid rgba(138,90,18,.45)}
+.erow .em-in{text-align:center;font-size:1.2rem}
+.erow .acts{display:flex;gap:4px}
+@media (max-width:640px){ .erow{grid-template-columns:56px 1fr 80px}.erow .w2{grid-column:1/-1}.erow .acts{grid-column:1/-1;justify-content:flex-end} .ecard{grid-template-columns:44px 1fr auto}.ecard .em{width:44px;height:44px;font-size:1.4rem} }
+
 /* admin */
 .przrow{display:grid;grid-template-columns:1.1fr 140px 1fr 1.2fr auto;gap:8px;align-items:center;background:rgba(0,0,0,.35);padding:8px;border-radius:12px;border:1px solid rgba(138,90,18,.45)}
 .przrow input[type=date]{font-family:inherit;background:#0b0202;border:1px solid var(--gold-dark);color:#fff;border-radius:8px;padding:8px 10px;font-size:.85rem;width:100%;color-scheme:dark}
@@ -168,8 +201,16 @@ label{font-size:.7rem;color:var(--gold);letter-spacing:1px;text-transform:upperc
     </div>
     <span class="last" id="cdLast"></span>
   </div>
-  <section class="podium" id="podium"></section>
-  <section class="rest" id="rest"></section>
+  <div class="board" id="board">
+    <div class="board-bg" id="boardBg"></div>
+    <section class="podium" id="podium"></section>
+    <section class="rest" id="rest"></section>
+  </div>
+  <section class="earn" id="earn">
+    <h2 id="earnTitle">¿Cómo conseguir puntos?</h2>
+    <p class="sub" id="earnSub"></p>
+    <div class="earn-grid" id="earnGrid"></div>
+  </section>
   <section class="pstrip" id="pstrip">
     <h2>Premios entregados</h2>
     <div class="viewport"><div class="ptrack"></div></div>
@@ -201,6 +242,21 @@ label{font-size:.7rem;color:var(--gold);letter-spacing:1px;text-transform:upperc
       <div><label>Nombre de los puntos</label><input type="text" id="aUnit" placeholder="puntos, victorias, pavos…"></div>
       <div><label>Nueva contraseña (opcional)</label><input type="text" id="aPassword" placeholder="Dejar vacío para no cambiar"></div>
     </div>
+    <div class="bg-row">
+      <div class="bg-prev" id="bgPrev">Sin fondo</div>
+      <div>
+        <label>Fondo detrás del ranking</label>
+        <div style="display:flex;gap:6px;margin-top:4px">
+          <button class="btn sm" id="bgUpload">📁 Subir imagen</button>
+          <button class="btn sm danger" id="bgClear">Quitar</button>
+        </div>
+      </div>
+      <div>
+        <label for="bgOp">Intensidad <span id="bgOpVal"></span></label>
+        <input type="range" id="bgOp" min="10" max="100" step="5">
+      </div>
+      <input type="file" id="bgFile" accept="image/*" hidden>
+    </div>
     <div class="reset-box">
       <span id="resetInfo">Reinicio mensual: el día 1 de cada mes pon los puntos a 0.</span>
       <button class="btn sm danger" id="resetPts">🔄 Reiniciar puntos del mes</button>
@@ -208,6 +264,10 @@ label{font-size:.7rem;color:var(--gold);letter-spacing:1px;text-transform:upperc
     <div class="section-title"><span>JUGADORES</span><div><button class="btn sm" id="addPlayer">+ Añadir</button></div></div>
     <div class="hint" style="margin:-4px 0 10px">Pulsa «📁 Foto» (o la propia foto) para subir una imagen desde tu ordenador. El orden se calcula solo según los puntos.</div>
     <div class="list" id="playerList"></div>
+
+    <div class="section-title"><span id="earnAdminTitle">CÓMO CONSEGUIR PUNTOS</span><div><button class="btn sm" id="addEarn">+ Añadir forma</button></div></div>
+    <div class="hint" style="margin:-4px 0 10px">Emoji · Nombre · Explicación · Cantidad (puedes poner «+10», «1 por minuto», «hasta 50»…). Si la dejas vacía, la sección no se muestra.</div>
+    <div class="list" id="earnList"></div>
 
     <div class="section-title"><span>PREMIOS ENTREGADOS</span><div><button class="btn sm" id="addPrize">+ Añadir premio</button></div></div>
     <div class="hint" style="margin:-4px 0 10px">Salen como tarjetas flotando a los lados del ranking. No se borran al reiniciar los puntos.</div>
@@ -233,8 +293,17 @@ const DEFAULTS = {
   title: 'Ranking',
   subtitle: 'Los más top de la comunidad',
   unit: 'puntos',
+  bg: '',          // imagen de fondo del ranking
+  bgOpacity: 50,   // intensidad 10-100
   lastReset: '',   // 'AAAA-MM-DD' del último reinicio manual
   prizes: [],      // [{ id, winner, date: 'AAAA-MM-DD', event, prize }]
+  earn: [          // formas de conseguir puntos
+    { emoji: '🏆', title: 'Ganar un torneo',        desc: 'Queda primero en un torneo de la comunidad.',              amount: '+50' },
+    { emoji: '🥈', title: 'Podio en un torneo',     desc: 'Termina segundo o tercero.',                                amount: '+25' },
+    { emoji: '🥚', title: 'Encontrar un easter egg', desc: 'Descubre los secretos escondidos en mis mapas.',            amount: '+20' },
+    { emoji: '🎡', title: 'Superar un reto',        desc: 'Cumple el reto que te toque en la ruleta.',                 amount: '+10' },
+    { emoji: '🔴', title: 'Estar en el directo',    desc: 'Pásate por el directo y participa en el chat.',            amount: '+5' }
+  ],
   password: 'dragon',
   players: [
     { name: 'Jugador 1', avatar: '', points: 150 },
@@ -245,7 +314,7 @@ const DEFAULTS = {
   ]
 };
 const clone = o => JSON.parse(JSON.stringify(o));
-function fromData(d){ const o = d && Array.isArray(d.players) ? { ...clone(DEFAULTS), ...d } : clone(DEFAULTS); if(!Array.isArray(o.prizes)) o.prizes = []; return o; }
+function fromData(d){ const o = d && Array.isArray(d.players) ? { ...clone(DEFAULTS), ...d } : clone(DEFAULTS); if(!Array.isArray(o.prizes)) o.prizes = []; if(!Array.isArray(o.earn)) o.earn = []; return o; }
 function load(){ try{ return fromData(JSON.parse(localStorage.getItem(KEY))); }catch(e){ return clone(DEFAULTS); } }
 /* ---------- Base de datos (Supabase, ver db.js) ---------- */
 const PAGE = 'ranking';
@@ -325,8 +394,36 @@ function renderPrizes(){
   $('#pstrip').classList.toggle('has', items.length > 0);
 }
 
+function renderEarn(){
+  const items = (state.earn || []).filter(e => (e.title || e.desc || '').trim());
+  $('#earn').style.display = items.length ? '' : 'none';
+  const unit = state.unit || 'puntos';
+  $('#earnTitle').textContent = `¿Cómo conseguir ${unit}?`;
+  $('#earnSub').textContent = `Así se suman ${unit} para subir en el ranking`;
+  const grid = $('#earnGrid'); grid.innerHTML = '';
+  items.forEach((e, i) => {
+    const c = document.createElement('div'); c.className = 'ecard'; c.style.animationDelay = (.4 + i * .06) + 's';
+    const em = document.createElement('div'); em.className = 'em'; em.textContent = e.emoji || '🐉';
+    const tx = document.createElement('div'); tx.className = 'tx';
+    const b = document.createElement('b'); b.textContent = e.title || ''; const sp = document.createElement('span'); sp.textContent = e.desc || '';
+    tx.append(b, sp);
+    const am = document.createElement('div'); am.className = 'amt';
+    if(e.amount){ am.textContent = e.amount; const sm = document.createElement('small'); sm.textContent = unit; am.append(sm); }
+    c.append(em, tx, am); grid.append(c);
+  });
+}
+
+function applyBoardBg(){
+  const b = $('#board'), bg = $('#boardBg');
+  b.classList.toggle('has-bg', !!state.bg);
+  bg.style.setProperty('--img', state.bg ? cssUrl(state.bg) : 'none');
+  bg.style.setProperty('--op', ((+state.bgOpacity || 50) / 100).toString());
+}
+
 function render(){
+  applyBoardBg();
   renderPrizes();
+  renderEarn();
   $('#titleText').textContent = state.title; $('#subtitleText').textContent = state.subtitle; document.title = state.title;
   tickCountdown();
   const list = sorted(), pod = $('#podium'), rest = $('#rest');
@@ -362,6 +459,22 @@ function render(){
 }
 
 /* ---------- Imágenes ---------- */
+function updBgPrev(){
+  const pv = $('#bgPrev');
+  pv.style.backgroundImage = draft.bg ? cssUrl(draft.bg) : 'none';
+  pv.textContent = draft.bg ? '' : 'Sin fondo';
+  pv.style.opacity = draft.bg ? ((+draft.bgOpacity || 50) / 100 * .7 + .3) : 1;
+  $('#bgOpVal').textContent = (draft.bgOpacity || 50) + '%';
+}
+$('#bgUpload').onclick = () => $('#bgFile').click();
+$('#bgFile').onchange = async e => {
+  const f = e.target.files[0]; e.target.value = ''; if(!f) return;
+  try{ draft.bg = await readImage(f, 1600); $('#adminErr').textContent = ''; updBgPrev(); }
+  catch(err){ $('#adminErr').textContent = err; }
+};
+$('#bgClear').onclick = () => { draft.bg = ''; updBgPrev(); };
+$('#bgOp').oninput = () => { draft.bgOpacity = +$('#bgOp').value; updBgPrev(); };
+
 function readImage(file, max = 256){
   return new Promise((res, rej) => {
     if(!file.type.startsWith('image/')) return rej('Ese archivo no es una imagen.');
@@ -409,8 +522,9 @@ function openAdmin(){
   draft = clone(state);
   $('#aTitle').value = draft.title; $('#aSubtitle').value = draft.subtitle; $('#aUnit').value = draft.unit;
   $('#aPassword').value = ''; $('#adminErr').textContent = '';
+  $('#bgOp').value = draft.bgOpacity || 50; updBgPrev();
   $('#resetInfo').textContent = draft.lastReset ? `Último reinicio: ${fmtDate(draft.lastReset)}. Toca el día 1 de cada mes.` : 'Reinicio mensual: el día 1 de cada mes pon los puntos a 0.';
-  renderList(); renderPrizeList(); $('#adminModal').classList.add('show');
+  renderList(); renderEarnList(); renderPrizeList(); $('#adminModal').classList.add('show');
 }
 function renderList(){
   const list = $('#playerList'); list.innerHTML = '';
@@ -460,6 +574,27 @@ function renderPrizeList(){
     row.append(winner, date, event, prize, del); list.append(row);
   });
 }
+function renderEarnList(){
+  $('#earnAdminTitle').textContent = 'CÓMO CONSEGUIR ' + ($('#aUnit').value.trim() || draft.unit || 'puntos').toUpperCase();
+  const list = $('#earnList'); list.innerHTML = '';
+  draft.earn.forEach((e, i) => {
+    const row = document.createElement('div'); row.className = 'erow';
+    const mk = (field, ph, cls) => { const inp = document.createElement('input'); inp.type = 'text'; inp.value = e[field] || ''; inp.placeholder = ph; if(cls) inp.className = cls; inp.oninput = () => e[field] = inp.value; return inp; };
+    const em = mk('emoji', '🐉', 'em-in'); em.maxLength = 8;
+    const title = mk('title', 'Nombre (ej. Ganar un torneo)');
+    const desc = mk('desc', 'Explicación', 'w2');
+    const amt = mk('amount', '+10');
+    const acts = document.createElement('div'); acts.className = 'acts';
+    const btn = (t, title, fn, cls = '') => { const b = document.createElement('button'); b.className = 'btn sm ' + cls; b.textContent = t; b.title = title; b.onclick = fn; acts.append(b); };
+    btn('▲', 'Subir', () => { if(i > 0){ [draft.earn[i-1], draft.earn[i]] = [draft.earn[i], draft.earn[i-1]]; renderEarnList(); } });
+    btn('▼', 'Bajar', () => { if(i < draft.earn.length-1){ [draft.earn[i+1], draft.earn[i]] = [draft.earn[i], draft.earn[i+1]]; renderEarnList(); } });
+    btn('✕', 'Eliminar', () => { draft.earn.splice(i, 1); renderEarnList(); }, 'danger');
+    row.append(em, title, desc, amt, acts); list.append(row);
+  });
+}
+$('#addEarn').onclick = () => { draft.earn.push({ emoji: '🐉', title: '', desc: '', amount: '+10' }); renderEarnList(); $('#earnList').lastElementChild.querySelectorAll('input')[1].focus(); };
+$('#aUnit').addEventListener('input', () => { if(draft) $('#earnAdminTitle').textContent = 'CÓMO CONSEGUIR ' + ($('#aUnit').value.trim() || 'puntos').toUpperCase(); });
+
 $('#addPrize').onclick = () => {
   draft.prizes.unshift({ id: Math.random().toString(36).slice(2, 9), winner: '', date: todayISO(), event: '', prize: '' });
   renderPrizeList(); $('#prizeList input').focus();
@@ -482,6 +617,7 @@ $('#saveBtn').onclick = () => {
   draft.title = $('#aTitle').value.trim() || DEFAULTS.title;
   draft.subtitle = $('#aSubtitle').value.trim();
   draft.unit = $('#aUnit').value.trim() || 'puntos';
+  draft.earn = draft.earn.filter(e => (e.title || e.desc || '').trim()).map(e => ({ emoji: (e.emoji||'').trim(), title: (e.title||'').trim(), desc: (e.desc||'').trim(), amount: (e.amount||'').trim() }));
   draft.prizes = draft.prizes.filter(z => (z.winner||'').trim() || (z.prize||'').trim()).map(z => ({ ...z, winner: (z.winner||'').trim(), event: (z.event||'').trim(), prize: (z.prize||'').trim() }));
   const np = $('#aPassword').value.trim();
   if(np){
