@@ -58,6 +58,8 @@ body.has-hero .hero-bg{display:block}
   -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 10%,#000 85%,transparent 100%),linear-gradient(to right,transparent 0,#000 8%,#000 92%,transparent 100%);
   mask-image:linear-gradient(to bottom,transparent 0,#000 10%,#000 85%,transparent 100%),linear-gradient(to right,transparent 0,#000 8%,#000 92%,transparent 100%)}
 body.has-hero .title,body.has-hero .subtitle{display:none}
+/* con imagen: el contenido empieza arriba, sin el hueco vacío del centrado vertical */
+body.has-hero .page{justify-content:flex-start;padding-top:28px}
 body.has-hero .doors{margin-top:var(--gap,260px)}
 body.has-hero .door{background:linear-gradient(180deg,rgba(42,7,4,.9),rgba(18,3,2,.94))}
 body.show-text .title,body.show-text .subtitle{display:block}
