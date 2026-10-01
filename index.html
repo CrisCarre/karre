@@ -47,11 +47,63 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.10;b
 
 @media (max-width:1000px) and (min-width:821px){.doors{grid-template-columns:repeat(2,1fr);max-width:760px}}
 @media (max-width:820px){.doors{grid-template-columns:1fr;max-width:420px}.door{flex-direction:row;text-align:left;padding:18px}.medal{width:78px;font-size:2.2rem;flex:none}.door h2{font-size:1.6rem}.door .go{display:none}.door .txt{display:flex;flex-direction:column;gap:4px}}
+/* ===== IMAGEN DE PORTADA (detrás de las 4 opciones) ===== */
+.hero{position:relative;isolation:isolate;width:100%;display:flex;flex-direction:column;align-items:center}
+.hero-bg{position:absolute;z-index:-1;pointer-events:none;display:none;left:50%;transform:translateX(-50%);
+  top:-40px;bottom:-60px;width:min(1400px,100vw);background:var(--img) center 30%/cover no-repeat;opacity:var(--op,1);
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 18%,#000 72%,transparent 100%),linear-gradient(to right,transparent 0,#000 22%,#000 78%,transparent 100%);
+  -webkit-mask-composite:source-in;mask-image:linear-gradient(to bottom,transparent 0,#000 18%,#000 72%,transparent 100%),linear-gradient(to right,transparent 0,#000 22%,#000 78%,transparent 100%);mask-composite:intersect}
+body.has-hero .hero-bg{display:block}
+.hero-bg.logo{top:-20px;bottom:auto;width:min(var(--lw,900px),94vw);aspect-ratio:var(--ar,2);background-size:100% 100%;
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 10%,#000 85%,transparent 100%),linear-gradient(to right,transparent 0,#000 8%,#000 92%,transparent 100%);
+  mask-image:linear-gradient(to bottom,transparent 0,#000 10%,#000 85%,transparent 100%),linear-gradient(to right,transparent 0,#000 8%,#000 92%,transparent 100%)}
+body.has-hero .title,body.has-hero .subtitle{display:none}
+body.has-hero .doors{margin-top:var(--gap,260px)}
+body.has-hero .door{background:linear-gradient(180deg,rgba(42,7,4,.9),rgba(18,3,2,.94))}
+body.show-text .title,body.show-text .subtitle{display:block}
+
+/* ===== ADMIN ===== */
+.corner{position:fixed;right:14px;bottom:14px;z-index:20}
+.corner button{width:44px;height:44px;border-radius:50%;border:2px solid var(--gold-dark);background:rgba(20,4,2,.85);font-size:1.2rem;cursor:pointer;transition:.2s}
+.corner button:hover{border-color:var(--gold);box-shadow:0 0 12px rgba(255,150,0,.6)}
+body.obs .corner{display:none}
+.modal{position:fixed;inset:0;z-index:30;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.72);backdrop-filter:blur(4px)}
+.modal.show{display:flex}
+.card{position:relative;background:linear-gradient(180deg,#2a0704,#120302);border:2px solid var(--gold);border-radius:18px;padding:26px;
+  box-shadow:0 0 40px rgba(255,80,0,.5),inset 0 0 30px rgba(0,0,0,.8);width:100%;max-width:440px;animation:pop .35s cubic-bezier(.2,1.6,.4,1)}
+.card.wide{max-width:620px;max-height:92vh;overflow:auto}
+@keyframes pop{from{transform:scale(.5);opacity:0}}
+.card h2{font-family:'Metal Mania',cursive;font-weight:400;font-size:2rem;text-align:center;margin-bottom:14px;
+  background:linear-gradient(180deg,#fff3b0,#ffb300 45%,#ff4d00);-webkit-background-clip:text;background-clip:text;color:transparent}
+.btn{font-family:'Cinzel',serif;font-weight:700;padding:10px 18px;border-radius:10px;cursor:pointer;border:1px solid var(--gold-dark);
+  background:linear-gradient(180deg,#5a1206,#2a0704);color:#ffe3a0;font-size:.85rem;transition:.15s}
+.btn:hover{border-color:var(--gold);color:#fff}
+.btn.primary{background:linear-gradient(180deg,#ffb300,#ff5a00 50%,#b3130f);color:#fff;border-color:var(--gold);text-shadow:0 1px 0 #5a0704}
+.btn.danger{background:linear-gradient(180deg,#6b0a0a,#2a0303)}
+.btn.sm{padding:6px 10px;font-size:.8rem}
+.card input[type=text],.card input[type=password]{font-family:inherit;background:#0b0202;border:1px solid var(--gold-dark);color:#fff;border-radius:8px;padding:9px 10px;font-size:.85rem;width:100%}
+.card input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 8px rgba(255,150,0,.5)}
+.card label{font-size:.7rem;color:var(--gold);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:4px}
+.err{color:#ff6b6b;font-size:.8rem;margin-top:6px;min-height:1em;text-align:center}
+.close-x{position:absolute;top:10px;right:14px;background:none;border:none;color:var(--gold);font-size:1.6rem;cursor:pointer}
+.hero-prev{width:100%;aspect-ratio:16/7;border-radius:12px;border:1px solid var(--gold-dark);background:#0b0202 center/contain no-repeat;display:grid;place-items:center;font-size:.8rem;color:#8a6a3a;margin-bottom:10px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.row input[type=range]{accent-color:#ff7a00;flex:1;min-width:140px}
+.seg{display:flex;gap:6px;margin-bottom:14px}
+.seg button.active{background:linear-gradient(180deg,#ffb300,#ff5a00 50%,#b3130f);color:#fff;border-color:var(--gold)}
+.check{display:flex;align-items:center;gap:8px;font-size:.85rem;color:#ffe3a0;cursor:pointer;margin-bottom:14px}
+.check input{accent-color:#ff7a00;width:18px;height:18px}
+.card label.check{display:flex;text-transform:none;letter-spacing:0;font-size:.85rem;color:#ffe3a0;margin:4px 0 16px}
+.hint{font-size:.72rem;color:#c9a46a;margin:-6px 0 14px}
+.actions{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}
+@media (max-width:820px){ body.has-hero .doors{margin-top:calc(var(--gap,260px) * .6)} }
 </style>
 </head>
 <body>
 <canvas id="embers"></canvas>
 <main class="page">
+ <div class="hero">
+  <div class="hero-bg" id="heroBg"></div>
   <h1 class="title">KARRE</h1>
   <p class="subtitle">Gaming &amp; más</p>
 
@@ -77,8 +129,188 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.10;b
       <span class="go">Entrar</span>
     </a>
   </nav>
+ </div>
 </main>
+
+<div class="corner"><button id="adminBtn" title="Admin">⚙️</button></div>
+
+<!-- Login -->
+<div class="modal" id="loginModal">
+  <div class="card">
+    <button type="button" class="close-x" data-close="loginModal">×</button>
+    <h2>Admin Portada</h2>
+    <label for="pwd">Contraseña</label>
+    <input type="password" id="pwd" autocomplete="current-password">
+    <div class="err" id="loginErr"></div>
+    <div style="text-align:center;margin-top:10px"><button class="btn primary" type="button" id="loginBtn">Entrar</button></div>
+  </div>
+</div>
+
+<!-- Admin -->
+<div class="modal" id="adminModal">
+  <div class="card wide">
+    <button class="close-x" data-close="adminModal">×</button>
+    <h2>Portada</h2>
+    <label>Imagen de portada (detrás de las 4 opciones)</label>
+    <div class="hero-prev" id="heroPrev">Sin imagen: se muestra el texto KARRE</div>
+    <div class="row">
+      <button class="btn sm" id="heroUpload">📁 Subir imagen</button>
+      <button class="btn sm danger" id="heroClear">Quitar</button>
+      <input type="file" id="heroFile" accept="image/*" hidden>
+    </div>
+    <label>Cómo se muestra</label>
+    <div class="seg"><button class="btn sm" data-fit="logo">🖼️ Logo (imagen entera)</button><button class="btn sm" data-fit="fondo">🌄 Fondo (rellena todo)</button></div>
+    <div id="lwRow"><label for="heroW">Tamaño del logo <span id="heroWVal"></span></label>
+    <div class="row"><input type="range" id="heroW" min="300" max="1300" step="20"></div></div>
+    <label for="heroOp">Intensidad <span id="heroOpVal"></span></label>
+    <div class="row"><input type="range" id="heroOp" min="20" max="100" step="5"></div>
+    <label for="heroGap">Espacio para la imagen encima de las tarjetas <span id="heroGapVal"></span></label>
+    <div class="row"><input type="range" id="heroGap" min="60" max="420" step="10"></div>
+    <label class="check"><input type="checkbox" id="heroText"> Mostrar también el texto «KARRE · Gaming &amp; más»</label>
+    <label for="aPassword">Nueva contraseña (opcional)</label>
+    <input type="text" id="aPassword" placeholder="Dejar vacío para no cambiar">
+    <div class="actions" style="margin-top:16px">
+      <button class="btn" data-close="adminModal">Cancelar</button>
+      <button class="btn primary" id="saveBtn">Guardar</button>
+    </div>
+    <div class="err" id="adminErr"></div>
+  </div>
+</div>
+
+<script src="db.js"></script>
 <script>
+(() => {
+'use strict';
+const $ = s => document.querySelector(s);
+const KEY = 'karreInicio_v1', PAGE = 'inicio';
+const DEFAULTS = { password: 'dragon', bg: '', bgOpacity: 100, gap: 260, showText: false, fit: 'logo', logoW: 900 };
+const clone = o => JSON.parse(JSON.stringify(o));
+const fromData = d => ({ ...clone(DEFAULTS), ...(d && typeof d === 'object' ? d : {}) });
+const load = () => { try{ return fromData(JSON.parse(localStorage.getItem(KEY))); }catch(e){ return clone(DEFAULTS); } };
+let state = load(), draft = null, unlocked = false, sessionPwd = '', remoteEmpty = false;
+if(new URLSearchParams(location.search).has('obs')) document.body.classList.add('obs');
+const cssUrl = u => `url("${String(u).replace(/"/g,'%22')}")`;
+const saveLocal = () => { try{ localStorage.setItem(KEY, JSON.stringify(state)); return true; }catch(e){ return false; } };
+const publicData = () => { const o = clone(state); delete o.password; return o; };
+function save(){
+  const ok = saveLocal();
+  if(KDB.enabled && sessionPwd){
+    KDB.save(PAGE, publicData(), () => sessionPwd).then(() => KDB.toast('✓ Guardado en la base de datos')).catch(err => KDB.toast('⚠ No se guardó: ' + err.message, false));
+    return true;
+  }
+  return ok;
+}
+
+/* ---------- Portada ---------- */
+function render(){
+  const has = !!state.bg;
+  document.body.classList.toggle('has-hero', has);
+  document.body.classList.toggle('show-text', has && !!state.showText);
+  const bg = $('#heroBg');
+  bg.style.setProperty('--img', has ? cssUrl(state.bg) : 'none');
+  bg.style.setProperty('--op', ((+state.bgOpacity || 100) / 100).toString());
+  document.querySelector('.doors').style.setProperty('--gap', (+state.gap || 260) + 'px');
+  const logo = (state.fit || 'logo') === 'logo';
+  bg.classList.toggle('logo', logo);
+  bg.style.setProperty('--lw', (+state.logoW || 900) + 'px');
+  if(has && logo){ const im = new Image(); im.onload = () => bg.style.setProperty('--ar', (im.naturalWidth / im.naturalHeight).toString()); im.src = state.bg; }
+}
+
+/* ---------- Imágenes ---------- */
+function readImage(file, max){
+  return new Promise((res, rej) => {
+    if(!file.type.startsWith('image/')) return rej('Ese archivo no es una imagen.');
+    if(file.type === 'image/gif'){
+      if(file.size > 2*1024*1024) return rej('El GIF pesa más de 2 MB.');
+      const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(file); return;
+    }
+    const img = new Image();
+    img.onload = () => {
+      const s = Math.min(1, max/Math.max(img.width, img.height)), c = document.createElement('canvas');
+      c.width = Math.round(img.width*s); c.height = Math.round(img.height*s);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(img.src); res(c.toDataURL(file.type === 'image/png' ? 'image/png' : 'image/webp', .88));
+    };
+    img.onerror = () => rej('No se pudo leer la imagen.');
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+/* ---------- Login ---------- */
+document.querySelectorAll('[data-close]').forEach(b => b.onclick = () => $('#'+b.dataset.close).classList.remove('show'));
+$('#adminBtn').onclick = () => {
+  if(unlocked) return openAdmin();
+  $('#pwd').value = ''; $('#loginErr').textContent = ''; $('#loginModal').classList.add('show'); setTimeout(() => $('#pwd').focus(), 50);
+};
+async function tryLogin(){
+  const pwd = $('#pwd').value; let ok;
+  if(KDB.enabled){
+    $('#loginErr').textContent = 'Comprobando…';
+    try{ ok = await KDB.login(PAGE, pwd); }catch(e){ $('#loginErr').textContent = 'Error de conexión: ' + e.message; return; }
+  } else ok = pwd === state.password;
+  if(ok){
+    sessionPwd = pwd; unlocked = true; $('#loginErr').textContent = ''; $('#loginModal').classList.remove('show');
+    if(remoteEmpty){ remoteEmpty = false; save(); }
+    openAdmin();
+  } else $('#loginErr').textContent = KDB.enabled ? 'Contraseña incorrecta (¿has ejecutado el SQL de la portada?)' : 'Contraseña incorrecta';
+}
+$('#loginBtn').onclick = tryLogin;
+$('#pwd').addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); tryLogin(); } });
+
+/* ---------- Admin ---------- */
+function updPrev(){
+  const pv = $('#heroPrev');
+  pv.style.backgroundImage = draft.bg ? cssUrl(draft.bg) : 'none';
+  pv.textContent = draft.bg ? '' : 'Sin imagen: se muestra el texto KARRE';
+  $('#heroOpVal').textContent = draft.bgOpacity + '%';
+  $('#heroWVal').textContent = draft.logoW + ' px';
+  document.querySelectorAll('.seg [data-fit]').forEach(b => b.classList.toggle('active', b.dataset.fit === draft.fit));
+  $('#lwRow').style.display = draft.fit === 'logo' ? '' : 'none';
+  $('#heroGapVal').textContent = draft.gap + ' px';
+}
+function openAdmin(){
+  draft = clone(state);
+  $('#heroOp').value = draft.bgOpacity; $('#heroW').value = draft.logoW; $('#heroGap').value = draft.gap; $('#heroText').checked = !!draft.showText;
+  $('#aPassword').value = ''; $('#adminErr').textContent = '';
+  updPrev(); $('#adminModal').classList.add('show');
+}
+// vista previa en vivo mientras ajustas
+const preview = () => { const prev = state; state = draft; render(); state = prev; };
+$('#heroUpload').onclick = () => $('#heroFile').click();
+$('#heroFile').onchange = async e => {
+  const f = e.target.files[0]; e.target.value = ''; if(!f) return;
+  try{ draft.bg = await readImage(f, 1800); $('#adminErr').textContent = ''; updPrev(); preview(); }
+  catch(err){ $('#adminErr').textContent = err; }
+};
+$('#heroClear').onclick = () => { draft.bg = ''; updPrev(); preview(); };
+$('#heroOp').oninput = () => { draft.bgOpacity = +$('#heroOp').value; updPrev(); preview(); };
+$('#heroW').oninput = () => { draft.logoW = +$('#heroW').value; updPrev(); preview(); };
+document.querySelectorAll('.seg [data-fit]').forEach(b => b.onclick = () => { draft.fit = b.dataset.fit; updPrev(); preview(); });
+$('#heroGap').oninput = () => { draft.gap = +$('#heroGap').value; updPrev(); preview(); };
+$('#heroText').onchange = () => { draft.showText = $('#heroText').checked; preview(); };
+document.querySelectorAll('#adminModal [data-close]').forEach(b => b.addEventListener('click', () => render()));
+$('#saveBtn').onclick = () => {
+  const np = $('#aPassword').value.trim();
+  if(np){
+    if(KDB.enabled) KDB.changePassword(PAGE, () => sessionPwd, np, () => { sessionPwd = np; KDB.toast('✓ Contraseña cambiada'); }).catch(e => KDB.toast('⚠ ' + e.message, false));
+    else draft.password = np;
+  }
+  const prev = state; state = draft;
+  if(!save()){ state = prev; $('#adminErr').textContent = 'No se pudo guardar: la imagen ocupa demasiado.'; return; }
+  render(); $('#adminModal').classList.remove('show');
+};
+
+render();
+if(KDB.enabled){
+  const apply = d => { const keep = { password: state.password }; state = { ...fromData(d), ...keep }; saveLocal(); render(); };
+  KDB.load(PAGE).then(row => {
+    if(row && row.data && Object.keys(row.data).length) apply(row.data);
+    else remoteEmpty = true;
+  }).catch(() => {});
+  KDB.watch(PAGE, apply, () => !!document.querySelector('.modal.show'));
+}
+})();
+
 (() => {
   const ec = document.getElementById('embers'), ex = ec.getContext('2d'); let parts = [];
   const resize = () => { ec.width = innerWidth; ec.height = innerHeight; }; resize(); addEventListener('resize', resize);
