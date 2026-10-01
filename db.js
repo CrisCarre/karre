@@ -7,7 +7,7 @@
    ========================================================= */
 window.KDB = (() => {
   const SUPABASE_URL      = 'https://tuucrcdvzenrpmoqqnqz.supabase.co';
-  const SUPABASE_ANON_KEY = 'PEGA_AQUI_TU_ANON_KEY';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR1dWNyY2R2emVucnBtb3FxbnF6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3MDI5NTEsImV4cCI6MjA5NzI3ODk1MX0.tQA6dChjvv4Rf1VtNFLZMbRMhuMtWhOnueb9J2QShI8';
 
   const enabled = !!SUPABASE_ANON_KEY && !SUPABASE_ANON_KEY.startsWith('PEGA_');
   const headers = { apikey: SUPABASE_ANON_KEY, Authorization: 'Bearer ' + SUPABASE_ANON_KEY, 'Content-Type': 'application/json' };
