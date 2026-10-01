@@ -40,9 +40,9 @@ body.obs .corner,body.obs .back{display:none}
 /* fondo solo detrás del ranking */
 .board{position:relative;isolation:isolate;margin-top:30px;border-radius:26px}
 .board.has-bg{padding:6px 22px 30px}
-.board-bg{position:absolute;inset:0;z-index:-1;border-radius:26px;pointer-events:none;display:none;
+.board-bg{position:absolute;inset:-300px max(-260px, calc(450px - 50vw)) -60px;z-index:-1;pointer-events:none;display:none;
   background:var(--img) center/cover no-repeat;opacity:var(--op,.5);
-  -webkit-mask-image:radial-gradient(ellipse 75% 70% at 50% 50%,#000 45%,transparent 100%);mask-image:radial-gradient(ellipse 75% 70% at 50% 50%,#000 45%,transparent 100%)}
+  -webkit-mask-image:radial-gradient(ellipse 72% 68% at 50% 48%,#000 55%,transparent 100%);mask-image:radial-gradient(ellipse 72% 68% at 50% 48%,#000 55%,transparent 100%)}
 .board-bg::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,rgba(20,3,1,.15),rgba(10,2,1,.55))}
 .board.has-bg .board-bg{display:block}
 .bg-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;padding:10px 12px;border-radius:12px;border:1px solid var(--gold-dark);background:rgba(0,0,0,.3)}
@@ -147,20 +147,23 @@ label{font-size:.7rem;color:var(--gold);letter-spacing:1px;text-transform:upperc
   background:linear-gradient(180deg,#fff3b0,#ffb300 45%,#ff4d00);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 10px rgba(255,80,0,.55))}
 .earn .sub{text-align:center;color:#c9a46a;font-size:.8rem;letter-spacing:2px;margin:4px 0 18px;font-family:Georgia,serif}
 .earn-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
-.ecard{display:grid;grid-template-columns:52px 1fr auto;gap:12px;align-items:center;padding:14px 16px;border-radius:16px;
+.ecard{display:flex;flex-direction:column;gap:10px;padding:14px 16px;border-radius:16px;
   background:linear-gradient(160deg,#2a0704,#120302);border:1px solid var(--gold-dark);box-shadow:0 8px 20px rgba(0,0,0,.5),inset 0 0 24px rgba(0,0,0,.7);
   transition:transform .2s,border-color .2s,box-shadow .2s;animation:rise .5s both}
 .ecard:hover{transform:translateY(-4px);border-color:var(--gold);box-shadow:0 12px 26px rgba(0,0,0,.6),0 0 22px rgba(255,120,0,.35)}
-.ecard .em{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-size:1.7rem;
+.ecard .top{display:grid;grid-template-columns:48px 1fr auto;gap:12px;align-items:center}
+.ecard .em{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font-size:1.6rem;
   background:radial-gradient(circle at 40% 35%,rgba(255,150,0,.45),#1a0402 75%);box-shadow:0 0 0 2px #1a0402,0 0 0 3px var(--gold-dark)}
-.ecard .tx b{display:block;font-size:.95rem;color:#fff;margin-bottom:2px}
-.ecard .tx span{font-size:.78rem;color:#e8cf9a;font-family:Georgia,serif;line-height:1.35}
-.ecard .amt{font-family:'Metal Mania',cursive;font-size:1.5rem;color:#ffe08a;text-shadow:0 0 12px rgba(255,140,0,.8);white-space:nowrap;text-align:right;line-height:1}
-.ecard .amt small{display:block;font-family:'Cinzel',serif;font-size:.55rem;letter-spacing:1px;color:#c9a46a;text-transform:uppercase;margin-top:3px}
+.ecard .ttl{font-weight:700;font-size:.95rem;color:#fff;line-height:1.25;word-break:break-word}
+.ecard .amt{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:64px;max-width:96px;padding:6px 10px;border-radius:12px;
+  background:rgba(255,140,0,.12);border:1px solid rgba(245,196,81,.5)}
+.ecard .amt b{font-family:'Metal Mania',cursive;font-weight:400;font-size:1.35rem;line-height:1;color:#ffe08a;text-shadow:0 0 12px rgba(255,140,0,.8);white-space:nowrap}
+.ecard .amt small{font-size:.5rem;letter-spacing:.5px;color:#c9a46a;text-transform:uppercase;text-align:center;line-height:1.2;margin-top:3px}
+.ecard .desc{font-size:.8rem;color:#e8cf9a;font-family:Georgia,serif;line-height:1.4;padding-top:9px;border-top:1px solid rgba(245,196,81,.15)}
 .erow{display:grid;grid-template-columns:64px 1fr 1.6fr 90px auto;gap:8px;align-items:center;background:rgba(0,0,0,.35);padding:8px;border-radius:12px;border:1px solid rgba(138,90,18,.45)}
 .erow .em-in{text-align:center;font-size:1.2rem}
 .erow .acts{display:flex;gap:4px}
-@media (max-width:640px){ .erow{grid-template-columns:56px 1fr 80px}.erow .w2{grid-column:1/-1}.erow .acts{grid-column:1/-1;justify-content:flex-end} .ecard{grid-template-columns:44px 1fr auto}.ecard .em{width:44px;height:44px;font-size:1.4rem} }
+@media (max-width:640px){ .erow{grid-template-columns:56px 1fr 80px}.erow .w2{grid-column:1/-1}.erow .acts{grid-column:1/-1;justify-content:flex-end} .ecard .top{grid-template-columns:42px 1fr auto}.ecard .em{width:42px;height:42px;font-size:1.35rem} }
 
 /* admin */
 .przrow{display:grid;grid-template-columns:1.1fr 140px 1fr 1.2fr auto;gap:8px;align-items:center;background:rgba(0,0,0,.35);padding:8px;border-radius:12px;border:1px solid rgba(138,90,18,.45)}
@@ -403,13 +406,19 @@ function renderEarn(){
   const grid = $('#earnGrid'); grid.innerHTML = '';
   items.forEach((e, i) => {
     const c = document.createElement('div'); c.className = 'ecard'; c.style.animationDelay = (.4 + i * .06) + 's';
+    const top = document.createElement('div'); top.className = 'top';
     const em = document.createElement('div'); em.className = 'em'; em.textContent = e.emoji || '🐉';
-    const tx = document.createElement('div'); tx.className = 'tx';
-    const b = document.createElement('b'); b.textContent = e.title || ''; const sp = document.createElement('span'); sp.textContent = e.desc || '';
-    tx.append(b, sp);
-    const am = document.createElement('div'); am.className = 'amt';
-    if(e.amount){ am.textContent = e.amount; const sm = document.createElement('small'); sm.textContent = unit; am.append(sm); }
-    c.append(em, tx, am); grid.append(c);
+    const ttl = document.createElement('div'); ttl.className = 'ttl'; ttl.textContent = e.title || '';
+    top.append(em, ttl);
+    if(e.amount){
+      const am = document.createElement('div'); am.className = 'amt';
+      const ab = document.createElement('b'); ab.textContent = e.amount;
+      const sm = document.createElement('small'); sm.textContent = unit;
+      am.append(ab, sm); top.append(am);
+    }
+    c.append(top);
+    if(e.desc){ const d = document.createElement('div'); d.className = 'desc'; d.textContent = e.desc; c.append(d); }
+    grid.append(c);
   });
 }
 
