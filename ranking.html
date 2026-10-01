@@ -313,7 +313,11 @@ function fillTrack(track, items, minCount){
 }
 function renderPrizes(){
   const items = [...(state.prizes || [])].filter(z => z.prize || z.winner).sort((a,b) => (b.date||'').localeCompare(a.date||''));
-  const left = items.filter((_, i) => i % 2 === 0), right = items.length > 1 ? items.filter((_, i) => i % 2 === 1) : items;
+  // Con muchos premios cada columna lleva la mitad; con pocos, las dos los alternan todos,
+  // empezando por uno distinto para que no se vea el mismo seguido.
+  let left, right;
+  if(items.length >= 8){ left = items.filter((_, i) => i % 2 === 0); right = items.filter((_, i) => i % 2 === 1); }
+  else { const k = Math.ceil(items.length / 2); left = items; right = [...items.slice(k), ...items.slice(0, k)].reverse(); }
   fillTrack(document.querySelector('.pcol.l .ptrack'), left, 6);
   fillTrack(document.querySelector('.pcol.r .ptrack'), right, 6);
   fillTrack(document.querySelector('#pstrip .ptrack'), items, 6);
