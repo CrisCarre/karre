@@ -97,7 +97,46 @@ label{font-size:.7rem;color:var(--gold);letter-spacing:1px;text-transform:upperc
 .quick,.acts{display:flex;gap:4px}
 .admin-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;position:sticky;bottom:-26px;background:#120302;padding:12px 0 4px}
 .hint{font-size:.7rem;color:#c9a46a}
+/* ===== PREMIOS ENTREGADOS (tarjetas flotantes) ===== */
+.pfloat{position:fixed;inset:0;z-index:0;pointer-events:none}
+.pcol{position:absolute;top:0;bottom:0;width:210px;overflow:hidden;pointer-events:auto;
+  -webkit-mask-image:linear-gradient(transparent,#000 14%,#000 86%,transparent);mask-image:linear-gradient(transparent,#000 14%,#000 86%,transparent)}
+.pcol.l{left:calc(50% - 450px - 250px)}
+.pcol.r{right:calc(50% - 450px - 250px)}
+.ptrack{display:flex;flex-direction:column;gap:22px;padding:11px 12px;animation:floatUp var(--dur,60s) linear infinite}
+.pcol.r .ptrack{animation-direction:reverse}
+.pcol:hover .ptrack,.pstrip:hover .ptrack{animation-play-state:paused}
+@keyframes floatUp{from{transform:translateY(0)}to{transform:translateY(-50%)}}
+.pcard{position:relative;padding:14px 14px 12px;border-radius:14px;color:#fff;opacity:.72;transform:rotate(var(--rot,0deg));
+  background:linear-gradient(160deg,rgba(60,14,4,.92),rgba(18,3,2,.92));border:1px solid rgba(245,196,81,.55);
+  box-shadow:0 10px 24px rgba(0,0,0,.6),0 0 18px rgba(255,90,0,.18);transition:opacity .25s,transform .25s,box-shadow .25s;animation:bob 7s ease-in-out infinite;animation-delay:var(--dl,0s)}
+.pcard:hover{opacity:1;transform:rotate(0) scale(1.05);box-shadow:0 14px 30px rgba(0,0,0,.7),0 0 26px rgba(255,150,0,.5)}
+@keyframes bob{50%{translate:0 -6px}}
+.pcard::before{content:"";position:absolute;inset:4px;border-radius:10px;border:1px dashed rgba(245,196,81,.18);pointer-events:none}
+.pcard .tag{font-size:.58rem;letter-spacing:1.5px;white-space:nowrap;color:#c9a46a;text-transform:uppercase}
+.pcard .prize{font-weight:900;font-size:1.02rem;line-height:1.2;margin:4px 0 8px;color:#ffe08a;text-shadow:0 0 10px rgba(255,140,0,.6);word-break:break-word}
+.pcard .who{display:flex;align-items:center;gap:6px;font-weight:700;font-size:.88rem;word-break:break-word}
+.pcard .meta{display:flex;justify-content:space-between;gap:8px;margin-top:8px;padding-top:7px;border-top:1px solid rgba(245,196,81,.2);font-size:.68rem;color:#e8cf9a;font-family:Georgia,serif}
+.pcard .meta .ev{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pcard .meta .dt{white-space:nowrap;color:#c9a46a}
+/* móvil / pantallas estrechas: tira horizontal bajo el ranking */
+.pstrip{display:none;margin-top:46px}
+.pstrip h2{font-family:'Metal Mania',cursive;font-weight:400;font-size:clamp(1.6rem,5vw,2.2rem);text-align:center;margin-bottom:12px;
+  background:linear-gradient(180deg,#fff3b0,#ffb300 45%,#ff4d00);-webkit-background-clip:text;background-clip:text;color:transparent}
+.pstrip .viewport{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.pstrip .ptrack{flex-direction:row;width:max-content;padding:12px 8px;animation-name:floatLeft}
+.pstrip .pcard{width:200px;flex:none}
+@keyframes floatLeft{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (max-width:1400px){ .pfloat{display:none} .pstrip.has{display:block} }
+@media (prefers-reduced-motion:reduce){ .ptrack,.pcard{animation:none} }
+/* admin */
+.przrow{display:grid;grid-template-columns:1.1fr 140px 1fr 1.2fr auto;gap:8px;align-items:center;background:rgba(0,0,0,.35);padding:8px;border-radius:12px;border:1px solid rgba(138,90,18,.45)}
+.przrow input[type=date]{font-family:inherit;background:#0b0202;border:1px solid var(--gold-dark);color:#fff;border-radius:8px;padding:8px 10px;font-size:.85rem;width:100%;color-scheme:dark}
+.przhead{display:grid;grid-template-columns:1.1fr 140px 1fr 1.2fr auto;gap:8px;padding:0 8px 4px;font-size:.62rem;letter-spacing:1px;color:var(--gold);text-transform:uppercase}
+.przhead span:last-child{width:34px}
+
 @media (max-width:640px){
+  .przrow{grid-template-columns:1fr 1fr}.przrow .w2{grid-column:1/-1}.przhead{display:none}
   .podium{gap:8px}.av{width:70px;font-size:1.9rem}.p1 .av{width:88px;font-size:2.3rem}
   .p1 .base{height:120px;font-size:3rem}.p2 .base{height:86px;font-size:2.4rem}.p3 .base{height:64px;font-size:2.2rem}
   .spot .name{font-size:.8rem}.p1 .name{font-size:.9rem}
@@ -110,6 +149,10 @@ label{font-size:.7rem;color:var(--gold);letter-spacing:1px;text-transform:upperc
 </head>
 <body>
 <canvas id="embers"></canvas>
+<div class="pfloat" id="pfloat" aria-label="Premios entregados">
+  <div class="pcol l"><div class="ptrack"></div></div>
+  <div class="pcol r"><div class="ptrack"></div></div>
+</div>
 <a class="back" href="index.html">Menú</a>
 
 <main class="page">
@@ -127,6 +170,10 @@ label{font-size:.7rem;color:var(--gold);letter-spacing:1px;text-transform:upperc
   </div>
   <section class="podium" id="podium"></section>
   <section class="rest" id="rest"></section>
+  <section class="pstrip" id="pstrip">
+    <h2>Premios entregados</h2>
+    <div class="viewport"><div class="ptrack"></div></div>
+  </section>
 </main>
 
 <div class="corner"><button id="adminBtn" title="Admin">⚙️</button></div>
@@ -161,6 +208,12 @@ label{font-size:.7rem;color:var(--gold);letter-spacing:1px;text-transform:upperc
     <div class="section-title"><span>JUGADORES</span><div><button class="btn sm" id="addPlayer">+ Añadir</button></div></div>
     <div class="hint" style="margin:-4px 0 10px">Pulsa «📁 Foto» (o la propia foto) para subir una imagen desde tu ordenador. El orden se calcula solo según los puntos.</div>
     <div class="list" id="playerList"></div>
+
+    <div class="section-title"><span>PREMIOS ENTREGADOS</span><div><button class="btn sm" id="addPrize">+ Añadir premio</button></div></div>
+    <div class="hint" style="margin:-4px 0 10px">Salen como tarjetas flotando a los lados del ranking. No se borran al reiniciar los puntos.</div>
+    <div class="przhead"><span>Ganador</span><span>Fecha</span><span>Evento</span><span>Premio</span><span></span></div>
+    <div class="list" id="prizeList"></div>
+    <datalist id="playerNames"></datalist>
     <div class="admin-actions">
       <button class="btn" data-close="adminModal">Cancelar</button>
       <button class="btn primary" id="saveBtn">Guardar</button>
@@ -181,6 +234,7 @@ const DEFAULTS = {
   subtitle: 'Los más top de la comunidad',
   unit: 'puntos',
   lastReset: '',   // 'AAAA-MM-DD' del último reinicio manual
+  prizes: [],      // [{ id, winner, date: 'AAAA-MM-DD', event, prize }]
   password: 'dragon',
   players: [
     { name: 'Jugador 1', avatar: '', points: 150 },
@@ -191,7 +245,7 @@ const DEFAULTS = {
   ]
 };
 const clone = o => JSON.parse(JSON.stringify(o));
-function fromData(d){ return d && Array.isArray(d.players) ? { ...clone(DEFAULTS), ...d } : clone(DEFAULTS); }
+function fromData(d){ const o = d && Array.isArray(d.players) ? { ...clone(DEFAULTS), ...d } : clone(DEFAULTS); if(!Array.isArray(o.prizes)) o.prizes = []; return o; }
 function load(){ try{ return fromData(JSON.parse(localStorage.getItem(KEY))); }catch(e){ return clone(DEFAULTS); } }
 /* ---------- Base de datos (Supabase, ver db.js) ---------- */
 const PAGE = 'ranking';
@@ -234,7 +288,41 @@ tickCountdown(); setInterval(tickCountdown, 1000);
 const sorted = () => state.players.map(p => ({ ...p, points: +p.points || 0 })).sort((a,b) => b.points - a.points);
 
 /* ---------- Vista pública ---------- */
+/* ---------- Premios entregados ---------- */
+function prizeCard(z, i){
+  const c = document.createElement('article'); c.className = 'pcard';
+  c.style.setProperty('--rot', ((i % 2 ? 1 : -1) * (1 + (i * 7 % 3))) + 'deg');
+  c.style.setProperty('--dl', (-(i * 1.3) % 7) + 's');
+  const tag = document.createElement('div'); tag.className = 'tag'; tag.textContent = '🏆 Premio entregado';
+  const pr = document.createElement('div'); pr.className = 'prize'; pr.textContent = z.prize || '—';
+  const who = document.createElement('div'); who.className = 'who'; who.textContent = '👑 ' + (z.winner || 'Sin nombre');
+  const meta = document.createElement('div'); meta.className = 'meta';
+  const ev = document.createElement('span'); ev.className = 'ev'; ev.textContent = z.event || ''; ev.title = z.event || '';
+  const dt = document.createElement('span'); dt.className = 'dt'; dt.textContent = z.date ? fmtDate(z.date) : '';
+  meta.append(ev, dt);
+  c.append(tag, pr, who, meta);
+  return c;
+}
+function fillTrack(track, items, minCount){
+  track.innerHTML = '';
+  if(!items.length) return;
+  let list = [...items];
+  while(list.length < minCount) list = list.concat(items);
+  [...list, ...list].forEach((z, i) => track.append(prizeCard(z, i)));   // duplicado para un bucle sin saltos
+  track.style.setProperty('--dur', (list.length * 7) + 's');
+}
+function renderPrizes(){
+  const items = [...(state.prizes || [])].filter(z => z.prize || z.winner).sort((a,b) => (b.date||'').localeCompare(a.date||''));
+  const left = items.filter((_, i) => i % 2 === 0), right = items.length > 1 ? items.filter((_, i) => i % 2 === 1) : items;
+  fillTrack(document.querySelector('.pcol.l .ptrack'), left, 6);
+  fillTrack(document.querySelector('.pcol.r .ptrack'), right, 6);
+  fillTrack(document.querySelector('#pstrip .ptrack'), items, 6);
+  $('#pfloat').style.visibility = items.length ? '' : 'hidden';
+  $('#pstrip').classList.toggle('has', items.length > 0);
+}
+
 function render(){
+  renderPrizes();
   $('#titleText').textContent = state.title; $('#subtitleText').textContent = state.subtitle; document.title = state.title;
   tickCountdown();
   const list = sorted(), pod = $('#podium'), rest = $('#rest');
@@ -318,7 +406,7 @@ function openAdmin(){
   $('#aTitle').value = draft.title; $('#aSubtitle').value = draft.subtitle; $('#aUnit').value = draft.unit;
   $('#aPassword').value = ''; $('#adminErr').textContent = '';
   $('#resetInfo').textContent = draft.lastReset ? `Último reinicio: ${fmtDate(draft.lastReset)}. Toca el día 1 de cada mes.` : 'Reinicio mensual: el día 1 de cada mes pon los puntos a 0.';
-  renderList(); $('#adminModal').classList.add('show');
+  renderList(); renderPrizeList(); $('#adminModal').classList.add('show');
 }
 function renderList(){
   const list = $('#playerList'); list.innerHTML = '';
@@ -348,6 +436,30 @@ $('#avFile').onchange = async e => {
   try{ draft.players[avTarget].avatar = await readImage(f); $('#adminErr').textContent = ''; renderList(); }
   catch(err){ $('#adminErr').textContent = err; }
 };
+function renderPrizeList(){
+  $('#playerNames').innerHTML = '';
+  draft.players.forEach(p => { if(p.name) $('#playerNames').append(new Option(p.name)); });
+  const list = $('#prizeList'); list.innerHTML = '';
+  if(!draft.prizes.length){ const e = document.createElement('div'); e.className = 'hint'; e.textContent = 'Todavía no hay premios. Pulsa «+ Añadir premio».'; list.append(e); return; }
+  draft.prizes.forEach((z, i) => {
+    const row = document.createElement('div'); row.className = 'przrow';
+    const mk = (type, field, ph, cls) => {
+      const inp = document.createElement('input'); inp.type = type; inp.value = z[field] || ''; inp.placeholder = ph || ''; if(cls) inp.className = cls;
+      inp.oninput = () => z[field] = inp.value; return inp;
+    };
+    const winner = mk('text', 'winner', 'Ganador'); winner.setAttribute('list', 'playerNames');
+    const date = mk('date', 'date');
+    const event = mk('text', 'event', 'Evento (torneo, sorteo…)');
+    const prize = mk('text', 'prize', 'Qué ganó', 'w2');
+    const del = document.createElement('button'); del.className = 'btn sm danger'; del.textContent = '✕'; del.title = 'Eliminar';
+    del.onclick = () => { draft.prizes.splice(i, 1); renderPrizeList(); };
+    row.append(winner, date, event, prize, del); list.append(row);
+  });
+}
+$('#addPrize').onclick = () => {
+  draft.prizes.unshift({ id: Math.random().toString(36).slice(2, 9), winner: '', date: todayISO(), event: '', prize: '' });
+  renderPrizeList(); $('#prizeList input').focus();
+};
 $('#addPlayer').onclick = () => {
   draft.players.push({ name: 'Nuevo jugador', avatar: '', points: 0 });
   renderList(); const last = $('#playerList').lastElementChild; last.scrollIntoView({ block: 'nearest' }); last.querySelector('input').select();
@@ -366,6 +478,7 @@ $('#saveBtn').onclick = () => {
   draft.title = $('#aTitle').value.trim() || DEFAULTS.title;
   draft.subtitle = $('#aSubtitle').value.trim();
   draft.unit = $('#aUnit').value.trim() || 'puntos';
+  draft.prizes = draft.prizes.filter(z => (z.winner||'').trim() || (z.prize||'').trim()).map(z => ({ ...z, winner: (z.winner||'').trim(), event: (z.event||'').trim(), prize: (z.prize||'').trim() }));
   const np = $('#aPassword').value.trim();
   if(np){
     if(KDB.enabled) KDB.changePassword(PAGE, () => sessionPwd, np, () => { sessionPwd = np; KDB.toast('✓ Contraseña cambiada'); }).catch(e => KDB.toast('⚠ ' + e.message, false));
