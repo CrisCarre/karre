@@ -1,10 +1,3 @@
-/* =========================================================
-   KARRE · Conexión con Supabase (compartido por todas las páginas)
-   1) Pon aquí la URL y la "anon public key" de tu proyecto
-      (Supabase → Project Settings → API).
-   2) Si SUPABASE_ANON_KEY se deja como está, las páginas
-      funcionan igual pero guardando solo en el navegador.
-   ========================================================= */
 window.KDB = (() => {
   const SUPABASE_URL      = 'https://tuucrcdvzenrpmoqqnqz.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR1dWNyY2R2emVucnBtb3FxbnF6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3MDI5NTEsImV4cCI6MjA5NzI3ODk1MX0.tQA6dChjvv4Rf1VtNFLZMbRMhuMtWhOnueb9J2QShI8';
