@@ -28,6 +28,9 @@ window.KDB = (() => {
   const queue = fn => { const p = chain.then(fn); chain = p.catch(() => {}); return p; };
   const save = (id, data, getPass) =>
     queue(() => rpc('karre_save', { p_id: id, p_data: data, p_password: getPass() })).then(ts => { lastOwnSave[id] = ts; return ts; });
+  // Cambia una contraseña secundaria (p. ej. 'ruleta_tirar') con la contraseña de admin de su página
+  const setPassword = (adminId, getAdminPass, target, newPass, onOk) =>
+    queue(() => rpc('karre_set_password', { p_admin_id: adminId, p_admin_pass: getAdminPass(), p_target: target, p_new: newPass }).then(r => { onOk && onOk(); return r; }));
   const changePassword = (id, getOld, newPass, onOk) =>
     queue(() => rpc('karre_change_password', { p_id: id, p_old: getOld(), p_new: newPass }).then(r => { onOk && onOk(); return r; }));
 
@@ -61,5 +64,5 @@ window.KDB = (() => {
     clearTimeout(el._t); el._t = setTimeout(() => el.style.opacity = '0', ok ? 1800 : 5000);
   }
 
-  return { enabled, load, login, save, changePassword, watch, toast };
+  return { enabled, load, login, save, changePassword, setPassword, watch, toast };
 })();

@@ -254,6 +254,18 @@ body.legend #wheel{box-shadow:0 0 0 3px #12032e,0 0 0 6px #b99bff}
   </div>
 </div>
 
+<!-- Contraseña para tirar la Legendaria -->
+<div class="modal" id="spinLockModal">
+  <div class="card" style="text-align:center">
+    <button type="button" class="close-x" data-close="spinLockModal">×</button>
+    <h2>🔒 Ruleta Legendaria</h2>
+    <p style="font-size:.8rem;color:#e8cf9a;margin:-6px 0 14px;font-family:Georgia,serif">Introduce la contraseña para tirar</p>
+    <input type="password" id="spinPwd" autocomplete="off">
+    <div class="err" id="spinErr"></div>
+    <div style="margin-top:10px"><button class="btn primary" type="button" id="spinPwdBtn">¡Tirar!</button></div>
+  </div>
+</div>
+
 <!-- Login admin -->
 <div class="modal" id="loginModal">
   <div class="card" id="loginForm">
@@ -277,6 +289,11 @@ body.legend #wheel{box-shadow:0 0 0 3px #12032e,0 0 0 6px #b99bff}
       <div><label>Nueva contraseña (opcional)</label><input type="text" id="aPassword" placeholder="Dejar vacío para no cambiar"></div>
     </div>
     <label class="check"><input type="checkbox" id="aRemove"> Eliminar el premio de la ruleta cuando salga</label>
+    <label class="check"><input type="checkbox" id="aLegendLock"> Pedir contraseña para tirar la Ruleta Legendaria</label>
+    <div class="grid2" id="legendLockOpts">
+      <div><label>Pedirla</label><select id="aLegendAsk" style="width:100%;font-family:inherit;background:#0b0202;border:1px solid var(--gold-dark);color:#fff;border-radius:8px;padding:9px 10px"><option value="spin">En cada tirada</option><option value="session">Una vez (hasta recargar la página)</option></select></div>
+      <div><label>Nueva contraseña para tirar (opcional)</label><input type="text" id="aLegendPwd" placeholder="Dejar vacío para no cambiar"></div>
+    </div>
     <label class="check"><input type="checkbox" id="aHidden"> Probabilidad oculta: todas las casillas se ven del mismo tamaño (el sorteo sigue usando el peso)</label>
 
     <div class="tabs">
@@ -349,6 +366,9 @@ const DEFAULTS = {
   password: 'dragon',
   removeOnWin: false,
   hiddenOdds: true,
+  legendLock: true,        // la Legendaria pide contraseña para tirar
+  legendAsk: 'spin',       // 'spin' = cada tirada · 'session' = una vez
+  legendPassword: 'legendaria',   // solo se usa sin base de datos
   muted: false,
   current: 'normal',
   wheels: {
@@ -381,7 +401,7 @@ function fromData(d){
 }
 /* ---------- Base de datos (Supabase, ver db.js) ---------- */
 const PAGE = 'ruleta';
-const PRIVATE = ['password','muted','current'];                 // nunca se suben a la BBDD
+const PRIVATE = ['password','muted','current','legendPassword'];                 // nunca se suben a la BBDD
 let sessionPwd = '', remoteEmpty = false;
 let onSaved = ok => { if(ok) KDB.toast('✓ Guardado en la base de datos'); };
 const publicData = () => { const o = clone(state); PRIVATE.forEach(k => delete o[k]); return o; };
@@ -555,8 +575,16 @@ function pickWeighted(){
   return W().items.length-1;
 }
 
+let legendOk = false;
+$('#aLegendLock').onchange = () => $('#legendLockOpts').style.display = $('#aLegendLock').checked ? '' : 'none';
 function spin(){
   if(spinning || swapping || W().items.length < 2 || document.querySelector('.modal.show')) return;
+  if(state.current === 'legend' && state.legendLock !== false && !legendOk){
+    $('#spinPwd').value = ''; $('#spinErr').textContent = ''; $('#spinLockModal').classList.add('show');
+    setTimeout(() => $('#spinPwd').focus(), 50);
+    return;
+  }
+  if(state.current === 'legend' && state.legendAsk !== 'session') legendOk = false;   // se gasta en esta tirada
   spinning = true; spinBtn.disabled = true;
   wrap.classList.remove('win'); wrap.classList.add('spinning');
   try{ audio().resume(); }catch(e){}
@@ -580,6 +608,20 @@ function spin(){
     else { rotation = to; finish(win); }
   })(t0);
 }
+
+async function trySpinPwd(){
+  const pwd = $('#spinPwd').value; let ok;
+  if(!pwd) return;
+  if(KDB.enabled){
+    $('#spinErr').textContent = 'Comprobando…';
+    try{ ok = await KDB.login('ruleta_tirar', pwd); }catch(e){ $('#spinErr').textContent = 'Error de conexión: ' + e.message; return; }
+  } else ok = pwd === (state.legendPassword || 'legendaria');
+  if(!ok){ $('#spinErr').textContent = 'Contraseña incorrecta'; $('#spinPwd').select(); return; }
+  legendOk = true; $('#spinLockModal').classList.remove('show');
+  setTimeout(spin, 150);
+}
+$('#spinPwdBtn').onclick = trySpinPwd;
+$('#spinPwd').addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); trySpinPwd(); } });
 
 function finish(i){
   spinning = false; lastWinner = i;
@@ -709,7 +751,7 @@ function swapWheel(){
   ], { duration: 560, easing: 'cubic-bezier(.55,0,.9,.35)', fill: 'forwards' });
   out.onfinish = () => {
     state.current = state.current === 'legend' ? 'normal' : 'legend';
-    saveLocal(); rotation = 0; applyTexts(); drawWheel(); burst();
+    saveLocal(); rotation = 0; legendOk = false; applyTexts(); drawWheel(); burst();
     const inn = wrap.animate([
       { transform: P+'rotateY(-90deg) rotateZ(25deg) scale(.8)' },
       { transform: P+'rotateY(14deg) rotateZ(-3deg) scale(1.06)', offset: .7 },
@@ -820,6 +862,14 @@ $('#saveBtn').onclick = () => {
   draft.duration = Math.min(40, Math.max(3, parseFloat($('#aDuration').value)||14));
   draft.removeOnWin = $('#aRemove').checked;
   draft.hiddenOdds = $('#aHidden').checked;
+  draft.legendLock = $('#aLegendLock').checked;
+  draft.legendAsk = $('#aLegendAsk').value;
+  const nlp = $('#aLegendPwd').value.trim();
+  if(nlp){
+    if(KDB.enabled) KDB.setPassword(PAGE, () => sessionPwd, 'ruleta_tirar', nlp, () => KDB.toast('✓ Contraseña de la Legendaria cambiada')).catch(e => KDB.toast('⚠ ' + e.message, false));
+    else draft.legendPassword = nlp;
+  }
+  if(!draft.legendLock || draft.legendAsk === 'spin') legendOk = false;
   const np = $('#aPassword').value.trim();
   if(np){
     if(KDB.enabled) KDB.changePassword(PAGE, () => sessionPwd, np, () => { sessionPwd = np; KDB.toast('✓ Contraseña cambiada'); }).catch(e => KDB.toast('⚠ ' + e.message, false));
@@ -841,7 +891,9 @@ $('#resetBtn').onclick = () => {
   clearTimeout(resetArmed); resetArmed = null; b.textContent = 'Restaurar';
   const pwd = draft.password; draft = clone(DEFAULTS); draft.password = pwd; draft.muted = state.muted; openAdminFromDraft();
 };
-function openAdminFromDraft(){ $('#aDuration').value = draft.duration; $('#aRemove').checked = !!draft.removeOnWin; $('#aHidden').checked = draft.hiddenOdds !== false; $('#adminErr').textContent = ''; renderAdminWheel(); }
+function openAdminFromDraft(){ $('#aDuration').value = draft.duration; $('#aRemove').checked = !!draft.removeOnWin; $('#aHidden').checked = draft.hiddenOdds !== false;
+  $('#aLegendLock').checked = draft.legendLock !== false; $('#aLegendAsk').value = draft.legendAsk || 'spin'; $('#aLegendPwd').value = '';
+  $('#legendLockOpts').style.display = $('#aLegendLock').checked ? '' : 'none'; $('#adminErr').textContent = ''; renderAdminWheel(); }
 
 $('#exportBtn').onclick = () => {
   const { password, ...data } = draft;
