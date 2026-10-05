@@ -32,7 +32,7 @@ body::before{
 }
 #embers{position:fixed;inset:0;pointer-events:none;z-index:1}
 
-.stage{position:relative;z-index:2;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px 16px 30px;gap:14px}
+.stage{position:relative;z-index:3;pointer-events:none;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:18px 16px 30px;gap:14px}
 
 .title{
   font-family:'Metal Mania',cursive;font-weight:400;text-align:center;line-height:1;
@@ -194,7 +194,14 @@ body.legend #wheel{box-shadow:0 0 0 3px #12032e,0 0 0 6px #b99bff}
 .hint{font-size:.7rem;color:#c9a46a;margin-top:4px}
 
 /* ===== GANADORES (tarjetas flotantes) ===== */
-.wfloat{position:fixed;inset:0;z-index:3;pointer-events:none}
+.stage > *{pointer-events:auto}
+.stage > .title,.stage > .subtitle{pointer-events:none}
+.wfloat{position:fixed;inset:0;z-index:2;pointer-events:none;overflow:hidden}
+.wfloat .wcard{position:absolute;left:0;top:0;width:200px;pointer-events:auto;cursor:grab;touch-action:none;user-select:none;will-change:transform;animation:none;
+  transform:translate(var(--x,0px),var(--y,0px)) rotate(var(--rot,0deg)) scale(var(--sc,1));transition:box-shadow .2s}
+.wfloat .wcard:hover{transform:translate(var(--x,0px),var(--y,0px)) rotate(var(--rot,0deg)) scale(var(--sc,1.04));box-shadow:0 14px 30px rgba(0,0,0,.7),0 0 26px rgba(255,150,0,.5)}
+.wfloat .wcard.dragging{cursor:grabbing;box-shadow:0 22px 40px rgba(0,0,0,.75),0 0 34px rgba(255,170,0,.7)}
+@media (max-width:640px){ .wfloat .wcard{width:160px;font-size:.9em} }
 .wfloat.off,.wstrip.off{display:none !important}
 .wcol{position:absolute;top:0;bottom:0;width:220px;overflow:hidden;pointer-events:auto;
   -webkit-mask-image:linear-gradient(transparent,#000 14%,#000 86%,transparent);mask-image:linear-gradient(transparent,#000 14%,#000 86%,transparent)}
@@ -224,7 +231,7 @@ body.legend .wcard{background:linear-gradient(160deg,#2a0a5a,#0d0420);border-col
 .wstrip .wtrack{flex-direction:row;width:max-content;padding:10px 8px;animation-name:wLeft}
 .wstrip .wcard{width:190px;flex:none}
 @keyframes wLeft{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-@media (max-width:1250px){ .wfloat{display:none} .wstrip.has{display:block} }
+
 @media (prefers-reduced-motion:reduce){ .wtrack,.wcard{animation:none} }
 /* apuntar ganador desde el resultado */
 .quick-win{display:none;gap:6px;margin:-6px 0 16px;justify-content:center;flex-wrap:wrap}
@@ -246,10 +253,7 @@ body.admin-on .quick-win{display:flex}
 </head>
 <body>
 <canvas id="embers"></canvas>
-<div class="wfloat off" id="wfloat" aria-label="Ganadores">
-  <div class="wcol l"><div class="wtrack"></div></div>
-  <div class="wcol r"><div class="wtrack"></div></div>
-</div>
+<div class="wfloat off" id="wfloat" aria-label="Ganadores"></div>
 <a class="back" href="index.html">Menú</a>
 
 <main class="stage">
@@ -285,10 +289,6 @@ body.admin-on .quick-win{display:flex}
     <button class="swap-btn" id="swapBtn">Normal</button>
   </div>
   <div class="history" id="history"></div>
-  <section class="wstrip off" id="wstrip">
-    <h3>Ganadores</h3>
-    <div class="viewport"><div class="wtrack"></div></div>
-  </section>
 </main>
 
 <div class="corner">
@@ -734,26 +734,76 @@ function winnerCard(z, i){
   c.append(tag, pr, who, meta);
   return c;
 }
-function fillWTrack(track, items, minCount){
-  track.innerHTML = '';
-  if(!items.length) return;
-  let list = [...items];
-  while(list.length < minCount) list = list.concat(items);
-  [...list, ...list].forEach((z, i) => track.append(winnerCard(z, i)));
-  track.style.setProperty('--dur', (list.length * 7) + 's');
-}
+/* Tarjetas flotando libremente por toda la pantalla (detrás de la ruleta).
+   Cada ganador sale UNA sola vez. Se pueden coger y lanzar con el ratón o el dedo. */
+const floaters = new Map();   // id -> { el, x, y, vx, vy, rot, vr, drag }
+let floatRAF = null, lastT = 0;
+const SPEED = 28;             // velocidad de crucero (px/s)
+function cardKey(z, i){ return z.id || (z.winner + '|' + z.prize + '|' + z.date + '|' + i); }
 function renderWinners(){
-  const items = [...(state.winners || [])].filter(z => z.winner || z.prize).sort((a,b) => (b.date||'').localeCompare(a.date||''));
+  const layer = $('#wfloat');
+  const items = [...(state.winners || [])].filter(z => z.winner || z.prize).sort((a,b) => (b.date||'').localeCompare(a.date||'')).slice(0, 30);
   const on = state.showWinners !== false && items.length > 0;
-  $('#wfloat').classList.toggle('off', !on); $('#wstrip').classList.toggle('off', !on); $('#wstrip').classList.toggle('has', on);
-  if(!on) return;
-  let left, right;
-  if(items.length >= 8){ left = items.filter((_, i) => i % 2 === 0); right = items.filter((_, i) => i % 2 === 1); }
-  else { const k = Math.ceil(items.length / 2); left = items; right = [...items.slice(k), ...items.slice(0, k)].reverse(); }
-  fillWTrack(document.querySelector('.wcol.l .wtrack'), left, 6);
-  fillWTrack(document.querySelector('.wcol.r .wtrack'), right, 6);
-  fillWTrack(document.querySelector('#wstrip .wtrack'), items, 6);
+  layer.classList.toggle('off', !on);
+  const keep = new Set();
+  if(on) items.forEach((z, i) => {
+    const k = cardKey(z, i); keep.add(k);
+    const old = floaters.get(k);
+    const el = winnerCard(z, i); el.style.removeProperty('--dl');
+    if(old){ old.el.replaceWith(el); old.el = el; }
+    else {
+      const W = innerWidth, H = innerHeight, a = Math.random() * Math.PI * 2;
+      const f = { el, x: Math.random() * Math.max(10, W - 220), y: Math.random() * Math.max(10, H - 160),
+                  vx: Math.cos(a) * SPEED, vy: Math.sin(a) * SPEED, rot: (Math.random() * 16 - 8), vr: (Math.random() * 6 - 3), drag: null };
+      floaters.set(k, f); layer.append(el);
+    }
+    attachDrag(floaters.get(k));
+  });
+  for(const [k, f] of floaters){ if(!keep.has(k)){ f.el.remove(); floaters.delete(k); } }
+  if(on && !floatRAF){ lastT = performance.now(); floatRAF = requestAnimationFrame(stepFloat); }
 }
+function stepFloat(t){
+  const dt = Math.min(.05, (t - lastT) / 1000); lastT = t;
+  const W = innerWidth, H = innerHeight;
+  for(const f of floaters.values()){
+    const w = f.el.offsetWidth || 200, h = f.el.offsetHeight || 120;
+    if(!f.drag){
+      // frena poco a poco hasta la velocidad de crucero tras un lanzamiento
+      const sp = Math.hypot(f.vx, f.vy);
+      if(sp > SPEED){ const k = Math.max(SPEED / sp, 1 - dt * 1.6); f.vx *= k; f.vy *= k; }
+      else if(sp < SPEED * .6){ const a = Math.random() * Math.PI * 2; f.vx += Math.cos(a) * 6 * dt; f.vy += Math.sin(a) * 6 * dt; }
+      f.x += f.vx * dt; f.y += f.vy * dt; f.rot += f.vr * dt;
+      if(f.rot > 10 || f.rot < -10) f.vr = -f.vr;
+      if(f.x < 0){ f.x = 0; f.vx = Math.abs(f.vx); } if(f.x > W - w){ f.x = W - w; f.vx = -Math.abs(f.vx); }
+      if(f.y < 0){ f.y = 0; f.vy = Math.abs(f.vy); } if(f.y > H - h){ f.y = H - h; f.vy = -Math.abs(f.vy); }
+    }
+    f.el.style.setProperty('--x', f.x + 'px'); f.el.style.setProperty('--y', f.y + 'px'); f.el.style.setProperty('--rot', f.rot + 'deg');
+  }
+  floatRAF = floaters.size && !$('#wfloat').classList.contains('off') ? requestAnimationFrame(stepFloat) : null;
+}
+function attachDrag(f){
+  const el = f.el;
+  el.onpointerdown = e => {
+    e.preventDefault(); el.setPointerCapture(e.pointerId);
+    f.drag = { ox: e.clientX - f.x, oy: e.clientY - f.y, lx: e.clientX, ly: e.clientY, lt: performance.now(), vx: 0, vy: 0 };
+    el.classList.add('dragging'); el.style.setProperty('--sc', '1.08'); el.style.zIndex = 5;
+  };
+  el.onpointermove = e => {
+    if(!f.drag) return;
+    const now = performance.now(), d = f.drag, dt = Math.max(.008, (now - d.lt) / 1000);
+    d.vx = d.vx * .5 + ((e.clientX - d.lx) / dt) * .5; d.vy = d.vy * .5 + ((e.clientY - d.ly) / dt) * .5;
+    d.lx = e.clientX; d.ly = e.clientY; d.lt = now;
+    f.x = e.clientX - d.ox; f.y = e.clientY - d.oy;
+  };
+  const up = () => {
+    if(!f.drag) return;
+    const max = 900; f.vx = Math.max(-max, Math.min(max, f.drag.vx)); f.vy = Math.max(-max, Math.min(max, f.drag.vy));
+    if(Math.hypot(f.vx, f.vy) < 5){ const a = Math.random() * Math.PI * 2; f.vx = Math.cos(a) * SPEED; f.vy = Math.sin(a) * SPEED; }
+    f.drag = null; el.classList.remove('dragging'); el.style.setProperty('--sc', '1'); el.style.zIndex = '';
+  };
+  el.onpointerup = up; el.onpointercancel = up;
+}
+addEventListener('resize', () => { for(const f of floaters.values()){ f.x = Math.min(f.x, innerWidth - 200); f.y = Math.min(f.y, innerHeight - 140); } });
 function fillWinnerNames(list){
   const names = [...new Set((list || []).map(z => (z.winner || '').trim()).filter(Boolean))];
   $('#winnerNames').innerHTML = ''; names.forEach(n => $('#winnerNames').append(new Option(n)));
