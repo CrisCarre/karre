@@ -193,6 +193,50 @@ body.legend #wheel{box-shadow:0 0 0 3px #12032e,0 0 0 6px #b99bff}
 .img-prev{width:64px;height:64px;border-radius:50%;flex:none;border:2px solid var(--gold);background:#000 center/cover no-repeat;box-shadow:0 0 12px rgba(57,255,90,.35)}
 .hint{font-size:.7rem;color:#c9a46a;margin-top:4px}
 
+/* ===== GANADORES (tarjetas flotantes) ===== */
+.wfloat{position:fixed;inset:0;z-index:3;pointer-events:none}
+.wfloat.off,.wstrip.off{display:none !important}
+.wcol{position:absolute;top:0;bottom:0;width:220px;overflow:hidden;pointer-events:auto;
+  -webkit-mask-image:linear-gradient(transparent,#000 14%,#000 86%,transparent);mask-image:linear-gradient(transparent,#000 14%,#000 86%,transparent)}
+.wcol.l{left:max(10px, calc(50% - 300px - 270px))}
+.wcol.r{right:max(10px, calc(50% - 300px - 270px))}
+.wtrack{display:flex;flex-direction:column;gap:20px;padding:11px 12px;animation:wUp var(--dur,60s) linear infinite}
+.wcol.r .wtrack{animation-direction:reverse}
+.wcol:hover .wtrack,.wstrip:hover .wtrack{animation-play-state:paused}
+@keyframes wUp{from{transform:translateY(0)}to{transform:translateY(-50%)}}
+.wcard{position:relative;padding:13px 14px 11px;border-radius:14px;color:#fff;transform:rotate(var(--rot,0deg));
+  background:linear-gradient(160deg,#3c0e04,#120302);border:1px solid rgba(245,196,81,.55);
+  box-shadow:0 10px 24px rgba(0,0,0,.6),0 0 18px rgba(255,90,0,.18);transition:transform .25s,box-shadow .25s;animation:wBob 7s ease-in-out infinite;animation-delay:var(--dl,0s)}
+body.legend .wcard{background:linear-gradient(160deg,#2a0a5a,#0d0420);border-color:rgba(201,168,255,.6);box-shadow:0 10px 24px rgba(0,0,0,.6),0 0 18px rgba(140,60,255,.25)}
+.wcard:hover{transform:rotate(0) scale(1.05);box-shadow:0 14px 30px rgba(0,0,0,.7),0 0 26px rgba(255,150,0,.5)}
+@keyframes wBob{50%{translate:0 -6px}}
+.wcard .tag{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:.56rem;letter-spacing:1.5px;color:#c9a46a;text-transform:uppercase;white-space:nowrap}
+.wcard .prize{font-weight:900;font-size:1rem;line-height:1.2;margin:5px 0 7px;color:#ffe08a;text-shadow:0 0 10px rgba(255,140,0,.6);word-break:break-word}
+.wcard .who{font-weight:700;font-size:.88rem;word-break:break-word}
+.wcard .meta{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:8px;padding-top:7px;border-top:1px solid rgba(245,196,81,.2);font-size:.66rem;color:#c9a46a;font-family:Georgia,serif}
+.st{font-family:'Cinzel',serif;font-size:.58rem;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:20px;white-space:nowrap}
+.st.ok{background:rgba(57,220,90,.18);border:1px solid #39dc5a;color:#c9ffd6}
+.st.no{background:rgba(255,120,0,.15);border:1px solid #c26a12;color:#ffcf8a}
+.wstrip{display:none;width:100%;max-width:640px;margin-top:10px}
+.wstrip h3{font-family:'Metal Mania',cursive;font-weight:400;font-size:1.6rem;text-align:center;margin-bottom:6px;
+  background:linear-gradient(180deg,#fff3b0,#ffb300 45%,#ff4d00);-webkit-background-clip:text;background-clip:text;color:transparent}
+.wstrip .viewport{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
+.wstrip .wtrack{flex-direction:row;width:max-content;padding:10px 8px;animation-name:wLeft}
+.wstrip .wcard{width:190px;flex:none}
+@keyframes wLeft{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (max-width:1250px){ .wfloat{display:none} .wstrip.has{display:block} }
+@media (prefers-reduced-motion:reduce){ .wtrack,.wcard{animation:none} }
+/* apuntar ganador desde el resultado */
+.quick-win{display:none;gap:6px;margin:-6px 0 16px;justify-content:center;flex-wrap:wrap}
+body.admin-on .quick-win{display:flex}
+.quick-win input{max-width:220px}
+/* admin ganadores */
+.wrow{display:grid;grid-template-columns:1fr 1.2fr 130px 110px auto;gap:6px;align-items:center;margin-bottom:6px}
+.wrow input[type=date]{font-family:inherit;background:#0b0202;border:1px solid var(--gold-dark);color:#fff;border-radius:8px;padding:8px;font-size:.85rem;width:100%;color-scheme:dark}
+.wrow .chk{display:flex;align-items:center;gap:5px;font-size:.75rem;color:#ffe3a0;margin:0;text-transform:none;letter-spacing:0;cursor:pointer}
+.wrow .chk input{accent-color:#39dc5a;width:17px;height:17px}
+@media (max-width:640px){ .wrow{grid-template-columns:1fr 1fr}.wrow .w2{grid-column:1/-1} }
+
 @media (max-width:560px){
   .grid2{grid-template-columns:1fr}
   .row{grid-template-columns:38px 48px 1fr 56px}
@@ -202,6 +246,10 @@ body.legend #wheel{box-shadow:0 0 0 3px #12032e,0 0 0 6px #b99bff}
 </head>
 <body>
 <canvas id="embers"></canvas>
+<div class="wfloat off" id="wfloat" aria-label="Ganadores">
+  <div class="wcol l"><div class="wtrack"></div></div>
+  <div class="wcol r"><div class="wtrack"></div></div>
+</div>
 <a class="back" href="index.html">Menú</a>
 
 <main class="stage">
@@ -237,6 +285,10 @@ body.legend #wheel{box-shadow:0 0 0 3px #12032e,0 0 0 6px #b99bff}
     <button class="swap-btn" id="swapBtn">Normal</button>
   </div>
   <div class="history" id="history"></div>
+  <section class="wstrip off" id="wstrip">
+    <h3>Ganadores</h3>
+    <div class="viewport"><div class="wtrack"></div></div>
+  </section>
 </main>
 
 <div class="corner">
@@ -250,6 +302,9 @@ body.legend #wheel{box-shadow:0 0 0 3px #12032e,0 0 0 6px #b99bff}
     <div class="roar">🐉 El dragón ha hablado 🐉</div>
     <div class="result-emoji" id="resultEmoji">🔥</div>
     <div class="result-text" id="resultText">—</div>
+    <div class="quick-win">
+      <input type="text" id="quickWinner" placeholder="¿Quién ha ganado? (opcional)" list="winnerNames">
+    </div>
     <button class="btn primary" id="resultOk">¡Aceptar!</button>
   </div>
 </div>
@@ -318,6 +373,13 @@ body.legend #wheel{box-shadow:0 0 0 3px #12032e,0 0 0 6px #b99bff}
     <div style="font-size:.72rem;color:#c9a46a;margin-bottom:8px">Color · Emoji · Texto · Peso (más peso = más probabilidad de salir)</div>
     <div class="items" id="itemsList"></div>
 
+    <div class="section-title"><span>GANADORES</span><button class="btn sm" id="addWinner">+ Añadir</button></div>
+    <label class="check"><input type="checkbox" id="aShowWinners"> Mostrar las tarjetas de ganadores flotando a los lados</label>
+    <div style="font-size:.72rem;color:#c9a46a;margin:4px 0 8px">Ganador · Premio · Fecha · Entregado. También puedes apuntarlo al salir el resultado, con el admin abierto.</div>
+    <div id="winnersList"></div>
+    <datalist id="winnerNames"></datalist>
+    <datalist id="prizeNames"></datalist>
+
     <div class="admin-actions">
       <div>
         <button class="btn sm" id="exportBtn">Exportar</button>
@@ -365,6 +427,8 @@ const DEFAULTS = {
   duration: 14,
   password: 'dragon',
   removeOnWin: false,
+  showWinners: true,
+  winners: [],      // [{ id, winner, prize, date, delivered, wheel: 'normal' | 'legend' }]
   hiddenOdds: true,
   legendLock: true,        // la Legendaria pide contraseña para tirar
   legendAsk: 'spin',       // 'spin' = cada tirada · 'session' = una vez
@@ -394,7 +458,7 @@ function fromData(d){
         wheels[k] = { ...def.wheels[k], ...w, items: Array.isArray(w.items) && w.items.length >= 2 ? w.items : def.wheels[k].items };
       }
       if(!d.duration || d.duration < 14) d.duration = 14;
-      return { ...def, ...d, wheels, current: d.current === 'legend' ? 'legend' : 'normal' };
+      return { ...def, ...d, wheels, winners: Array.isArray(d.winners) ? d.winners : [], current: d.current === 'legend' ? 'legend' : 'normal' };
     }
   }catch(e){}
   return def;
@@ -629,17 +693,71 @@ function finish(i){
   const it = W().items[i];
   $('#resultEmoji').textContent = it.emoji || '🐉';
   $('#resultText').textContent = it.text;
+  fillWinnerNames(state.winners);
   $('#resultModal').classList.add('show');
+  if(unlocked) setTimeout(() => $('#quickWinner').focus(), 300);
   roar(); burst();
   history.unshift(`${it.emoji||''} ${it.text}`.trim()); if(history.length > 6) history.pop();
   renderHistory();
 }
 
 $('#resultOk').onclick = () => {
+  const who = $('#quickWinner').value.trim();
+  if(who && unlocked && lastWinner > -1){
+    const it = W().items[lastWinner];
+    state.winners = state.winners || [];
+    state.winners.unshift({ id: Math.random().toString(36).slice(2, 9), winner: who, prize: it ? it.text : '', date: todayISO(), delivered: false, wheel: state.current });
+    save(); renderWinners();
+  }
+  $('#quickWinner').value = '';
   $('#resultModal').classList.remove('show'); wrap.classList.remove('win');
   if(state.removeOnWin && lastWinner > -1 && W().items.length > 2){ W().items.splice(lastWinner,1); save(); drawWheel(); }
   spinBtn.disabled = W().items.length < 2;
 };
+
+/* ---------- Ganadores ---------- */
+const todayISO = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0,10); };
+const fmtDate = iso => { if(!iso) return ''; const [y,m,d] = iso.split('-'); return `${d}/${m}/${y}`; };
+function winnerCard(z, i){
+  const c = document.createElement('article'); c.className = 'wcard';
+  c.style.setProperty('--rot', ((i % 2 ? 1 : -1) * (1 + (i * 7 % 3))) + 'deg');
+  c.style.setProperty('--dl', (-(i * 1.3) % 7) + 's');
+  const tag = document.createElement('div'); tag.className = 'tag';
+  const t1 = document.createElement('span'); t1.textContent = z.wheel === 'legend' ? '👑 Legendaria' : '🎡 Ruleta';
+  const st = document.createElement('span'); st.className = 'st ' + (z.delivered ? 'ok' : 'no'); st.textContent = z.delivered ? '✓ Entregado' : 'Pendiente';
+  tag.append(t1, st);
+  const pr = document.createElement('div'); pr.className = 'prize'; pr.textContent = z.prize || '—';
+  const who = document.createElement('div'); who.className = 'who'; who.textContent = '🏆 ' + (z.winner || 'Sin nombre');
+  const meta = document.createElement('div'); meta.className = 'meta';
+  const dt = document.createElement('span'); dt.textContent = fmtDate(z.date);
+  meta.append(dt);
+  c.append(tag, pr, who, meta);
+  return c;
+}
+function fillWTrack(track, items, minCount){
+  track.innerHTML = '';
+  if(!items.length) return;
+  let list = [...items];
+  while(list.length < minCount) list = list.concat(items);
+  [...list, ...list].forEach((z, i) => track.append(winnerCard(z, i)));
+  track.style.setProperty('--dur', (list.length * 7) + 's');
+}
+function renderWinners(){
+  const items = [...(state.winners || [])].filter(z => z.winner || z.prize).sort((a,b) => (b.date||'').localeCompare(a.date||''));
+  const on = state.showWinners !== false && items.length > 0;
+  $('#wfloat').classList.toggle('off', !on); $('#wstrip').classList.toggle('off', !on); $('#wstrip').classList.toggle('has', on);
+  if(!on) return;
+  let left, right;
+  if(items.length >= 8){ left = items.filter((_, i) => i % 2 === 0); right = items.filter((_, i) => i % 2 === 1); }
+  else { const k = Math.ceil(items.length / 2); left = items; right = [...items.slice(k), ...items.slice(0, k)].reverse(); }
+  fillWTrack(document.querySelector('.wcol.l .wtrack'), left, 6);
+  fillWTrack(document.querySelector('.wcol.r .wtrack'), right, 6);
+  fillWTrack(document.querySelector('#wstrip .wtrack'), items, 6);
+}
+function fillWinnerNames(list){
+  const names = [...new Set((list || []).map(z => (z.winner || '').trim()).filter(Boolean))];
+  $('#winnerNames').innerHTML = ''; names.forEach(n => $('#winnerNames').append(new Option(n)));
+}
 
 function renderHistory(){
   const h = $('#history'); h.innerHTML = '';
@@ -721,7 +839,7 @@ function applyEye(){
   eyeEl.style.backgroundSize = img ? 'cover' : '';
   eyeEl.style.backgroundPosition = img ? 'center' : '';
 }
-function applyTexts(){ const w = W(); $('#titleText').textContent = w.title; $('#subtitleText').textContent = w.subtitle; document.title = w.title;
+function applyTexts(){ renderWinners(); const w = W(); $('#titleText').textContent = w.title; $('#subtitleText').textContent = w.subtitle; document.title = w.title;
   document.body.classList.toggle('legend', state.current === 'legend');
   $('#swapBtn').textContent = state.current === 'legend' ? 'Legendaria' : 'Normal';
   applyEye(); $('#muteBtn').textContent = state.muted ? '🔇' : '🔊'; }
@@ -782,7 +900,7 @@ async function tryLogin(){
     try{ ok = await KDB.login(PAGE, pwd); }catch(e){ $('#loginErr').textContent = 'Error de conexión: ' + e.message; return; }
   } else ok = pwd === state.password;
   if(ok){
-    sessionPwd = pwd; unlocked = true; $('#loginErr').textContent = ''; $('#loginModal').classList.remove('show');
+    sessionPwd = pwd; unlocked = true; document.body.classList.add('admin-on'); $('#loginErr').textContent = ''; $('#loginModal').classList.remove('show');
     if(remoteEmpty){ remoteEmpty = false; save(); }   // primera vez: sube lo que había en este navegador
     openAdmin();
   }
@@ -791,8 +909,32 @@ async function tryLogin(){
 $('#loginBtn').onclick = tryLogin;
 $('#pwd').addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); tryLogin(); } });
 
+function renderWinnersAdmin(){
+  $('#aShowWinners').checked = draft.showWinners !== false;
+  fillWinnerNames(draft.winners);
+  $('#prizeNames').innerHTML = '';
+  [...new Set(['normal','legend'].flatMap(k => draft.wheels[k].items.map(it => it.text)).filter(Boolean))].forEach(t => $('#prizeNames').append(new Option(t)));
+  const list = $('#winnersList'); list.innerHTML = '';
+  if(!draft.winners.length){ const e = document.createElement('div'); e.className = 'hint'; e.textContent = 'Todavía no hay ganadores apuntados.'; list.append(e); return; }
+  draft.winners.forEach((z, i) => {
+    const row = document.createElement('div'); row.className = 'wrow';
+    const mk = (type, field, ph, cls) => { const inp = document.createElement('input'); inp.type = type; inp.value = z[field] || ''; if(ph) inp.placeholder = ph; if(cls) inp.className = cls; inp.oninput = () => z[field] = inp.value; return inp; };
+    const w = mk('text', 'winner', 'Ganador'); w.setAttribute('list', 'winnerNames');
+    const pr = mk('text', 'prize', 'Qué ha ganado'); pr.setAttribute('list', 'prizeNames');
+    const dt = mk('date', 'date');
+    const lb = document.createElement('label'); lb.className = 'chk';
+    const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = !!z.delivered; cb.onchange = () => z.delivered = cb.checked;
+    lb.append(cb, document.createTextNode('Entregado'));
+    const del = document.createElement('button'); del.className = 'btn sm danger'; del.textContent = '✕'; del.onclick = () => { draft.winners.splice(i, 1); renderWinnersAdmin(); };
+    row.append(w, pr, dt, lb, del); list.append(row);
+  });
+}
+$('#addWinner').onclick = () => { draft.winners.unshift({ id: Math.random().toString(36).slice(2, 9), winner: '', prize: '', date: todayISO(), delivered: false, wheel: adminTab }); renderWinnersAdmin(); $('#winnersList input').focus(); };
+$('#aShowWinners').onchange = () => draft.showWinners = $('#aShowWinners').checked;
+
 function openAdmin(){
   draft = clone(state); adminTab = state.current;
+  if(!Array.isArray(draft.winners)) draft.winners = [];
   $('#aPassword').value = '';
   openAdminFromDraft();
   $('#adminModal').classList.add('show');
@@ -862,6 +1004,8 @@ $('#saveBtn').onclick = () => {
   draft.duration = Math.min(40, Math.max(3, parseFloat($('#aDuration').value)||14));
   draft.removeOnWin = $('#aRemove').checked;
   draft.hiddenOdds = $('#aHidden').checked;
+  draft.showWinners = $('#aShowWinners').checked;
+  draft.winners = (draft.winners || []).filter(z => (z.winner||'').trim() || (z.prize||'').trim()).map(z => ({ ...z, winner: (z.winner||'').trim(), prize: (z.prize||'').trim() }));
   draft.legendLock = $('#aLegendLock').checked;
   draft.legendAsk = $('#aLegendAsk').value;
   const nlp = $('#aLegendPwd').value.trim();
@@ -889,11 +1033,11 @@ $('#resetBtn').onclick = () => {
   const b = $('#resetBtn');
   if(!resetArmed){ b.textContent = '¿Seguro? Pulsa otra vez'; resetArmed = setTimeout(()=>{ resetArmed = null; b.textContent = 'Restaurar'; }, 3000); return; }
   clearTimeout(resetArmed); resetArmed = null; b.textContent = 'Restaurar';
-  const pwd = draft.password; draft = clone(DEFAULTS); draft.password = pwd; draft.muted = state.muted; openAdminFromDraft();
+  const pwd = draft.password, keepW = draft.winners; draft = clone(DEFAULTS); draft.password = pwd; draft.muted = state.muted; draft.winners = keepW || []; openAdminFromDraft();
 };
 function openAdminFromDraft(){ $('#aDuration').value = draft.duration; $('#aRemove').checked = !!draft.removeOnWin; $('#aHidden').checked = draft.hiddenOdds !== false;
   $('#aLegendLock').checked = draft.legendLock !== false; $('#aLegendAsk').value = draft.legendAsk || 'spin'; $('#aLegendPwd').value = '';
-  $('#legendLockOpts').style.display = $('#aLegendLock').checked ? '' : 'none'; $('#adminErr').textContent = ''; renderAdminWheel(); }
+  $('#legendLockOpts').style.display = $('#aLegendLock').checked ? '' : 'none'; $('#adminErr').textContent = ''; renderAdminWheel(); renderWinnersAdmin(); }
 
 $('#exportBtn').onclick = () => {
   const { password, ...data } = draft;
