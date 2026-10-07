@@ -110,10 +110,11 @@ label{font-size:.7rem;color:var(--gold);letter-spacing:1px;text-transform:upperc
 .vote .sp{position:absolute;left:50%;top:50%;font-size:1rem;pointer-events:none;animation:fly .9s ease-out forwards}
 @keyframes fly{to{transform:translate(var(--dx),var(--dy)) scale(.4);opacity:0}}
 /* destacado: el próximo torneo */
-.featured{display:grid;grid-template-columns:1.25fr 1fr;margin-top:34px}
-.featured .img{aspect-ratio:auto;min-height:320px}
+.featured{display:grid;grid-template-columns:var(--iw,1.25fr) 1fr;margin-top:34px}
+.featured .img{aspect-ratio:auto;min-height:260px}
+.featured .img .pic{background-size:cover}
 .featured .img{align-self:stretch}
-.featured .img::after{background:linear-gradient(90deg,transparent 88%,rgba(18,3,2,.9))}
+.featured .img::after{background:linear-gradient(90deg,transparent 95%,rgba(18,3,2,.75))}
 .featured .body{margin:0;padding:24px 24px 22px;justify-content:center}
 .featured h3{font-size:2.4rem}
 .featured .kicker{font-size:.7rem;letter-spacing:4px;color:#ff8a3a;font-weight:900}
@@ -282,7 +283,12 @@ function card(t, featured){
   const st = status(t), d = parseD(t);
   const el = document.createElement('article'); el.className = 'tcard' + (featured ? ' featured' : ''); el.id = 't-' + t.id;
   const img = document.createElement('div'); img.className = 'img';
-  if(t.image){ img.style.setProperty('--img', cssUrl(t.image)); const fl = document.createElement('span'); fl.className = 'fill'; const pc = document.createElement('span'); pc.className = 'pic'; img.append(fl, pc); } else img.textContent = '🏆';
+  if(t.image){
+    img.style.setProperty('--img', cssUrl(t.image)); const fl = document.createElement('span'); fl.className = 'fill'; const pc = document.createElement('span'); pc.className = 'pic'; img.append(fl, pc);
+    const probe = new Image();
+    probe.onload = () => { const r = probe.naturalWidth / probe.naturalHeight || 16/9; el.dataset.ratio = r; if(featured) fitFeatured(); else img.style.aspectRatio = r; };
+    probe.src = t.image;
+  } else img.textContent = '🏆';
   const code = (t.code || '').trim();
   if(code && st !== 'past'){
     const bd = document.createElement('button'); bd.type = 'button'; bd.className = 'badge code'; bd.title = 'Copiar código del mapa';
@@ -316,6 +322,23 @@ function card(t, featured){
   el.append(img, body);
   return el;
 }
+/* el destacado: la columna de la imagen toma el ancho justo para que la imagen quepa entera a la altura del texto */
+function fitFeatured(){
+  const el = document.querySelector('.tcard.featured'); if(!el) return;
+  const img = el.querySelector('.img'), r = +el.dataset.ratio;
+  if(!r){ el.style.removeProperty('--iw'); return; }
+  if(innerWidth <= 820){ el.style.removeProperty('--iw'); img.style.aspectRatio = r; return; }
+  img.style.aspectRatio = '';
+  const body = el.querySelector('.body'), W = el.clientWidth;
+  let iw = W * .55;
+  for(let k = 0; k < 4; k++){                                 // el alto del texto depende del ancho que le queda
+    el.style.setProperty('--iw', iw + 'px');
+    const next = Math.max(W * .35, Math.min(Math.round(body.offsetHeight * r), W * .66));
+    if(Math.abs(next - iw) < 3) break; iw = next;
+  }
+  el.style.setProperty('--iw', iw + 'px');
+}
+addEventListener('resize', () => { clearTimeout(fitFeatured.t); fitFeatured.t = setTimeout(fitFeatured, 100); });
 function render(){
   $('#titleText').textContent = state.title || 'Torneos'; $('#subtitleText').textContent = state.subtitle || ''; document.title = state.title || 'Torneos';
   const items = state.items.filter(t => (t.title || '').trim());
