@@ -21,12 +21,6 @@ window.KDB = (() => {
   }
 
   const login = (id, password) => rpc('karre_login', { p_id: id, p_password: password });
-  // Sorteo hecho en el servidor: { idx, prize }
-  const spin = (page, wheel, pass) => rpc('karre_spin', { p_page: page, p_wheel: wheel, p_pass: pass || '' });
-  // Pesos privados (solo con la contraseña de admin)
-  const getWeights = (page, pass) => rpc('karre_get_weights', { p_page: page, p_pass: pass });
-  const saveWeights = (page, getPass, weights) =>
-    queue(() => rpc('karre_save_weights', { p_page: page, p_pass: getPass(), p_weights: weights }));
 
   // Guardados en cola: siempre llegan en orden. getPass es una función
   // para usar la contraseña vigente en el momento de enviar.
@@ -55,6 +49,13 @@ window.KDB = (() => {
     tick(); return setInterval(tick, ms);
   }
 
+  // Votos públicos (p. ej. «Asistiré» de los torneos). voterId = id aleatorio guardado en el navegador.
+  const vote = (item, voterId, on) => rpc('karre_vote', { p_item: item, p_voter: voterId, p_on: !!on });
+  async function voteCounts(prefix, voterId){
+    const rows = await rpc('karre_vote_counts', { p_prefix: prefix, p_voter: voterId || '' });
+    const out = {}; (rows || []).forEach(r => out[r.item] = { n: +r.n || 0, mine: !!r.mine }); return out;
+  }
+
   // Avisos pequeños abajo a la izquierda
   function toast(msg, ok = true){
     let el = document.getElementById('kdbToast');
@@ -70,5 +71,5 @@ window.KDB = (() => {
     clearTimeout(el._t); el._t = setTimeout(() => el.style.opacity = '0', ok ? 1800 : 5000);
   }
 
-  return { enabled, load, login, spin, getWeights, saveWeights, save, changePassword, setPassword, watch, toast };
+  return { enabled, load, login, save, changePassword, setPassword, watch, toast, vote, voteCounts };
 })();

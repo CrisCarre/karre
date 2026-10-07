@@ -21,7 +21,8 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.10;b
   filter:drop-shadow(0 0 16px rgba(255,80,0,.8)) drop-shadow(0 4px 0 #2a0402)}
 .subtitle{margin-top:6px;color:var(--gold);letter-spacing:8px;text-transform:uppercase;font-size:clamp(.75rem,2.2vw,1.05rem);text-shadow:0 0 10px rgba(255,120,0,.8);text-align:center}
 
-.doors{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;margin-top:50px;width:100%}
+.doors{display:flex;flex-wrap:wrap;justify-content:center;gap:18px;margin-top:50px;width:100%}
+.doors > .door{flex:1 1 190px;max-width:260px;padding-left:14px;padding-right:14px}
 .door{--accent:255,90,0;position:relative;display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px;padding:34px 22px 28px;border-radius:22px;
   text-decoration:none;color:#fff;overflow:hidden;isolation:isolate;
   background:linear-gradient(180deg,#2a0704,#120302);border:2px solid var(--gold-dark);
@@ -35,6 +36,8 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.10;b
 .door.ruleta{--accent:255,90,0}
 .door.rank{--accent:170,90,255}
 .door.spirits{--accent:80,200,255}
+.door.tourn{--accent:255,190,0}
+.door[hidden]{display:none}
 .medal{width:120px;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;font-size:3.4rem;
   background:radial-gradient(circle at 40% 35%,rgba(var(--accent),.55),#1a0402 70%);
   box-shadow:0 0 0 4px #1a0402,0 0 0 8px var(--gold),0 0 0 10px #3a1a03,0 0 30px rgba(var(--accent),.6);transition:transform .35s}
@@ -45,8 +48,9 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.10;b
 .door .go{margin-top:auto;font-size:.8rem;letter-spacing:3px;text-transform:uppercase;padding:8px 22px;border-radius:30px;border:1px solid var(--gold);color:var(--gold);transition:.25s}
 .door:hover .go{background:var(--gold);color:#2a0704}
 
-@media (max-width:1000px) and (min-width:821px){.doors{grid-template-columns:repeat(2,1fr);max-width:760px}}
-@media (max-width:820px){.doors{grid-template-columns:1fr;max-width:420px}.door{flex-direction:row;text-align:left;padding:18px}.medal{width:78px;font-size:2.2rem;flex:none}.door h2{font-size:1.6rem}.door .go{display:none}.door .txt{display:flex;flex-direction:column;gap:4px}}
+@media (max-width:1000px) and (min-width:821px){.doors{max-width:820px}.doors > .door{flex-basis:240px}}
+@media (min-width:1001px){.doors .door h2{font-size:1.65rem}.doors .medal{width:108px;font-size:3rem}}
+@media (max-width:820px){.doors{max-width:420px;margin-left:auto;margin-right:auto}.doors > .door{flex-basis:100%;max-width:none}.door{flex-direction:row;text-align:left;padding:18px}.medal{width:78px;font-size:2.2rem;flex:none}.door h2{font-size:1.6rem}.door .go{display:none}.door .txt{display:flex;flex-direction:column;gap:4px}}
 /* ===== IMAGEN DE PORTADA (detrás de las 4 opciones) ===== */
 .hero{position:relative;isolation:isolate;width:100%;display:flex;flex-direction:column;align-items:center}
 .hero-bg{position:absolute;z-index:-1;pointer-events:none;display:none;left:50%;transform:translateX(-50%);
@@ -233,6 +237,29 @@ body.obs .corner{display:none}
 .limg .lh.off{pointer-events:none}
 .limg .lh .tip{position:absolute;left:50%;bottom:-1.6cqw;transform:translateX(-50%);font-size:1cqw;font-weight:900;letter-spacing:.15cqw;color:#f1e6cf;white-space:nowrap;opacity:0;transition:opacity .2s;text-shadow:0 1px 3px #000}
 .limg a.lh:hover .tip{opacity:1}
+/* ===== PRÓXIMO TORNEO (aviso en portada) ===== */
+.nextT{width:100%;margin-top:26px;display:grid;grid-template-columns:240px 1fr auto;align-items:stretch;border-radius:20px;overflow:hidden;text-decoration:none;color:#fff;
+  background:linear-gradient(100deg,#2a0704,#120302 60%,#2a1204);border:2px solid var(--gold-dark);box-shadow:0 12px 30px rgba(0,0,0,.6),inset 0 0 30px rgba(0,0,0,.7);transition:transform .25s,border-color .25s,box-shadow .25s;position:relative}
+.nextT[hidden]{display:none}
+.nextT:hover{transform:translateY(-4px);border-color:var(--gold);box-shadow:0 16px 36px rgba(0,0,0,.7),0 0 34px rgba(255,170,0,.4)}
+.nextT::before{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,220,140,.12) 45%,transparent 60%);transform:translateX(-100%);animation:ntShine 4.5s ease-in-out infinite;pointer-events:none}
+@keyframes ntShine{60%,100%{transform:translateX(100%)}}
+.nt-img{background:#0b0202 center/cover no-repeat;min-height:130px;display:grid;place-items:center;font-size:3rem;-webkit-mask-image:linear-gradient(90deg,#000 70%,transparent);mask-image:linear-gradient(90deg,#000 70%,transparent)}
+.nt-body{display:flex;flex-direction:column;justify-content:center;gap:4px;padding:14px 18px;min-width:0}
+.nt-k{font-size:.68rem;letter-spacing:4px;color:#ff8a3a;font-weight:900;text-transform:uppercase}
+.nt-k.today{color:#ff4a4a;animation:liveDot 1.2s ease-in-out infinite}
+.nt-t{font-family:'Metal Mania',cursive;font-weight:400;font-size:1.9rem;line-height:1.05;background:linear-gradient(180deg,#fff3b0,#ffb300 45%,#ff4d00);-webkit-background-clip:text;background-clip:text;color:transparent}
+.nt-d{font-size:.85rem;color:#ffe3a0;letter-spacing:1px}
+.nt-p{font-size:.85rem;color:#e8cf9a;font-family:Georgia,serif}
+.nt-p b{color:#fff}
+.nt-side{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:8px;padding:14px 18px}
+.nt-cd{display:flex;gap:6px}
+.nt-cd i{font-style:normal;display:flex;flex-direction:column;align-items:center;min-width:44px;padding:4px;border-radius:8px;background:rgba(0,0,0,.45);border:1px solid rgba(245,196,81,.35);font-family:'Metal Mania',cursive;font-size:1.35rem;line-height:1;text-shadow:0 0 10px rgba(255,120,0,.9)}
+.nt-cd i small{font-family:'Cinzel',serif;font-size:.5rem;letter-spacing:1px;color:#c9a46a;margin-top:2px}
+.nt-v{font-size:.8rem;color:#ffe3a0}
+.nt-go{font-size:.78rem;letter-spacing:2px;text-transform:uppercase;padding:8px 18px;border-radius:30px;border:1px solid var(--gold);color:var(--gold);transition:.25s;white-space:nowrap}
+.nextT:hover .nt-go{background:var(--gold);color:#2a0704}
+@media (max-width:820px){ .nextT{grid-template-columns:1fr;max-width:460px}.nt-img{aspect-ratio:16/8;-webkit-mask-image:linear-gradient(180deg,#000 70%,transparent);mask-image:linear-gradient(180deg,#000 70%,transparent)}.nt-side{align-items:stretch;padding-top:0}.nt-cd{justify-content:center}.nt-go{text-align:center} }
 /* admin del banner */
 .sec{margin:20px 0 10px;color:var(--gold);font-size:.9rem;letter-spacing:2px;border-bottom:1px solid var(--gold-dark);padding-bottom:6px;display:flex;justify-content:space-between;align-items:center}
 .lrow{display:grid;grid-template-columns:120px 92px 92px 1fr auto;gap:6px;align-items:center;margin-bottom:6px}
@@ -274,6 +301,11 @@ body.obs .corner{display:none}
       <div class="txt"><h2>Espíritus</h2><p>La lista de lo que reparte el dragón</p></div>
       <span class="go">Entrar</span>
     </a>
+    <a class="door tourn" href="torneos.html" id="doorT" hidden>
+      <div class="medal">⚔️</div>
+      <div class="txt"><h2>Torneos</h2><p>Compite, gana premios y presume</p></div>
+      <span class="go">Entrar</span>
+    </a>
   </nav>
 
   <section class="live hidden" id="live">
@@ -287,6 +319,20 @@ body.obs .corner{display:none}
     <div class="plats-links" id="livePlats"></div>
     <div class="limg" id="liveImg"></div>
   </section>
+  <a class="nextT" id="nextT" href="torneos.html" hidden>
+    <span class="nt-img" id="ntImg"></span>
+    <span class="nt-body">
+      <span class="nt-k" id="ntK">⚔ Próximo torneo</span>
+      <b class="nt-t" id="ntT"></b>
+      <span class="nt-d" id="ntD"></span>
+      <span class="nt-p" id="ntP"></span>
+    </span>
+    <span class="nt-side">
+      <span class="nt-cd" id="ntCd"></span>
+      <span class="nt-v" id="ntV"></span>
+      <span class="nt-go">Ver torneo ➜</span>
+    </span>
+  </a>
  </div>
 </main>
 
@@ -691,7 +737,41 @@ $('#saveBtn').onclick = () => {
   render(); $('#adminModal').classList.remove('show');
 };
 
+/* ---------- Próximo torneo (datos de torneos.html) ---------- */
+const T_MES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'], T_DIA = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+let ntAt = 0;
+async function loadNextTourney(){
+  let items = [];
+  try{
+    if(KDB.enabled){ const row = await KDB.load('torneos'); items = (row && row.data && row.data.items) || []; }
+    else items = (JSON.parse(localStorage.getItem('karreTorneos_v1')) || {}).items || [];
+  }catch(e){ return; }
+  const d0 = new Date(), today = d0.getFullYear() + '-' + String(d0.getMonth()+1).padStart(2,'0') + '-' + String(d0.getDate()).padStart(2,'0');
+  const t = items.filter(x => (x.title || '').trim() && x.date && x.date >= today).sort((a,b) => a.date.localeCompare(b.date) || (a.time||'').localeCompare(b.time||''))[0];
+  const box = $('#nextT'); $('#doorT').hidden = !t; if(!t){ box.hidden = true; return; }
+  box.hidden = false; box.href = 'torneos.html#t-' + t.id;
+  const [y,m,d] = t.date.split('-').map(Number), dt = new Date(y, m-1, d), [hh, mi] = (t.time || '00:00').split(':').map(Number);
+  ntAt = new Date(y, m-1, d, hh||0, mi||0).getTime();
+  const img = $('#ntImg'); img.style.backgroundImage = t.image ? cssUrl(t.image) : 'none'; img.textContent = t.image ? '' : '🏆';
+  $('#ntK').textContent = t.date === today ? '🔴 Torneo hoy' : '⚔ Próximo torneo'; $('#ntK').classList.toggle('today', t.date === today);
+  $('#ntT').textContent = t.title;
+  $('#ntD').textContent = T_DIA[dt.getDay()] + ' ' + d + ' ' + T_MES[m-1] + (t.time ? ' · ' + t.time : '');
+  $('#ntP').innerHTML = ''; if(t.prize){ $('#ntP').append('🏆 Premio: '); const b = document.createElement('b'); b.textContent = t.prize; $('#ntP').append(b); }
+  $('#ntV').textContent = '';
+  if(KDB.enabled && KDB.voteCounts){ try{ const v = await KDB.voteCounts('t_' + t.id, ''); const n = (v['t_' + t.id] || {}).n || 0; if(n) $('#ntV').textContent = '🔥 ' + n + (n === 1 ? ' asistirá' : ' asistirán'); }catch(e){} }
+  ntTick();
+}
+function ntTick(){
+  const el = $('#ntCd'); if(!ntAt || $('#nextT').hidden) return;
+  let s = Math.max(0, Math.floor((ntAt - Date.now()) / 1000));
+  if(!s){ el.innerHTML = '<i style="padding:6px 10px;font-size:1rem">🔴 ¡Ya empieza!</i>'; return; }
+  const D = Math.floor(s/86400), H = Math.floor(s%86400/3600), M = Math.floor(s%3600/60), S = s%60, p = n => String(n).padStart(2,'0');
+  el.innerHTML = `<i>${D}<small>DÍAS</small></i><i>${p(H)}<small>HORAS</small></i><i>${p(M)}<small>MIN</small></i><i>${p(S)}<small>SEG</small></i>`;
+}
+setInterval(ntTick, 1000);
+
 render();
+loadNextTourney(); setInterval(loadNextTourney, 60000);
 if(KDB.enabled){
   const apply = d => { const keep = { password: state.password }; state = { ...fromData(d), ...keep }; saveLocal(); render(); };
   KDB.load(PAGE).then(row => {
