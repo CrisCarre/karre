@@ -183,17 +183,26 @@ body.obs .corner{display:none}
 .limg > img{display:block;width:100%;height:auto;pointer-events:none;user-select:none}
 .limg .lt,.limg .ls,.limg .lh{position:absolute}
 .limg .lt{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 2cqw}
-.limg .lt h4{font-family:'Cinzel',serif;font-weight:900;font-size:3.1cqw;line-height:1.05;color:#7a1410;text-shadow:0 1px 0 rgba(255,255,255,.55),0 -1px 0 rgba(0,0,0,.3);display:flex;align-items:center;gap:.8cqw}
+.limg .lt h4{max-width:100%;white-space:nowrap;overflow:hidden;font-family:'Cinzel',serif;font-weight:900;font-size:2.7cqw;line-height:1.05;color:#7a1410;text-shadow:0 1px 0 rgba(255,255,255,.55),0 -1px 0 rgba(0,0,0,.3);display:flex;align-items:center;gap:.8cqw}
 .limg .lt h4 .dot{width:.8cqw;height:.8cqw;border-radius:50%;background:#ff2a2a;box-shadow:0 0 .6cqw #ff2a2a;animation:liveDot 1.2s ease-in-out infinite}
-.limg .lt p{font-family:'Cinzel',serif;font-weight:900;font-size:1.15cqw;letter-spacing:.15cqw;text-transform:uppercase;color:#3e2410;margin-top:.3cqw}
-.limg .ls{display:flex;flex-direction:column;align-items:center;justify-content:space-between;text-align:center;padding:1.4cqw 1cqw 1.2cqw;border-radius:1cqw}
-.limg .ls b{font-family:'Cinzel',serif;font-weight:900;font-size:4.3cqw;line-height:1;letter-spacing:.2cqw;color:#55595e;text-shadow:0 .15cqw 0 rgba(255,255,255,.9),0 -.08cqw 0 rgba(0,0,0,.3)}
-.limg .ls span{font-family:'Cinzel',serif;font-weight:900;font-size:2.4cqw;color:#2b2e33;line-height:1}
-.limg .ls small{font-family:Georgia,serif;font-weight:700;font-size:1.15cqw;line-height:1.2;color:#2b2e33;min-height:1.2em}
+.limg .lt p{max-width:100%;white-space:nowrap;overflow:hidden;font-family:'Cinzel',serif;font-weight:900;font-size:1.15cqw;letter-spacing:.15cqw;text-transform:uppercase;color:#3e2410;margin-top:.3cqw}
+.limg .ls{border-radius:1cqw}
+.limg .ls > *{position:absolute;left:0;right:0;text-align:center}
+.limg .ls b{top:9%;font-family:'Cinzel',serif;font-weight:900;font-size:4.3cqw;line-height:1;letter-spacing:.2cqw;color:#55595e;text-shadow:0 .15cqw 0 rgba(255,255,255,.9),0 -.08cqw 0 rgba(0,0,0,.3)}
+.limg .ls span{top:64%;transform:translateY(-50%);left:24%;right:24%;white-space:nowrap;overflow:hidden;font-family:'Cinzel',serif;font-weight:900;font-size:2.1cqw;color:#2b2e33;line-height:1.1}
+.limg .ls small{top:77%;bottom:3%;padding:0 6%;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-family:Georgia,serif;font-weight:700;font-size:1.05cqw;line-height:1.2;color:#2b2e33}
 .limg .ls.today{box-shadow:0 0 0 .25cqw #ffb300,0 0 2cqw rgba(255,140,0,.9),inset 0 0 1.5cqw rgba(255,160,0,.5)}
 .limg .ls.today::after{content:"HOY";position:absolute;top:-1.2cqw;left:50%;transform:translateX(-50%);font-size:.95cqw;font-weight:900;letter-spacing:.2cqw;padding:.3cqw 1cqw;border-radius:1cqw;background:linear-gradient(180deg,#ffb300,#d64400);color:#fff;border:.15cqw solid #3a3734}
-.limg .lh{display:block;border-radius:2cqw;transition:filter .2s,transform .2s}
-.limg a.lh:hover{background:radial-gradient(circle,rgba(255,240,200,.28),transparent 70%);transform:translateY(-.4cqw)}
+.limg .lh{display:block;border-radius:2cqw;--gem:#ffb300}
+.limg .runes{position:absolute;inset:0;background-size:100cqw auto;background-repeat:no-repeat;opacity:0;pointer-events:none;transition:opacity .35s;
+  filter:drop-shadow(0 0 .35cqw var(--gem)) drop-shadow(0 0 .9cqw var(--gem));mix-blend-mode:screen}
+.limg a.lh:hover .runes{opacity:1;animation:runePulse 1.1s ease-in-out infinite alternate}
+.limg a.lh::before{content:"";position:absolute;left:10%;right:10%;top:2%;height:60%;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--gem) 45%,transparent),transparent 70%);opacity:0;transition:opacity .35s;pointer-events:none;mix-blend-mode:screen}
+.limg a.lh:hover::before{opacity:.8}
+.limg .runes.side{--gem:#ffb347;opacity:.0;animation:none}
+.limg:hover .runes.side{opacity:.75;animation:runePulse 1.6s ease-in-out infinite alternate}
+.limg .runes.side + .runes.side{--gem:#b07bff}
+@keyframes runePulse{from{filter:brightness(1) drop-shadow(0 0 .3cqw var(--gem))}to{filter:brightness(1.5) drop-shadow(0 0 .5cqw var(--gem)) drop-shadow(0 0 1.4cqw var(--gem))}}
 .limg .lh.off{pointer-events:none}
 .limg .lh .tip{position:absolute;left:50%;bottom:-1.6cqw;transform:translateX(-50%);font-size:1cqw;font-weight:900;letter-spacing:.15cqw;color:#f1e6cf;white-space:nowrap;opacity:0;transition:opacity .2s;text-shadow:0 1px 3px #000}
 .limg a.lh:hover .tip{opacity:1}
@@ -297,7 +306,7 @@ body.obs .corner{display:none}
     <div class="row"><input type="text" id="lvNote" placeholder="Ej: Horario de Madrid · a veces hago directos sorpresa"></div>
     <label for="lvImg">Imagen del banner (plantilla de piedra)</label>
     <div class="row" style="gap:6px;flex-wrap:wrap">
-      <input type="text" id="lvImg" placeholder="banner-directo.webp (vacío = estilo sin imagen)" style="flex:1;min-width:180px">
+      <input type="text" id="lvImg" placeholder="banner-directo.png (vacío = estilo sin imagen)" style="flex:1;min-width:180px">
       <button class="btn sm" type="button" id="lvImgUp">Subir</button>
       <button class="btn sm danger" type="button" id="lvImgClear">Quitar</button>
       <input type="file" id="lvImgFile" accept="image/*" hidden>
@@ -333,7 +342,7 @@ const DEFAULTS = { password: 'dragon', bg: '', bgOpacity: 100, gap: 260, showTex
     show: true,
     title: '¿Cuándo hago directo?',
     note: '',
-    img: 'banner-directo.webp',
+    img: 'banner-directo.png',
     days: [ { day: 'Lunes', time: '18:00', note: '' }, { day: 'Miércoles', time: '18:00', note: '' }, { day: 'Viernes', time: '20:00', note: '' } ],
     platforms: [
       { name: 'YouTube', url: 'https://www.youtube.com/@Karre_youtube', icon: ICONS.youtube },
@@ -363,19 +372,36 @@ function save(){
 const GEM_BY_NAME = { youtube:'#e3192f', tiktok:'#2fb8a8', kick:'#2ecc40', twitch:'#9146ff', discord:'#5865f2', epic:'#3a3a3a', instagram:'#d6249f', twitter:'#1d9bf0', x:'#555555' };
 const GEM_CYCLE = ['#e3192f','#2fb8a8','#2ecc40','#f5b700','#8b3dff','#1d9bf0'];
 const gemColor = (p, i) => p.color || GEM_BY_NAME[(p.name || '').toLowerCase().replace(/[^a-z]/g,'')] || GEM_CYCLE[i % GEM_CYCLE.length];
-/* posiciones (en %) dentro de la plantilla banner-directo.webp (1551×672) */
+/* posiciones (en %) dentro de la plantilla banner-directo.png (1551×672) */
 const TPL = {
   title: [30.5, 5.5, 39, 13.5],
   slots: [[16.6, 24.6, 19.1, 31.4], [41.4, 24.6, 17.2, 31.4], [64.4, 24.6, 18.7, 31.4]],
-  hots:  [[12.4, 63, 11.2, 30], [25.2, 63, 11.2, 30], [38.4, 63, 11.2, 30], [51.4, 63, 11.2, 30], [64.3, 63, 11.2, 30], [77.2, 63, 11.2, 30]]
+  hots:  [277, 480, 680, 880, 1083, 1283].map(cx => [(cx - 92) / 15.51, 61, 184 / 15.51, 33]),
+  sides: [[11.48, 22.3, 3.22, 35], [84.98, 22.3, 3.35, 35]]
 };
+const RUNES = 'banner-runas.png';
+/* capa de runas recortada a la zona del elemento (las runas brillan encima de la imagen) */
+function runeLayer(pos, cls){
+  const r = document.createElement('span'); r.className = 'runes' + (cls ? ' ' + cls : '');
+  r.style.backgroundImage = `url("${RUNES}")`;
+  r.style.backgroundPosition = `calc(${pos[0]} * -1cqw) calc(${pos[1]} * -0.43327cqw)`;
+  return r;
+}
+function fitLine(el, minPx){
+  el.style.fontSize = ''; let fs = parseFloat(getComputedStyle(el).fontSize), n = 0;
+  while(el.scrollWidth > el.clientWidth + 1 && fs > (minPx || 8) && n++ < 40){ fs *= .94; el.style.fontSize = fs + 'px'; }
+}
+function fitLiveImg(){ document.querySelectorAll('#liveImg .lt h4, #liveImg .lt p, #liveImg .ls span').forEach(el => fitLine(el)); }
+addEventListener('resize', () => { clearTimeout(fitLiveImg.t); fitLiveImg.t = setTimeout(fitLiveImg, 120); });
 const placeEl = (el, [x, y, w, h]) => Object.assign(el.style, { left: x + '%', top: y + '%', width: w + '%', height: h + '%' });
 function renderLiveImg(L, days){
   const box = $('#liveImg'), sec = $('#live'); box.innerHTML = '';
   const src = (L.img || '').trim();
   sec.classList.toggle('img-mode', !!src);
   if(!src) return;
-  const im = new Image(); im.alt = ''; im.onerror = () => sec.classList.remove('img-mode'); im.src = src; box.append(im);
+  const im = new Image(); im.alt = ''; im.onerror = () => sec.classList.remove('img-mode'); im.onload = () => requestAnimationFrame(fitLiveImg); im.src = src; box.append(im);
+  const tplOk = /banner-directo\.png$/i.test(src);   // las runas solo encajan con la plantilla original
+  if(tplOk) TPL.sides.forEach(pos => { const sd = runeLayer(pos, 'side'); placeEl(sd, pos); box.append(sd); });
   const t = document.createElement('div'); t.className = 'lt'; placeEl(t, TPL.title);
   const h = document.createElement('h4'); const dot = document.createElement('span'); dot.className = 'dot'; const ht = document.createElement('span'); ht.textContent = L.title || '¿Cuándo hago directo?'; h.append(dot, ht); t.append(h);
   if(L.note){ const n = document.createElement('p'); n.textContent = L.note; t.append(n); }
@@ -392,6 +418,8 @@ function renderLiveImg(L, days){
     const url = (p.url || '').trim();
     const a = document.createElement(url ? 'a' : 'span'); a.className = 'lh' + (url ? '' : ' off'); placeEl(a, TPL.hots[i]);
     if(url){ a.href = /^https?:\/\//i.test(url) ? url : 'https://' + url; a.target = '_blank'; a.rel = 'noopener'; a.title = p.name || ''; a.setAttribute('aria-label', p.name || 'Enlace'); }
+    if(tplOk) a.append(runeLayer(TPL.hots[i]));
+    a.style.setProperty('--gem', tplOk ? ['#ff3048','#3ff0e0','#45ff6a','#b070ff','#ffb040','#a060ff'][i] : gemColor(p, i));
     const tip = document.createElement('span'); tip.className = 'tip'; tip.textContent = p.name || ''; a.append(tip);
     box.append(a);
   });
