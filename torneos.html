@@ -64,7 +64,7 @@ label{font-size:.7rem;color:var(--gold);letter-spacing:1px;text-transform:upperc
 .tcard:hover{transform:translateY(-6px);border-color:var(--gold);box-shadow:0 18px 40px rgba(0,0,0,.7),0 0 34px rgba(var(--accent),.45)}
 .tcard .img{position:relative;aspect-ratio:16/9;background:#0b0202 center/cover no-repeat;display:grid;place-items:center;font-size:3.4rem}
 .tcard .img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(18,3,2,.95))}
-.date{position:absolute;top:12px;left:12px;z-index:2;display:flex;flex-direction:column;align-items:center;min-width:64px;padding:6px 8px 7px;border-radius:12px;
+.date{flex:none;display:flex;flex-direction:column;align-items:center;min-width:64px;padding:6px 8px 7px;border-radius:12px;
   background:linear-gradient(180deg,#ffb300,#ff5a00 55%,#b3130f);border:2px solid #ffe3a0;box-shadow:0 6px 14px rgba(0,0,0,.6);text-shadow:0 1px 0 #5a0704;line-height:1}
 .date b{font-family:'Metal Mania',cursive;font-weight:400;font-size:2rem}
 .date span{font-size:.68rem;letter-spacing:2px;text-transform:uppercase;font-weight:900}
@@ -74,10 +74,11 @@ label{font-size:.7rem;color:var(--gold);letter-spacing:1px;text-transform:upperc
 .badge.today{background:linear-gradient(180deg,#ff3b3b,#9a0a0a);border-color:#ffb3b3;color:#fff;animation:pulse 1.4s ease-in-out infinite}
 @keyframes pulse{50%{box-shadow:0 0 18px rgba(255,60,60,.9)}}
 .tcard .body{display:flex;flex-direction:column;gap:10px;padding:4px 18px 18px;flex:1;position:relative;margin-top:-34px;z-index:1}
+.trow-h{display:flex;align-items:center;justify-content:space-between;gap:14px}
 .tcard h3{font-family:'Metal Mania',cursive;font-weight:400;font-size:1.75rem;line-height:1.05;letter-spacing:1px;
   background:linear-gradient(180deg,#fff3b0,#ffb300 45%,#ff4d00);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 2px 2px #000)}
 .tcard .desc{color:#e8cf9a;font-family:Georgia,serif;font-size:.92rem;line-height:1.45;white-space:pre-line}
-.prize{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:rgba(255,179,0,.1);border:1px solid rgba(245,196,81,.5)}
+.prize{display:flex;align-items:center;justify-content:center;text-align:center;gap:12px;padding:10px 12px;border-radius:12px;background:rgba(255,179,0,.1);border:1px solid rgba(245,196,81,.5)}
 .prize .ic{font-size:1.5rem;filter:drop-shadow(0 0 8px rgba(255,190,0,.8))}
 .prize small{display:block;font-size:.62rem;letter-spacing:2px;color:#c9a46a;text-transform:uppercase}
 .prize b{font-size:.95rem;color:#fff}
@@ -264,15 +265,17 @@ function card(t, featured){
   const el = document.createElement('article'); el.className = 'tcard' + (featured ? ' featured' : ''); el.id = 't-' + t.id;
   const img = document.createElement('div'); img.className = 'img';
   if(t.image) img.style.backgroundImage = cssUrl(t.image); else img.textContent = '🏆';
-  if(d){
-    const dt = document.createElement('div'); dt.className = 'date';
-    dt.innerHTML = `<span>${DIA[d.getDay()].slice(0,3)}</span><b>${d.getDate()}</b><span>${MES[d.getMonth()]}</span>` + (t.time ? `<small>${t.time}</small>` : '');
-    img.append(dt);
-  }
   if(st !== 'past' || t.winner){ const bd = document.createElement('div'); bd.className = 'badge' + (st === 'today' ? ' today' : ''); bd.textContent = st === 'today' ? '¡Hoy!' : st === 'past' ? 'Finalizado' : 'Próximo'; img.append(bd); }
   const body = document.createElement('div'); body.className = 'body';
   if(featured){ const k = document.createElement('div'); k.className = 'kicker'; k.textContent = st === 'today' ? '🔴 ES HOY' : '⚔ PRÓXIMO TORNEO'; body.append(k); }
-  const h = document.createElement('h3'); h.textContent = t.title || 'Torneo'; body.append(h);
+  const h = document.createElement('h3'); h.textContent = t.title || 'Torneo';
+  const hr = document.createElement('div'); hr.className = 'trow-h'; hr.append(h);
+  if(d){
+    const dt = document.createElement('div'); dt.className = 'date';
+    dt.innerHTML = `<span>${DIA[d.getDay()].slice(0,3)}</span><b>${d.getDate()}</b><span>${MES[d.getMonth()]}</span>` + (t.time ? `<small>${t.time}</small>` : '');
+    hr.append(dt);
+  }
+  body.append(hr);
   if(featured && st !== 'past' && startOf(t)){ const cd = document.createElement('div'); cd.className = 'cd'; cd.dataset.at = startOf(t).getTime(); body.append(cd); }
   if(t.desc){ const p = document.createElement('p'); p.className = 'desc'; p.textContent = t.desc; body.append(p); }
   if(t.prize){ const pz = document.createElement('div'); pz.className = 'prize'; pz.innerHTML = '<span class="ic">🏆</span><div><small>Premio</small><b></b></div>'; pz.querySelector('b').textContent = t.prize; body.append(pz); }
