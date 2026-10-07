@@ -31,6 +31,12 @@ window.KDB = (() => {
   // Cambia una contraseña secundaria (p. ej. 'ruleta_tirar') con la contraseña de admin de su página
   const setPassword = (adminId, getAdminPass, target, newPass, onOk) =>
     queue(() => rpc('karre_set_password', { p_admin_id: adminId, p_admin_pass: getAdminPass(), p_target: target, p_new: newPass }).then(r => { onOk && onOk(); return r; }));
+  // Sorteo hecho en el servidor: { idx, prize }
+  const spin = (page, wheel, pass) => rpc('karre_spin', { p_page: page, p_wheel: wheel, p_pass: pass || '' });
+  // Pesos privados (solo con la contraseña de admin)
+  const getWeights = (page, pass) => rpc('karre_get_weights', { p_page: page, p_pass: pass });
+  const saveWeights = (page, getPass, weights) =>
+    queue(() => rpc('karre_save_weights', { p_page: page, p_pass: getPass(), p_weights: weights }));
   const changePassword = (id, getOld, newPass, onOk) =>
     queue(() => rpc('karre_change_password', { p_id: id, p_old: getOld(), p_new: newPass }).then(r => { onOk && onOk(); return r; }));
 
@@ -71,5 +77,5 @@ window.KDB = (() => {
     clearTimeout(el._t); el._t = setTimeout(() => el.style.opacity = '0', ok ? 1800 : 5000);
   }
 
-  return { enabled, load, login, save, changePassword, setPassword, watch, toast, vote, voteCounts };
+  return { enabled, load, login, spin, getWeights, saveWeights, save, changePassword, setPassword, watch, toast, vote, voteCounts };
 })();
