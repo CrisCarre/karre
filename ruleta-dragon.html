@@ -264,6 +264,13 @@ body.legend .wcard{background:linear-gradient(160deg,#2a0a5a,#0d0420);border-col
   .row{grid-template-columns:38px 48px 1fr 56px}
   .row .acts{grid-column:1/-1;justify-content:flex-end}
 }
+/* Pestaña oculta de probabilidades */
+#adminModal:not(.odds-on) .odds-only{display:none}
+#adminModal:not(.odds-on) .row{grid-template-columns:38px 54px 1fr auto}
+@media (max-width:560px){ #adminModal:not(.odds-on) .row{grid-template-columns:38px 48px 1fr} }
+.odds-box{margin:0 0 12px;padding:10px 12px;border:1px dashed var(--gold-dark);border-radius:10px;background:rgba(0,0,0,.3)}
+.odds-box .warn{color:#ff8a8a;font-size:.8rem;margin-top:6px}
+#oddsToggle.on{background:linear-gradient(180deg,#5a1a0a,#2a0805);border-color:var(--gold)}
 </style>
 </head>
 <body>
@@ -367,7 +374,6 @@ body.legend .wcard{background:linear-gradient(160deg,#2a0a5a,#0d0420);border-col
       <div><label>Pedirla</label><select id="aLegendAsk" style="width:100%;font-family:inherit;background:#0b0202;border:1px solid var(--gold-dark);color:#fff;border-radius:8px;padding:9px 10px"><option value="spin">En cada tirada</option><option value="session">Una vez (hasta recargar la página)</option></select></div>
       <div><label>Nueva contraseña para tirar (opcional)</label><input type="text" id="aLegendPwd" placeholder="Dejar vacío para no cambiar"></div>
     </div>
-    <label class="check"><input type="checkbox" id="aHidden"> Probabilidad oculta: todas las casillas se ven del mismo tamaño (el sorteo sigue usando el peso)</label>
 
     <div class="tabs">
       <button class="btn tab" data-tab="normal">🔥 Ruleta Normal</button>
@@ -423,8 +429,12 @@ body.legend .wcard{background:linear-gradient(160deg,#2a0a5a,#0d0420);border-col
       <input type="file" id="bImgFile" accept="image/*" hidden>
     </div>
 
-    <div class="section-title"><span>PREMIOS / RETOS</span><button class="btn sm" id="addItem">+ Añadir</button></div>
-    <div style="font-size:.72rem;color:#c9a46a;margin-bottom:8px">Color · Emoji · Texto · Peso (más peso = más probabilidad de salir)</div>
+    <div class="section-title"><span>PREMIOS / RETOS</span><span><button class="btn sm" id="oddsToggle" type="button" title="Mostrar/ocultar probabilidades">🔒</button> <button class="btn sm" id="addItem">+ Añadir</button></span></div>
+    <div class="odds-box odds-only">
+      <label class="check" style="margin:0"><input type="checkbox" id="aHidden"> Probabilidad oculta: todas las casillas se ven del mismo tamaño (el sorteo sigue usando el peso)</label>
+      <div class="warn" id="oddsWarn"></div>
+    </div>
+    <div style="font-size:.72rem;color:#c9a46a;margin-bottom:8px">Color · Emoji · Texto<span class="odds-only"> · Peso (más peso = más probabilidad de salir)</span></div>
     <div class="items" id="itemsList"></div>
 
     <div class="section-title"><span>GANADORES</span><button class="btn sm" id="addWinner">+ Añadir</button></div>
@@ -450,7 +460,7 @@ body.legend .wcard{background:linear-gradient(160deg,#2a0a5a,#0d0420);border-col
   </div>
 </div>
 
-<script src="db.js"></script>
+<script src="db.js?v=3"></script>
 <script>
 (() => {
 'use strict';
@@ -479,14 +489,14 @@ const LEGEND_ITEMS = [
 ];
 const DEFAULTS = {
   duration: 14,
-  password: 'dragon',
+  password: '',             // sin contraseña por defecto (con base de datos se comprueba en Supabase)
   removeOnWin: false,
   showWinners: true,
   winners: [],      // [{ id, winner, prize, date, delivered, wheel: 'normal' | 'legend' }]
   hiddenOdds: true,
   legendLock: true,        // la Legendaria pide contraseña para tirar
   legendAsk: 'spin',       // 'spin' = cada tirada · 'session' = una vez
-  legendPassword: 'legendaria',   // solo se usa sin base de datos
+  legendPassword: '',      // solo se usa sin base de datos
   muted: false,
   current: 'normal',
   wheels: {
@@ -528,12 +538,17 @@ let onSaved = ok => { if(ok) KDB.toast('✓ Guardado en la base de datos'); };
 const WHEELS = ['normal','legend'];
 let weightsLoaded = !KDB.enabled;   // true cuando este navegador tiene los pesos reales
 const weightsOf = s => { const o = {}; WHEELS.forEach(k => o[k] = s.wheels[k].items.map(it => Math.max(.1, +it.weight || 1))); return o; };
-function setWeights(w){
-  if(!w) return;
-  WHEELS.forEach(k => { const a = w[k]; if(Array.isArray(a)) state.wheels[k].items.forEach((it, i) => { if(a[i] != null) it.weight = a[i]; }); });
+function setWeights(w, target){
+  const t = target || state; if(!w) return;
+  WHEELS.forEach(k => { const a = w[k]; if(Array.isArray(a)) t.wheels[k].items.forEach((it, i) => { if(a[i] != null) it.weight = a[i]; }); });
 }
 async function loadWeights(){
-  try{ setWeights(await KDB.getWeights(PAGE, sessionPwd)); weightsLoaded = true; saveLocal(); drawWheel(); }
+  if(typeof KDB.getWeights !== 'function'){ KDB.toast('⚠ db.js antiguo en caché: recarga con Ctrl+F5', false); return; }
+  try{
+    const w = await KDB.getWeights(PAGE, sessionPwd);
+    setWeights(w); weightsLoaded = true; saveLocal(); drawWheel();
+    if(draft && $('#adminModal').classList.contains('show')){ setWeights(w, draft); renderItems(); setOdds($('#adminModal').classList.contains('odds-on')); }
+  }
   catch(e){ KDB.toast('⚠ No se pudieron cargar los pesos: ' + e.message, false); }
 }
 const publicData = () => { const o = clone(state); PRIVATE.forEach(k => delete o[k]); WHEELS.forEach(k => o.wheels[k].items.forEach(it => delete it.weight)); return o; };
@@ -765,7 +780,7 @@ async function trySpinPwd(){
   if(KDB.enabled){
     $('#spinErr').textContent = 'Comprobando…';
     try{ ok = await KDB.login('ruleta_tirar', pwd); }catch(e){ $('#spinErr').textContent = 'Error de conexión: ' + e.message; return; }
-  } else ok = pwd === (state.legendPassword || 'legendaria');
+  } else ok = !!state.legendPassword && pwd === state.legendPassword;
   if(!ok){ $('#spinErr').textContent = 'Contraseña incorrecta'; $('#spinPwd').select(); return; }
   legendOk = true; legendPwd = pwd; $('#spinLockModal').classList.remove('show');
   setTimeout(spin, 150);
@@ -802,7 +817,7 @@ $('#resultOk').onclick = async () => {
     if(KDB.enabled){
       $('#quickErr').textContent = 'Comprobando…';
       try{ ok = await KDB.login(PAGE, pwd); }catch(e){ $('#quickErr').textContent = 'Error de conexión: ' + e.message; return; }
-    } else ok = pwd === state.password;
+    } else ok = !!state.password && pwd === state.password;
     if(!ok){ $('#quickErr').textContent = 'Contraseña incorrecta'; $('#quickPwd').select(); return; }
     sessionPwd = pwd; unlocked = true; document.body.classList.add('admin-on'); $('#quickErr').textContent = '';
     if(KDB.enabled && !weightsLoaded) loadWeights();
@@ -1063,7 +1078,7 @@ async function tryLogin(){
   if(KDB.enabled){
     $('#loginErr').textContent = 'Comprobando…';
     try{ ok = await KDB.login(PAGE, pwd); }catch(e){ $('#loginErr').textContent = 'Error de conexión: ' + e.message; return; }
-  } else ok = pwd === state.password;
+  } else ok = !!state.password && pwd === state.password;
   if(ok){
     sessionPwd = pwd; unlocked = true; document.body.classList.add('admin-on'); $('#loginErr').textContent = ''; $('#loginModal').classList.remove('show');
     if(remoteEmpty){ remoteEmpty = false; weightsLoaded = true; save(); }   // primera vez: sube lo que había en este navegador
@@ -1099,6 +1114,7 @@ $('#addWinner').onclick = () => { draft.winners.unshift({ id: Math.random().toSt
 $('#aShowWinners').onchange = () => draft.showWinners = $('#aShowWinners').checked;
 
 function openAdmin(){
+  setOdds(false);
   draft = clone(state); adminTab = state.current;
   if(!Array.isArray(draft.winners)) draft.winners = [];
   $('#aPassword').value = '';
@@ -1171,15 +1187,16 @@ function renderItems(){
       <input type="color" value="${it.color}">
       <input type="text" class="emoji" maxlength="8" placeholder="🐉">
       <input type="text" class="txt" placeholder="Texto del premio o reto">
-      <input type="number" min="0.1" step="0.5" title="Peso">
+      <input type="number" min="0.1" step="0.5" title="Peso" class="odds-only">
       <div class="acts">
         <button class="btn sm" data-a="up" title="Subir">▲</button>
         <button class="btn sm" data-a="down" title="Bajar">▼</button>
         <button class="btn sm danger" data-a="del" title="Eliminar">✕</button>
       </div>
-      <div class="pct">${(Math.max(.1,+it.weight||1)/total*100).toFixed(1)}% de probabilidad</div>`;
+      <div class="pct odds-only">${(Math.max(.1,+it.weight||1)/total*100).toFixed(1)}% de probabilidad</div>`;
     const [color, emoji, txt, w] = row.querySelectorAll('input');
-    emoji.value = it.emoji || ''; txt.value = it.text || ''; w.value = it.weight;
+    emoji.value = it.emoji || ''; txt.value = it.text || ''; w.value = weightsLoaded ? it.weight : '';
+    if(!weightsLoaded){ w.disabled = true; w.placeholder = '?'; }
     color.oninput = () => it.color = color.value;
     emoji.oninput = () => it.emoji = emoji.value;
     txt.oninput = () => it.text = txt.value;
@@ -1236,6 +1253,12 @@ $('#resetBtn').onclick = () => {
   clearTimeout(resetArmed); resetArmed = null; b.textContent = 'Restaurar';
   const pwd = draft.password, keepW = draft.winners; draft = clone(DEFAULTS); draft.password = pwd; draft.muted = state.muted; draft.winners = keepW || []; openAdminFromDraft();
 };
+function setOdds(on){
+  $('#adminModal').classList.toggle('odds-on', on);
+  $('#oddsToggle').classList.toggle('on', on); $('#oddsToggle').textContent = on ? '🔓 Probabilidades' : '🔒';
+  $('#oddsWarn').textContent = weightsLoaded ? '' : '⚠ Los pesos no se han cargado. Recarga la página (Ctrl+F5) y vuelve a entrar. No se guardarán pesos hasta que carguen.';
+}
+$('#oddsToggle').onclick = () => setOdds(!$('#adminModal').classList.contains('odds-on'));
 function openAdminFromDraft(){ $('#aDuration').value = draft.duration; $('#aRemove').checked = !!draft.removeOnWin; $('#aHidden').checked = draft.hiddenOdds !== false;
   $('#aLegendLock').checked = draft.legendLock !== false; $('#aLegendAsk').value = draft.legendAsk || 'spin'; $('#aLegendPwd').value = '';
   $('#legendLockOpts').style.display = $('#aLegendLock').checked ? '' : 'none'; $('#adminErr').textContent = ''; renderAdminWheel(); renderWinnersAdmin(); }
