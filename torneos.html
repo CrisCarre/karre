@@ -63,6 +63,9 @@ label{font-size:.7rem;color:var(--gold);letter-spacing:1px;text-transform:upperc
   box-shadow:0 12px 30px rgba(0,0,0,.65),inset 0 0 30px rgba(0,0,0,.7);transition:transform .25s,border-color .25s,box-shadow .25s}
 .tcard:hover{transform:translateY(-6px);border-color:var(--gold);box-shadow:0 18px 40px rgba(0,0,0,.7),0 0 34px rgba(var(--accent),.45)}
 .tcard .img{position:relative;aspect-ratio:16/9;background:#0b0202 center/cover no-repeat;display:grid;place-items:center;font-size:3.4rem}
+.tcard .img{overflow:hidden}
+.tcard .img .fill{position:absolute;inset:-20px;background:var(--img) center/cover no-repeat;filter:blur(18px) brightness(.55)}
+.tcard .img .pic{position:absolute;inset:0;background:var(--img) center/contain no-repeat}
 .tcard .img::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(18,3,2,.95))}
 .date{flex:none;display:flex;flex-direction:column;align-items:center;min-width:64px;padding:6px 8px 7px;border-radius:12px;
   background:linear-gradient(180deg,#ffb300,#ff5a00 55%,#b3130f);border:2px solid #ffe3a0;box-shadow:0 6px 14px rgba(0,0,0,.6);text-shadow:0 1px 0 #5a0704;line-height:1}
@@ -71,6 +74,13 @@ label{font-size:.7rem;color:var(--gold);letter-spacing:1px;text-transform:upperc
 .date small{font-size:.7rem;margin-top:3px;font-weight:900}
 .badge{position:absolute;top:12px;right:12px;z-index:2;padding:5px 12px;border-radius:20px;font-size:.68rem;letter-spacing:2px;font-weight:900;text-transform:uppercase;
   background:rgba(20,4,2,.85);border:1px solid var(--gold);color:var(--gold)}
+.badge.code{cursor:pointer;font-family:'Cinzel',serif;display:flex;align-items:center;gap:6px;font-size:.78rem;letter-spacing:1.5px;padding:7px 14px;background:rgba(20,4,2,.9);
+  box-shadow:0 0 0 0 rgba(245,196,81,.6);animation:codeGlow 2.2s ease-in-out infinite;transition:transform .15s,background .2s}
+.badge.code:hover{transform:scale(1.06);background:linear-gradient(180deg,#ffb300,#b3130f);color:#fff}
+.badge.code.ok{background:linear-gradient(180deg,#39dc5a,#13702a);border-color:#b6ffc4;color:#fff;animation:none}
+.badge.code::after{content:"Pulsa para copiar el código";position:absolute;top:calc(100% + 6px);right:0;font-size:.6rem;letter-spacing:1px;white-space:nowrap;color:#ffe3a0;text-shadow:0 1px 3px #000;opacity:0;transition:opacity .2s;pointer-events:none}
+.badge.code:hover::after{opacity:1}
+@keyframes codeGlow{50%{box-shadow:0 0 14px 2px rgba(245,196,81,.55)}}
 .badge.today{background:linear-gradient(180deg,#ff3b3b,#9a0a0a);border-color:#ffb3b3;color:#fff;animation:pulse 1.4s ease-in-out infinite}
 @keyframes pulse{50%{box-shadow:0 0 18px rgba(255,60,60,.9)}}
 .tcard .body{display:flex;flex-direction:column;gap:10px;padding:4px 18px 18px;flex:1;position:relative;margin-top:-34px;z-index:1}
@@ -102,7 +112,8 @@ label{font-size:.7rem;color:var(--gold);letter-spacing:1px;text-transform:upperc
 /* destacado: el próximo torneo */
 .featured{display:grid;grid-template-columns:1.25fr 1fr;margin-top:34px}
 .featured .img{aspect-ratio:auto;min-height:320px}
-.featured .img::after{background:linear-gradient(90deg,transparent 55%,rgba(18,3,2,.95))}
+.featured .img{align-self:stretch}
+.featured .img::after{background:linear-gradient(90deg,transparent 88%,rgba(18,3,2,.9))}
 .featured .body{margin:0;padding:24px 24px 22px;justify-content:center}
 .featured h3{font-size:2.4rem}
 .featured .kicker{font-size:.7rem;letter-spacing:4px;color:#ff8a3a;font-weight:900}
@@ -259,13 +270,27 @@ async function toggleVote(btn){
   } else { try{ localStorage.setItem(VKEY, JSON.stringify(votes)); }catch(e){} }
 }
 
+/* ---------- Copiar ---------- */
+function copyText(t){
+  if(navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(t).catch(() => fallbackCopy(t));
+  return Promise.resolve(fallbackCopy(t));
+}
+function fallbackCopy(t){ const ta = document.createElement('textarea'); ta.value = t; ta.style.cssText = 'position:fixed;opacity:0'; document.body.append(ta); ta.select(); try{ document.execCommand('copy'); }catch(e){} ta.remove(); }
+
 /* ---------- Pintar ---------- */
 function card(t, featured){
   const st = status(t), d = parseD(t);
   const el = document.createElement('article'); el.className = 'tcard' + (featured ? ' featured' : ''); el.id = 't-' + t.id;
   const img = document.createElement('div'); img.className = 'img';
-  if(t.image) img.style.backgroundImage = cssUrl(t.image); else img.textContent = '🏆';
-  if(st !== 'past' || t.winner){ const bd = document.createElement('div'); bd.className = 'badge' + (st === 'today' ? ' today' : ''); bd.textContent = st === 'today' ? '¡Hoy!' : st === 'past' ? 'Finalizado' : 'Próximo'; img.append(bd); }
+  if(t.image){ img.style.setProperty('--img', cssUrl(t.image)); const fl = document.createElement('span'); fl.className = 'fill'; const pc = document.createElement('span'); pc.className = 'pic'; img.append(fl, pc); } else img.textContent = '🏆';
+  const code = (t.code || '').trim();
+  if(code && st !== 'past'){
+    const bd = document.createElement('button'); bd.type = 'button'; bd.className = 'badge code'; bd.title = 'Copiar código del mapa';
+    bd.innerHTML = '<span class="ci">📋</span><span class="ct"></span>'; bd.querySelector('.ct').textContent = code;
+    bd.onclick = e => { e.stopPropagation(); copyText(code).then(() => { bd.classList.add('ok'); bd.querySelector('.ct').textContent = '¡Copiado!'; bd.querySelector('.ci').textContent = '✅';
+      setTimeout(() => { bd.classList.remove('ok'); bd.querySelector('.ct').textContent = code; bd.querySelector('.ci').textContent = '📋'; }, 1600); }); };
+    img.append(bd);
+  } else if(st !== 'past' || t.winner){ const bd = document.createElement('div'); bd.className = 'badge' + (st === 'today' ? ' today' : ''); bd.textContent = st === 'today' ? '¡Hoy!' : st === 'past' ? 'Finalizado' : 'Próximo'; img.append(bd); }
   const body = document.createElement('div'); body.className = 'body';
   if(featured){ const k = document.createElement('div'); k.className = 'kicker'; k.textContent = st === 'today' ? '🔴 ES HOY' : '⚔ PRÓXIMO TORNEO'; body.append(k); }
   const h = document.createElement('h3'); h.textContent = t.title || 'Torneo';
@@ -365,7 +390,7 @@ function renderList(){
     f1.append(lab('Título', inp('text', t.title, 'Copa del Dragón', v => t.title = v)), lab('Día', inp('date', t.date, '', v => t.date = v)), lab('Hora', inp('time', t.time, '', v => t.time = v)));
     const f2 = document.createElement('div'); f2.className = 'f2';
     f2.append(lab('Premio', inp('text', t.prize, '1000 pavos, skin…', v => t.prize = v)), lab('Enlace', inp('text', t.url, 'https://…', v => t.url = v.trim())), lab('Texto del botón', inp('text', t.urlLabel, 'Inscribirse', v => t.urlLabel = v)));
-    fields.append(f1, f2, lab('¿De qué va?', inp('textarea', t.desc, 'Modo de juego, normas, cómo participar…', v => t.desc = v)), lab('Ganador (cuando termine, opcional)', inp('text', t.winner, '', v => t.winner = v)));
+    fields.append(f1, f2, lab('Código del mapa (opcional, se copia al pulsarlo)', inp('text', t.code, '1234-5678-9012', v => t.code = v)), lab('¿De qué va?', inp('textarea', t.desc, 'Modo de juego, normas, cómo participar…', v => t.desc = v)), lab('Ganador (cuando termine, opcional)', inp('text', t.winner, '', v => t.winner = v)));
     row.append(left, fields); L.append(row);
   });
 }
@@ -390,7 +415,7 @@ $('#imgFile').onchange = e => {
 $('#saveBtn').onclick = () => {
   draft.title = $('#aTitle').value.trim() || DEFAULTS.title;
   draft.subtitle = $('#aSubtitle').value.trim();
-  draft.items = draft.items.filter(t => (t.title || '').trim()).map(t => ({ ...t, id: t.id || newId(), title: t.title.trim(), prize: (t.prize || '').trim(), winner: (t.winner || '').trim() }));
+  draft.items = draft.items.filter(t => (t.title || '').trim()).map(t => ({ ...t, id: t.id || newId(), title: t.title.trim(), prize: (t.prize || '').trim(), code: (t.code || '').trim(), winner: (t.winner || '').trim() }));
   const np = $('#aPassword').value.trim();
   if(np){
     if(KDB.enabled) KDB.changePassword(PAGE, () => sessionPwd, np, () => { sessionPwd = np; KDB.toast('✓ Contraseña cambiada'); }).catch(e => KDB.toast('⚠ ' + e.message, false));
