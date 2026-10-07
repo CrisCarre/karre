@@ -142,7 +142,7 @@ body.obs .corner,body.obs .back{display:none}
 .btn.danger{background:linear-gradient(180deg,#6b0a0a,#2a0303)}
 .btn.sm{padding:6px 10px;font-size:.8rem}
 
-input[type=text],input[type=password],input[type=number]{font-family:inherit;background:#0b0202;border:1px solid var(--gold-dark);color:#fff;border-radius:8px;padding:9px 10px;font-size:.9rem;width:100%}
+input[type=text],input[type=password],input[type=number],.modal select{font-family:inherit;background:#0b0202;border:1px solid var(--gold-dark);color:#fff;border-radius:8px;padding:9px 10px;font-size:.9rem;width:100%}
 input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 8px rgba(255,150,0,.5)}
 input[type=color]{width:38px;height:38px;border:1px solid var(--gold-dark);border-radius:8px;background:#0b0202;padding:2px;cursor:pointer}
 label{font-size:.75rem;color:var(--gold);letter-spacing:1px;text-transform:uppercase;display:block;margin-bottom:4px}
@@ -164,13 +164,19 @@ label{font-size:.75rem;color:var(--gold);letter-spacing:1px;text-transform:upper
 /* ===== CONTROLES / RULETA LEGENDARIA ===== */
 .controls{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;align-items:center;margin-top:8px}
 .controls .spin-btn{margin-top:0}
-.swap-btn{font-family:'Metal Mania',cursive;font-size:clamp(1.05rem,3vw,1.45rem);letter-spacing:2px;color:#fff;padding:12px 26px;border-radius:60px;cursor:pointer;
-  border:3px solid #d9c2ff;background:linear-gradient(180deg,#c9a8ff,#7b2cff 50%,#2a0a78);
-  text-shadow:0 2px 0 #1a0548,0 0 10px rgba(220,200,255,.8);box-shadow:0 6px 0 #1a0548,0 0 26px rgba(140,60,255,.7),inset 0 2px 6px rgba(255,255,255,.5);transition:transform .12s,filter .2s}
-.swap-btn:hover:not(:disabled){filter:brightness(1.15);transform:translateY(-2px)}
-.swap-btn:active:not(:disabled){transform:translateY(4px)}
-.swap-btn:disabled{filter:grayscale(.6) brightness(.7);cursor:not-allowed}
-body:not(.legend) .swap-btn{border-color:var(--gold);background:linear-gradient(180deg,#ffb300,#ff5a00 45%,#b3130f);text-shadow:0 2px 0 #5a0704;box-shadow:0 6px 0 #5a0704,0 0 26px rgba(255,90,0,.7),inset 0 2px 6px rgba(255,255,255,.5)}
+.girar-btn{--gb1:#ffb300;--gb2:#b3130f;--gtx:#fff;--gbd:#f5c451;--ggl:#ff5a00;--gfs:1;--grad:60px;--gimg:none;--gfont:'Metal Mania',cursive;
+  font-family:var(--gfont);font-size:calc(clamp(1.05rem,3vw,1.45rem) * var(--gfs));letter-spacing:2px;color:var(--gtx);padding:.55em 1.3em;border-radius:var(--grad);cursor:pointer;
+  border:3px solid var(--gbd);background:var(--gimg) center/cover no-repeat,linear-gradient(180deg,var(--gb1),var(--gb2));
+  text-shadow:0 2px 0 rgba(0,0,0,.55),0 0 10px var(--ggl);box-shadow:0 6px 0 rgba(0,0,0,.6),0 0 26px var(--ggl),inset 0 2px 6px rgba(255,255,255,.45);transition:transform .12s,filter .2s;
+  display:inline-flex;align-items:center;gap:.4em;min-width:5em;justify-content:center}
+.girar-btn.no-glow{box-shadow:0 6px 0 rgba(0,0,0,.6),inset 0 2px 6px rgba(255,255,255,.45);text-shadow:0 2px 0 rgba(0,0,0,.55)}
+.girar-btn:hover:not(:disabled){filter:brightness(1.15);transform:translateY(-2px)}
+.girar-btn:active:not(:disabled){transform:translateY(4px)}
+.girar-btn:disabled{filter:grayscale(.6) brightness(.7);cursor:not-allowed}
+.btn-prev-wrap{display:flex;justify-content:center;padding:14px;margin:6px 0 10px;border:1px dashed rgba(245,196,81,.35);border-radius:12px;background:rgba(0,0,0,.35)}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.grid3 input[type=color]{width:100%;height:36px;padding:2px}
+@media(max-width:560px){.grid3{grid-template-columns:1fr 1fr}}
 
 body.legend{background:radial-gradient(ellipse at 50% 40%,rgba(90,30,190,.6) 0%,rgba(18,5,48,.93) 45%,#04010c 80%),radial-gradient(circle at 50% 110%,rgba(140,60,255,.4),transparent 50%),#04010c}
 body.legend::before{background-image:radial-gradient(circle at 50% 0,transparent 55%,#b388ff 57%,transparent 62%)}
@@ -234,9 +240,16 @@ body.legend .wcard{background:linear-gradient(160deg,#2a0a5a,#0d0420);border-col
 
 @media (prefers-reduced-motion:reduce){ .wtrack,.wcard{animation:none} }
 /* apuntar ganador desde el resultado */
-.quick-win{display:none;gap:6px;margin:-6px 0 16px;justify-content:center;flex-wrap:wrap}
-body.admin-on .quick-win{display:flex}
-.quick-win input{max-width:220px}
+.quick-win{display:flex;flex-direction:column;align-items:center;gap:8px;margin:-8px 0 14px}
+.qw-toggle{background:none;border:none;color:#c9a46a;font-family:'Cinzel',serif;font-size:.72rem;letter-spacing:1px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:8px}
+.qw-toggle:hover{color:#fff;background:rgba(255,150,0,.12)}
+.qw-toggle .ar{display:inline-block;transition:transform .2s}
+.quick-win.open .qw-toggle .ar{transform:rotate(90deg)}
+.quick-win input{display:none;max-width:240px}
+.quick-win.open input{display:block}
+.quick-win input.qw-pwd{display:none}
+.quick-win.open.need-pass input.qw-pwd{display:block}
+.quick-win .err{min-height:0;margin:0}
 /* admin ganadores */
 .wrow{display:grid;grid-template-columns:1fr 1.2fr 130px 110px auto;gap:6px;align-items:center;margin-bottom:6px}
 .wrow input[type=date]{font-family:inherit;background:#0b0202;border:1px solid var(--gold-dark);color:#fff;border-radius:8px;padding:8px;font-size:.85rem;width:100%;color-scheme:dark}
@@ -280,13 +293,13 @@ body.admin-on .quick-win{display:flex}
     <canvas id="wheel"></canvas>
 
     <!-- ojo de dragón -->
-    <button class="hub" id="hub" title="Girar">
+    <button class="hub" id="eyeSwap" title="Cambiar de ruleta">
       <span class="eye-img"></span>
     </button>
   </div>
 
   <div class="controls">
-    <button class="swap-btn" id="swapBtn">Normal</button>
+    <button class="girar-btn" id="spinBtn">¡GIRAR!</button>
   </div>
   <div class="history" id="history"></div>
 </main>
@@ -302,8 +315,11 @@ body.admin-on .quick-win{display:flex}
     <div class="roar">🐉 El dragón ha hablado 🐉</div>
     <div class="result-emoji" id="resultEmoji">🔥</div>
     <div class="result-text" id="resultText">—</div>
-    <div class="quick-win">
-      <input type="text" id="quickWinner" placeholder="¿Quién ha ganado? (opcional)" list="winnerNames">
+    <div class="quick-win" id="quickWin">
+      <button type="button" class="qw-toggle" id="qwToggle"><span class="ar">▸</span> Apuntar ganador</button>
+      <input type="text" id="quickWinner" placeholder="¿Quién ha ganado?" list="winnerNames">
+      <input type="password" id="quickPwd" class="qw-pwd" placeholder="Contraseña de admin" autocomplete="current-password">
+      <div class="err" id="quickErr"></div>
     </div>
     <button class="btn primary" id="resultOk">¡Aceptar!</button>
   </div>
@@ -368,6 +384,34 @@ body.admin-on .quick-win{display:flex}
       <input type="file" id="imgFile" accept="image/*" hidden>
     </div>
     <div class="hint">Los archivos subidos se guardan en el navegador (máx. ~2,5 MB). Para GIFs pesados usa una URL.</div>
+    <div class="hint">El ojo del centro cambia entre la ruleta Normal y la Legendaria.</div>
+
+    <div class="section-title"><span>BOTÓN DE GIRAR</span><button class="btn sm" id="bReset">Restablecer</button></div>
+    <div class="btn-prev-wrap"><button type="button" class="girar-btn" id="bPreview" tabindex="-1">¡GIRAR!</button></div>
+    <div class="grid2">
+      <div><label>Texto</label><input type="text" id="bText" maxlength="30"></div>
+      <div><label>Emoji / icono</label><input type="text" id="bIcon" maxlength="8" placeholder="🔥 (vacío = sin icono)"></div>
+    </div>
+    <div class="grid3">
+      <div><label>Color arriba</label><input type="color" id="bBg1"></div>
+      <div><label>Color abajo</label><input type="color" id="bBg2"></div>
+      <div><label>Texto</label><input type="color" id="bTextColor"></div>
+      <div><label>Borde</label><input type="color" id="bBorder"></div>
+      <div><label>Brillo</label><input type="color" id="bGlow"></div>
+      <div><label>Letra</label><select id="bFont"><option>Metal Mania</option><option>Cinzel</option><option>Sistema</option></select></div>
+    </div>
+    <div class="grid2">
+      <div><label>Tamaño: <b id="bSizeV"></b></label><input type="range" id="bSize" min="60" max="200" step="5"></div>
+      <div><label>Redondeo: <b id="bRadiusV"></b></label><input type="range" id="bRadius" min="0" max="60" step="2"></div>
+    </div>
+    <label class="check"><input type="checkbox" id="bGlowOn"> Resplandor alrededor del botón</label>
+    <label style="margin-top:10px">Imagen de fondo del botón (opcional)</label>
+    <div class="img-row">
+      <button class="btn sm" id="bImgUpload">Subir imagen</button>
+      <input type="text" id="bImgUrl" placeholder="…o pega una URL" style="flex:1;min-width:170px">
+      <button class="btn sm danger" id="bImgClear">Quitar</button>
+      <input type="file" id="bImgFile" accept="image/*" hidden>
+    </div>
 
     <div class="section-title"><span>PREMIOS / RETOS</span><button class="btn sm" id="addItem">+ Añadir</button></div>
     <div style="font-size:.72rem;color:#c9a46a;margin-bottom:8px">Color · Emoji · Texto · Peso (más peso = más probabilidad de salir)</div>
@@ -436,8 +480,10 @@ const DEFAULTS = {
   muted: false,
   current: 'normal',
   wheels: {
-    normal: { title: 'Ruleta del Dragón', subtitle: 'Retos y premios', image: '', items: NORMAL_ITEMS },
-    legend: { title: 'Ruleta Legendaria', subtitle: 'Premios épicos', image: '', items: LEGEND_ITEMS }
+    normal: { title: 'Ruleta del Dragón', subtitle: 'Retos y premios', image: '', items: NORMAL_ITEMS,
+      btn: { text: '¡GIRAR!', icon: '🔥', bg1: '#ffb300', bg2: '#b3130f', textColor: '#ffffff', borderColor: '#f5c451', glow: '#ff5a00', glowOn: true, size: 100, radius: 60, font: 'Metal Mania', image: '' } },
+    legend: { title: 'Ruleta Legendaria', subtitle: 'Premios épicos', image: '', items: LEGEND_ITEMS,
+      btn: { text: '¡GIRAR!', icon: '👑', bg1: '#c9a8ff', bg2: '#2a0a78', textColor: '#ffffff', borderColor: '#d9c2ff', glow: '#8c3cff', glowOn: true, size: 100, radius: 60, font: 'Metal Mania', image: '' } }
   }
 };
 
@@ -455,7 +501,7 @@ function fromData(d){
       const wheels = {};
       for(const k of ['normal','legend']){
         const w = (d.wheels && d.wheels[k]) || {};
-        wheels[k] = { ...def.wheels[k], ...w, items: Array.isArray(w.items) && w.items.length >= 2 ? w.items : def.wheels[k].items };
+        wheels[k] = { ...def.wheels[k], ...w, btn: { ...def.wheels[k].btn, ...(w.btn || {}) }, items: Array.isArray(w.items) && w.items.length >= 2 ? w.items : def.wheels[k].items };
       }
       if(!d.duration || d.duration < 14) d.duration = 14;
       return { ...def, ...d, wheels, winners: Array.isArray(d.winners) ? d.winners : [], current: d.current === 'legend' ? 'legend' : 'normal' };
@@ -629,7 +675,7 @@ function roar(){
 }
 
 /* ---------- Giro ---------- */
-const wrap = $('#wheelWrap'), pointer = $('#pointer'), spinBtn = $('#hub');
+const wrap = $('#wheelWrap'), pointer = $('#pointer'), spinBtn = $('#spinBtn'), eyeBtn = $('#eyeSwap');
 const segAt = deg => { for(let i=0;i<segs.length;i++) if(deg >= segs[i].start && deg < segs[i].start+segs[i].size) return i; return segs.length-1; };
 
 function pickWeighted(){
@@ -695,21 +741,38 @@ function finish(i){
   $('#resultText').textContent = it.text;
   fillWinnerNames(state.winners);
   $('#resultModal').classList.add('show');
-  if(unlocked) setTimeout(() => $('#quickWinner').focus(), 300);
+  $('#quickWin').classList.remove('open'); $('#quickWinner').value = ''; $('#quickPwd').value = ''; $('#quickErr').textContent = '';
   roar(); burst();
   history.unshift(`${it.emoji||''} ${it.text}`.trim()); if(history.length > 6) history.pop();
   renderHistory();
 }
 
-$('#resultOk').onclick = () => {
-  const who = $('#quickWinner').value.trim();
+$('#qwToggle').onclick = () => {
+  const box = $('#quickWin'); box.classList.toggle('open'); box.classList.toggle('need-pass', !unlocked); $('#quickErr').textContent = '';
+  if(box.classList.contains('open')) setTimeout(() => $('#quickWinner').focus(), 50); else $('#quickWinner').value = '';
+};
+$('#quickWinner').addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); if(!unlocked && !$('#quickPwd').value) $('#quickPwd').focus(); else $('#resultOk').click(); } });
+$('#quickPwd').addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); $('#resultOk').click(); } });
+$('#resultOk').onclick = async () => {
+  const who = $('#quickWin').classList.contains('open') ? $('#quickWinner').value.trim() : '';
+  if(who && !unlocked){
+    // apuntar un ganador exige la contraseña de admin
+    const pwd = $('#quickPwd').value; let ok;
+    if(!pwd){ $('#quickErr').textContent = 'Pon la contraseña para apuntarlo'; $('#quickPwd').focus(); return; }
+    if(KDB.enabled){
+      $('#quickErr').textContent = 'Comprobando…';
+      try{ ok = await KDB.login(PAGE, pwd); }catch(e){ $('#quickErr').textContent = 'Error de conexión: ' + e.message; return; }
+    } else ok = pwd === state.password;
+    if(!ok){ $('#quickErr').textContent = 'Contraseña incorrecta'; $('#quickPwd').select(); return; }
+    sessionPwd = pwd; unlocked = true; document.body.classList.add('admin-on'); $('#quickErr').textContent = '';
+  }
   if(who && unlocked && lastWinner > -1){
     const it = W().items[lastWinner];
     state.winners = state.winners || [];
     state.winners.unshift({ id: Math.random().toString(36).slice(2, 9), winner: who, prize: it ? it.text : '', date: todayISO(), delivered: false, wheel: state.current });
     save(); renderWinners();
   }
-  $('#quickWinner').value = '';
+  $('#quickWinner').value = ''; $('#quickPwd').value = '';
   $('#resultModal').classList.remove('show'); wrap.classList.remove('win');
   if(state.removeOnWin && lastWinner > -1 && W().items.length > 2){ W().items.splice(lastWinner,1); save(); drawWheel(); }
   spinBtn.disabled = W().items.length < 2;
@@ -814,7 +877,7 @@ function renderHistory(){
   history.forEach(t => { const c = document.createElement('span'); c.className='chip'; c.textContent = t; h.appendChild(c); });
 }
 
-spinBtn.onclick = spin; $('#hub').onclick = spin;
+spinBtn.onclick = spin; eyeBtn.onclick = swapWheel;
 document.addEventListener('keydown', e => { if(e.code==='Space' && !document.querySelector('.modal.show') && !['INPUT','TEXTAREA','BUTTON'].includes(e.target.tagName)){ e.preventDefault(); spin(); } });
 
 /* ---------- Brasas ---------- */
@@ -891,7 +954,7 @@ function applyEye(){
 }
 function applyTexts(){ renderWinners(); const w = W(); $('#titleText').textContent = w.title; $('#subtitleText').textContent = w.subtitle; document.title = w.title;
   document.body.classList.toggle('legend', state.current === 'legend');
-  $('#swapBtn').textContent = state.current === 'legend' ? 'Legendaria' : 'Normal';
+  styleSpinBtn(spinBtn, W().btn);
   applyEye(); $('#muteBtn').textContent = state.muted ? '🔇' : '🔊'; }
 $('#muteBtn').onclick = () => { state.muted = !state.muted; saveLocal(); applyTexts(); };
 
@@ -908,7 +971,7 @@ function whoosh(){
 }
 function swapWheel(){
   if(spinning || swapping || document.querySelector('.modal.show')) return;
-  swapping = true; spinBtn.disabled = true; $('#swapBtn').disabled = true;
+  swapping = true; spinBtn.disabled = true; eyeBtn.disabled = true;
   wrap.classList.remove('win');
   try{ audio().resume(); }catch(e){}
   whoosh();
@@ -927,12 +990,21 @@ function swapWheel(){
     ], { duration: 850, easing: 'cubic-bezier(.2,.7,.3,1)', fill: 'forwards' });
     inn.onfinish = () => {
       out.cancel(); inn.cancel();
-      swapping = false; spinBtn.disabled = W().items.length < 2; $('#swapBtn').disabled = false;
+      swapping = false; spinBtn.disabled = W().items.length < 2; eyeBtn.disabled = false;
       if(state.current === 'legend') roar();
     };
   };
 }
-$('#swapBtn').onclick = swapWheel;
+function styleSpinBtn(el, b){
+  b = b || {}; const st = el.style;
+  st.setProperty('--gb1', b.bg1 || '#ffb300'); st.setProperty('--gb2', b.bg2 || b.bg1 || '#b3130f');
+  st.setProperty('--gtx', b.textColor || '#fff'); st.setProperty('--gbd', b.borderColor || '#f5c451');
+  st.setProperty('--ggl', b.glow || '#ff5a00'); st.setProperty('--gfs', (+b.size || 100)/100);
+  st.setProperty('--grad', (b.radius ?? 60) + 'px'); st.setProperty('--gimg', b.image ? cssUrl(b.image) : 'none');
+  st.setProperty('--gfont', b.font === 'Cinzel' ? "'Cinzel',serif" : b.font === 'Sistema' ? 'system-ui,sans-serif' : "'Metal Mania',cursive");
+  el.classList.toggle('no-glow', b.glowOn === false);
+  el.textContent = [b.icon, b.text].filter(x => (x || '').trim()).join(' ') || '¡GIRAR!';
+}
 
 /* ---------- Admin ---------- */
 let draft = null, adminTab = 'normal';
@@ -993,8 +1065,32 @@ function renderAdminWheel(){
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === adminTab));
   $('#aTitle').value = DW().title || ''; $('#aSubtitle').value = DW().subtitle || '';
   $('#imgUrl').value = (DW().image || '').startsWith('data:') ? '' : (DW().image || '');
-  updPrev(); renderItems();
+  updPrev(); renderItems(); renderBtnAdmin();
 }
+const DB_ = () => (DW().btn = DW().btn || clone(DEFAULTS.wheels[adminTab].btn));
+const BTN_FIELDS = { bText:'text', bIcon:'icon', bBg1:'bg1', bBg2:'bg2', bTextColor:'textColor', bBorder:'borderColor', bGlow:'glow', bFont:'font', bSize:'size', bRadius:'radius' };
+function renderBtnAdmin(){
+  const b = DB_();
+  for(const [id,k] of Object.entries(BTN_FIELDS)) $('#'+id).value = b[k] ?? '';
+  $('#bGlowOn').checked = b.glowOn !== false;
+  $('#bImgUrl').value = (b.image || '').startsWith('data:') ? '' : (b.image || '');
+  updBtnPrev();
+}
+function updBtnPrev(){ const b = DB_(); $('#bSizeV').textContent = (b.size || 100) + '%'; $('#bRadiusV').textContent = (b.radius ?? 60) + 'px'; styleSpinBtn($('#bPreview'), b); }
+for(const [id,k] of Object.entries(BTN_FIELDS)) $('#'+id).oninput = $('#'+id).onchange = () => { const v = $('#'+id).value; DB_()[k] = (k === 'size' || k === 'radius') ? +v : v; updBtnPrev(); };
+$('#bGlowOn').onchange = () => { DB_().glowOn = $('#bGlowOn').checked; updBtnPrev(); };
+$('#bReset').onclick = () => { DW().btn = clone(DEFAULTS.wheels[adminTab].btn); renderBtnAdmin(); };
+$('#bImgUpload').onclick = () => $('#bImgFile').click();
+$('#bImgFile').onchange = e => {
+  const f = e.target.files[0]; e.target.value = ''; if(!f) return;
+  if(!f.type.startsWith('image/')){ $('#adminErr').textContent = 'Ese archivo no es una imagen.'; return; }
+  if(f.size > 1024*1024){ $('#adminErr').textContent = 'La imagen del botón pesa más de 1 MB. Usa una URL o una más ligera.'; return; }
+  const rd = new FileReader();
+  rd.onload = () => { DB_().image = rd.result; $('#bImgUrl').value = ''; $('#adminErr').textContent = ''; updBtnPrev(); };
+  rd.readAsDataURL(f);
+};
+$('#bImgUrl').oninput = () => { DB_().image = $('#bImgUrl').value.trim(); updBtnPrev(); };
+$('#bImgClear').onclick = () => { DB_().image = ''; $('#bImgUrl').value = ''; updBtnPrev(); };
 function updPrev(){ const i = DW().image; $('#imgPrev').style.backgroundImage = i ? cssUrl(i) : DEFAULT_EYE_BG; $('#imgPrev').style.backgroundSize = i ? 'cover' : '135%'; $('#imgPrev').style.backgroundPosition = i ? 'center' : 'center 62%'; }
 document.querySelectorAll('.tab').forEach(t => t.onclick = () => { adminTab = t.dataset.tab; renderAdminWheel(); });
 $('#aTitle').oninput = () => DW().title = $('#aTitle').value;
