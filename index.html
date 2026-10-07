@@ -98,42 +98,114 @@ body.obs .corner{display:none}
 .card label.check{display:flex;text-transform:none;letter-spacing:0;font-size:.85rem;color:#ffe3a0;margin:4px 0 16px}
 .hint{font-size:.72rem;color:#c9a46a;margin:-6px 0 14px}
 .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}
-/* ===== BANNER DE DIRECTOS ===== */
-.live{width:100%;margin-top:34px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:18px;padding:22px 26px;border-radius:22px;position:relative;overflow:hidden;
-  background:linear-gradient(120deg,rgba(60,10,4,.92),rgba(20,3,2,.94) 60%,rgba(70,20,4,.9));border:2px solid var(--gold-dark);
-  box-shadow:0 12px 30px rgba(0,0,0,.6),0 0 30px rgba(255,90,0,.25),inset 0 0 30px rgba(0,0,0,.6)}
-.live::before{content:"";position:absolute;inset:-40% -10% auto auto;width:340px;height:340px;border-radius:50%;background:radial-gradient(circle,rgba(255,90,0,.25),transparent 65%);pointer-events:none}
+/* ===== BANNER DE DIRECTOS (estilo piedra + gemas) ===== */
+.live{--stone1:#6b6660;--stone2:#3d3935;--stone3:#24211f;
+  width:100%;margin-top:52px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:0;padding:0 18px 22px;border-radius:26px;position:relative;
+  background:
+    radial-gradient(circle at 20% 30%,rgba(255,255,255,.05) 0 2px,transparent 3px) 0 0/23px 19px,
+    radial-gradient(circle at 70% 60%,rgba(0,0,0,.25) 0 2px,transparent 3px) 0 0/17px 21px,
+    linear-gradient(180deg,#4a4540,#2d2a27 55%,#1d1b19);
+  border:4px solid #57524c;
+  box-shadow:0 16px 40px rgba(0,0,0,.75),inset 0 3px 0 rgba(255,255,255,.12),inset 0 -6px 0 rgba(0,0,0,.45),inset 0 0 40px rgba(0,0,0,.6),0 0 0 2px #1a1816}
+.live::before,.live::after{content:"";position:absolute;bottom:-14px;width:46px;height:60px;pointer-events:none;
+  background:linear-gradient(160deg,#e8fbff,#9fe3f2 40%,#4aa6c2);clip-path:polygon(30% 100%,0 40%,25% 0,45% 35%,60% 5%,80% 45%,100% 30%,75% 100%);opacity:.85;filter:drop-shadow(0 0 6px rgba(150,230,255,.7))}
+.live::before{left:-16px}.live::after{right:-16px;transform:scaleX(-1)}
 .live.hidden{display:none}
-.live h3{font-family:'Metal Mania',cursive;font-weight:400;font-size:clamp(1.5rem,4vw,2.1rem);line-height:1.05;display:flex;align-items:center;justify-content:center;gap:10px;
-  background:linear-gradient(180deg,#fff3b0,#ffb300 45%,#ff4d00);-webkit-background-clip:text;background-clip:text;color:transparent}
-.live h3 .dot{width:12px;height:12px;border-radius:50%;background:#ff2a2a;box-shadow:0 0 10px #ff2a2a;flex:none;animation:liveDot 1.2s ease-in-out infinite}
+.live > div:first-child{width:100%;display:flex;flex-direction:column;align-items:center}
+/* placa del título */
+.live .plaque{position:relative;margin-top:-26px;padding:12px 64px 10px;min-width:min(560px,92%);border-radius:10px;
+  background:radial-gradient(circle at 30% 20%,rgba(255,255,255,.35),transparent 60%),linear-gradient(180deg,#d9cdb5,#b3a184 55%,#8d7c62);
+  border:3px solid #5e5446;box-shadow:0 8px 18px rgba(0,0,0,.6),inset 0 2px 0 rgba(255,255,255,.55),inset 0 -3px 0 rgba(0,0,0,.25)}
+.live .plaque::before,.live .plaque::after{content:"";position:absolute;top:50%;width:30px;height:30px;transform:translateY(-50%) rotate(45deg);border-radius:4px;
+  border:3px solid #6b6255;box-shadow:0 0 14px var(--gc),inset 0 0 6px rgba(255,255,255,.6)}
+.live .plaque::before{--gc:rgba(255,40,60,.9);left:18px;background:radial-gradient(circle at 35% 30%,#ffb3b3,#e3192f 45%,#6b0010)}
+.live .plaque::after{--gc:rgba(170,90,255,.9);right:18px;background:radial-gradient(circle at 35% 30%,#e8ccff,#8b3dff 45%,#2d0a6b)}
+.live h3{font-family:'Cinzel',serif;font-weight:900;font-size:clamp(1.25rem,3.6vw,2rem);line-height:1.1;display:flex;align-items:center;justify-content:center;gap:10px;
+  color:#7a1410;text-shadow:0 1px 0 rgba(255,255,255,.55),0 -1px 0 rgba(0,0,0,.25);letter-spacing:1px}
+.live h3 .dot{width:11px;height:11px;border-radius:50%;background:#ff2a2a;box-shadow:0 0 8px #ff2a2a;flex:none;animation:liveDot 1.2s ease-in-out infinite}
 @keyframes liveDot{50%{opacity:.3;transform:scale(.8)}}
-.live .note{font-size:.85rem;color:#e8cf9a;font-family:Georgia,serif;margin:6px 0 0}
-.live > div:first-child{width:100%}
-.sched{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;width:100%;margin-top:16px}
-.slot{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:14px 12px;border-radius:14px;background:rgba(0,0,0,.45);border:1px solid rgba(245,196,81,.35)}
-.slot b{font-size:.9rem;letter-spacing:2px;text-transform:uppercase;color:var(--gold)}
-.slot span{font-family:'Metal Mania',cursive;font-size:1.9rem;color:#fff;line-height:1.1}
-.slot small{font-size:.85rem;line-height:1.25;color:#f3dcae;margin-top:4px;text-align:center;font-family:Georgia,serif}
-.slot.today{border-color:#ff5a00;background:rgba(255,90,0,.18);box-shadow:0 0 16px rgba(255,90,0,.5)}
-.slot.today b::after{content:" · HOY";color:#ff8a3a}
-.plats-links{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;width:100%;padding-top:16px;border-top:1px solid rgba(245,196,81,.2)}
-.plats-links .lbl{width:100%;font-size:.68rem;letter-spacing:3px;color:#c9a46a;text-transform:uppercase}
-.plat-btn{flex:1 1 200px;justify-content:center;display:flex;align-items:center;gap:12px;padding:12px 18px;font-size:1rem;border-radius:14px;text-decoration:none;color:#fff;font-weight:700;letter-spacing:1px;
-  background:rgba(0,0,0,.5);border:1px solid rgba(245,196,81,.45);transition:transform .2s,box-shadow .2s,border-color .2s}
-.plat-btn:hover{transform:translateY(-3px);border-color:var(--gold);box-shadow:0 0 18px rgba(255,150,0,.5)}
-.plat-btn img{width:28px;height:28px;object-fit:contain;border-radius:6px;flex:none}
-.plat-btn .ph{width:28px;height:28px;border-radius:6px;display:grid;place-items:center;background:#3a0d05;flex:none}
-.plat-btn .arr{margin-left:6px;color:var(--gold)}
-@media (max-width:820px){ .live{max-width:460px;padding:18px} .sched{grid-template-columns:repeat(2,1fr)} .plat-btn{flex:1 1 100%} }
+.live .note{font-size:.78rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#4a2a12;margin:4px 0 0;font-family:'Cinzel',serif}
+/* horario: losas de hielo + pilares */
+.sched{display:flex;align-items:stretch;justify-content:center;gap:0;width:100%;margin-top:20px;flex-wrap:wrap;row-gap:14px}
+.slot{flex:1 1 150px;max-width:260px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:16px 12px 14px;border-radius:12px;position:relative;
+  background:radial-gradient(ellipse at 30% 15%,rgba(255,255,255,.95),transparent 55%),linear-gradient(160deg,#f4fbff,#cfe3ee 45%,#9fbccc);
+  border:4px solid #8a8f94;outline:3px solid #3a3734;
+  box-shadow:inset 0 0 18px rgba(120,190,230,.7),inset 0 0 2px #fff,0 6px 14px rgba(0,0,0,.6)}
+.slot b{font-family:'Cinzel',serif;font-weight:900;font-size:clamp(1.6rem,4vw,2.4rem);letter-spacing:2px;text-transform:uppercase;color:#55595e;line-height:1;
+  text-shadow:0 2px 0 rgba(255,255,255,.9),0 -1px 0 rgba(0,0,0,.25)}
+.slot span{font-family:'Cinzel',serif;font-weight:900;font-size:1.45rem;color:#2b2e33;line-height:1.2;margin-top:4px}
+.slot small{font-size:.8rem;font-weight:700;line-height:1.25;color:#2b2e33;margin-top:6px;text-align:center;font-family:Georgia,serif}
+.slot.today{border-color:#ff8a2a;box-shadow:inset 0 0 18px rgba(120,190,230,.7),0 0 0 2px #ffb300,0 0 22px rgba(255,140,0,.85)}
+.slot.today::after{content:"HOY";position:absolute;top:-12px;left:50%;transform:translateX(-50%);font-size:.7rem;font-weight:900;letter-spacing:2px;padding:3px 10px;border-radius:10px;
+  background:linear-gradient(180deg,#ffb300,#d64400);color:#fff;border:2px solid #3a3734}
+.pillar{flex:0 0 34px;align-self:stretch;margin:0 4px;position:relative;border-radius:8px 8px 4px 4px;
+  background:repeating-linear-gradient(180deg,transparent 0 18px,rgba(0,0,0,.35) 18px 21px),linear-gradient(90deg,#3b3835,#8a847c 35%,#a59f96 50%,#6b665f 70%,#2e2b28);
+  box-shadow:0 4px 10px rgba(0,0,0,.6)}
+.pillar::before{content:"";position:absolute;left:50%;top:-10px;width:44px;height:26px;transform:translateX(-50%);
+  background:linear-gradient(180deg,#a59f96,#4a4642);clip-path:polygon(0 100%,8% 30%,25% 55%,50% 0,75% 55%,92% 30%,100% 100%)}
+.pillar::after{content:"";position:absolute;left:50%;top:50%;width:14px;height:14px;transform:translate(-50%,-50%) rotate(45deg);border-radius:3px;
+  background:radial-gradient(circle at 35% 30%,#ffe9a8,#ff9d00 50%,#7a3a00);box-shadow:0 0 10px rgba(255,170,0,.9)}
+/* plataformas: gemas sobre pedestal */
+.plats-links{display:flex;flex-wrap:wrap;justify-content:center;gap:18px 14px;width:100%;margin-top:24px;padding:18px 10px 6px;border-radius:16px;
+  background:linear-gradient(180deg,rgba(0,0,0,.25),rgba(0,0,0,.45));box-shadow:inset 0 3px 10px rgba(0,0,0,.6)}
+.plats-links .lbl{width:100%;font-size:.78rem;font-weight:900;letter-spacing:4px;color:#e7dcc6;text-transform:uppercase;display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:-4px}
+.plats-links .lbl::before,.plats-links .lbl::after{content:"";height:2px;width:min(120px,18vw);background:linear-gradient(90deg,transparent,#a59f96)}
+.plats-links .lbl::after{transform:scaleX(-1)}
+.plat-btn{--gem:#e3192f;flex:0 0 auto;width:104px;display:flex;flex-direction:column;align-items:center;gap:8px;text-decoration:none;color:#f1e6cf;font-weight:900;font-size:.72rem;letter-spacing:1.5px;text-transform:uppercase;transition:transform .2s}
+.plat-btn .gem{width:84px;height:84px;display:grid;place-items:center;position:relative;
+  clip-path:polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%);
+  background:radial-gradient(circle at 32% 25%,rgba(255,255,255,.85),transparent 28%),
+    conic-gradient(from 45deg,color-mix(in srgb,var(--gem) 60%,#fff),var(--gem),color-mix(in srgb,var(--gem) 55%,#000),var(--gem),color-mix(in srgb,var(--gem) 70%,#fff),color-mix(in srgb,var(--gem) 50%,#000),color-mix(in srgb,var(--gem) 60%,#fff));
+  filter:drop-shadow(0 0 10px color-mix(in srgb,var(--gem) 80%,transparent))}
+.plat-btn .gem::before{content:"";position:absolute;inset:9px;clip-path:inherit;background:linear-gradient(160deg,color-mix(in srgb,var(--gem) 75%,#fff 25%),color-mix(in srgb,var(--gem) 65%,#000));opacity:.85}
+.plat-btn .gem img,.plat-btn .gem .ph{position:relative;width:44px;height:44px;object-fit:contain;filter:drop-shadow(0 2px 3px rgba(0,0,0,.6));border-radius:8px;display:grid;place-items:center;font-size:1.6rem}
+.plat-btn .ped{width:96px;height:16px;margin-top:-12px;border-radius:50%;background:linear-gradient(180deg,#8a847c,#3b3835);box-shadow:0 4px 8px rgba(0,0,0,.6),inset 0 2px 0 rgba(255,255,255,.25)}
+.plat-btn:hover{transform:translateY(-4px)}
+.plat-btn:hover .gem{filter:drop-shadow(0 0 18px var(--gem)) brightness(1.15)}
+@media (max-width:820px){
+  .live{max-width:520px;padding:0 12px 18px}
+  .live .plaque{padding:10px 48px 8px}
+  .live .plaque::before,.live .plaque::after{width:22px;height:22px}
+  .live .plaque::before{left:12px}.live .plaque::after{right:12px}
+  .slot{flex:1 1 40%}
+  .pillar{display:none}
+  .sched{gap:12px}
+  .plat-btn{width:84px}.plat-btn .gem{width:68px;height:68px}.plat-btn .gem img{width:36px;height:36px}.plat-btn .ped{width:78px}
+}
+/* ===== BANNER CON IMAGEN (plantilla) ===== */
+.limg{display:none}
+@media (min-width:641px){
+  .live.img-mode{background:none;border:0;box-shadow:none;padding:0;margin-top:30px;border-radius:0}
+  .live.img-mode::before,.live.img-mode::after{display:none}
+  .live.img-mode > :not(.limg){display:none}
+  .live.img-mode .limg{display:block;position:relative;width:100%;container-type:inline-size;filter:drop-shadow(0 14px 24px rgba(0,0,0,.7))}
+}
+.limg > img{display:block;width:100%;height:auto;pointer-events:none;user-select:none}
+.limg .lt,.limg .ls,.limg .lh{position:absolute}
+.limg .lt{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 2cqw}
+.limg .lt h4{font-family:'Cinzel',serif;font-weight:900;font-size:3.1cqw;line-height:1.05;color:#7a1410;text-shadow:0 1px 0 rgba(255,255,255,.55),0 -1px 0 rgba(0,0,0,.3);display:flex;align-items:center;gap:.8cqw}
+.limg .lt h4 .dot{width:.8cqw;height:.8cqw;border-radius:50%;background:#ff2a2a;box-shadow:0 0 .6cqw #ff2a2a;animation:liveDot 1.2s ease-in-out infinite}
+.limg .lt p{font-family:'Cinzel',serif;font-weight:900;font-size:1.15cqw;letter-spacing:.15cqw;text-transform:uppercase;color:#3e2410;margin-top:.3cqw}
+.limg .ls{display:flex;flex-direction:column;align-items:center;justify-content:space-between;text-align:center;padding:1.4cqw 1cqw 1.2cqw;border-radius:1cqw}
+.limg .ls b{font-family:'Cinzel',serif;font-weight:900;font-size:4.3cqw;line-height:1;letter-spacing:.2cqw;color:#55595e;text-shadow:0 .15cqw 0 rgba(255,255,255,.9),0 -.08cqw 0 rgba(0,0,0,.3)}
+.limg .ls span{font-family:'Cinzel',serif;font-weight:900;font-size:2.4cqw;color:#2b2e33;line-height:1}
+.limg .ls small{font-family:Georgia,serif;font-weight:700;font-size:1.15cqw;line-height:1.2;color:#2b2e33;min-height:1.2em}
+.limg .ls.today{box-shadow:0 0 0 .25cqw #ffb300,0 0 2cqw rgba(255,140,0,.9),inset 0 0 1.5cqw rgba(255,160,0,.5)}
+.limg .ls.today::after{content:"HOY";position:absolute;top:-1.2cqw;left:50%;transform:translateX(-50%);font-size:.95cqw;font-weight:900;letter-spacing:.2cqw;padding:.3cqw 1cqw;border-radius:1cqw;background:linear-gradient(180deg,#ffb300,#d64400);color:#fff;border:.15cqw solid #3a3734}
+.limg .lh{display:block;border-radius:2cqw;transition:filter .2s,transform .2s}
+.limg a.lh:hover{background:radial-gradient(circle,rgba(255,240,200,.28),transparent 70%);transform:translateY(-.4cqw)}
+.limg .lh.off{pointer-events:none}
+.limg .lh .tip{position:absolute;left:50%;bottom:-1.6cqw;transform:translateX(-50%);font-size:1cqw;font-weight:900;letter-spacing:.15cqw;color:#f1e6cf;white-space:nowrap;opacity:0;transition:opacity .2s;text-shadow:0 1px 3px #000}
+.limg a.lh:hover .tip{opacity:1}
 /* admin del banner */
 .sec{margin:20px 0 10px;color:var(--gold);font-size:.9rem;letter-spacing:2px;border-bottom:1px solid var(--gold-dark);padding-bottom:6px;display:flex;justify-content:space-between;align-items:center}
 .lrow{display:grid;grid-template-columns:130px 110px 1fr auto;gap:6px;align-items:center;margin-bottom:6px}
-.prow{display:grid;grid-template-columns:44px 1fr 1.6fr auto;gap:6px;align-items:center;margin-bottom:6px}
+.prow input[type=color]{width:44px;height:40px;padding:2px;border-radius:8px;border:1px solid var(--gold-dark);background:#0b0202;cursor:pointer}
+.prow{display:grid;grid-template-columns:44px 44px 1fr 1.6fr auto;gap:6px;align-items:center;margin-bottom:6px}
 .prow .ico{width:40px;height:40px;border-radius:8px;border:1px solid var(--gold-dark);background:#0b0202 center/contain no-repeat;cursor:pointer;display:grid;place-items:center;font-size:.6rem;color:#8a6a3a}
 .prow .ico:hover{border-color:var(--gold)}
 .card select,.card input[type=time]{font-family:inherit;background:#0b0202;border:1px solid var(--gold-dark);color:#fff;border-radius:8px;padding:8px;font-size:.85rem;width:100%;color-scheme:dark}
-@media (max-width:560px){ .lrow{grid-template-columns:1fr 1fr}.lrow .w2{grid-column:1/-1} .prow{grid-template-columns:44px 1fr auto}.prow .w2{grid-column:1/-1} }
+@media (max-width:560px){ .lrow{grid-template-columns:1fr 1fr}.lrow .w2{grid-column:1/-1} .prow{grid-template-columns:44px 44px 1fr auto}.prow .w2{grid-column:1/-1} }
 @media (max-width:820px){ body.has-hero .doors{margin-top:calc(var(--gap,260px) * .6)} }
 </style>
 </head>
@@ -170,11 +242,14 @@ body.obs .corner{display:none}
 
   <section class="live hidden" id="live">
     <div>
-      <h3><span class="dot"></span><span id="liveTitle">¿Cuándo hago directo?</span></h3>
-      <p class="note" id="liveNote"></p>
+      <div class="plaque">
+        <h3><span class="dot"></span><span id="liveTitle">¿Cuándo hago directo?</span></h3>
+        <p class="note" id="liveNote"></p>
+      </div>
       <div class="sched" id="liveSched"></div>
     </div>
     <div class="plats-links" id="livePlats"></div>
+    <div class="limg" id="liveImg"></div>
   </section>
  </div>
 </main>
@@ -220,6 +295,14 @@ body.obs .corner{display:none}
     <div class="row"><input type="text" id="lvTitle"></div>
     <label for="lvNote">Texto debajo del título (opcional)</label>
     <div class="row"><input type="text" id="lvNote" placeholder="Ej: Horario de Madrid · a veces hago directos sorpresa"></div>
+    <label for="lvImg">Imagen del banner (plantilla de piedra)</label>
+    <div class="row" style="gap:6px;flex-wrap:wrap">
+      <input type="text" id="lvImg" placeholder="banner-directo.webp (vacío = estilo sin imagen)" style="flex:1;min-width:180px">
+      <button class="btn sm" type="button" id="lvImgUp">Subir</button>
+      <button class="btn sm danger" type="button" id="lvImgClear">Quitar</button>
+      <input type="file" id="lvImgFile" accept="image/*" hidden>
+    </div>
+    <div style="font-size:.72rem;color:#c9a46a;margin:-4px 0 8px">Con la imagen se muestran los 3 primeros días y las 6 primeras plataformas, en el orden de la imagen (YouTube, TikTok, Kick, Epic, GG, Discord). En móvil se usa el estilo sin imagen.</div>
     <div class="sec"><span>DÍAS Y HORAS</span><button class="btn sm" id="lvAddDay">+ Añadir día</button></div>
     <div id="lvDays"></div>
     <div class="sec"><span>PLATAFORMAS</span><button class="btn sm" id="lvAddPlat">+ Añadir plataforma</button></div>
@@ -250,6 +333,7 @@ const DEFAULTS = { password: 'dragon', bg: '', bgOpacity: 100, gap: 260, showTex
     show: true,
     title: '¿Cuándo hago directo?',
     note: '',
+    img: 'banner-directo.webp',
     days: [ { day: 'Lunes', time: '18:00', note: '' }, { day: 'Miércoles', time: '18:00', note: '' }, { day: 'Viernes', time: '20:00', note: '' } ],
     platforms: [
       { name: 'YouTube', url: 'https://www.youtube.com/@Karre_youtube', icon: ICONS.youtube },
@@ -276,6 +360,42 @@ function save(){
 }
 
 /* ---------- Banner de directos ---------- */
+const GEM_BY_NAME = { youtube:'#e3192f', tiktok:'#2fb8a8', kick:'#2ecc40', twitch:'#9146ff', discord:'#5865f2', epic:'#3a3a3a', instagram:'#d6249f', twitter:'#1d9bf0', x:'#555555' };
+const GEM_CYCLE = ['#e3192f','#2fb8a8','#2ecc40','#f5b700','#8b3dff','#1d9bf0'];
+const gemColor = (p, i) => p.color || GEM_BY_NAME[(p.name || '').toLowerCase().replace(/[^a-z]/g,'')] || GEM_CYCLE[i % GEM_CYCLE.length];
+/* posiciones (en %) dentro de la plantilla banner-directo.webp (1551×672) */
+const TPL = {
+  title: [30.5, 5.5, 39, 13.5],
+  slots: [[16.6, 24.6, 19.1, 31.4], [41.4, 24.6, 17.2, 31.4], [64.4, 24.6, 18.7, 31.4]],
+  hots:  [[12.4, 63, 11.2, 30], [25.2, 63, 11.2, 30], [38.4, 63, 11.2, 30], [51.4, 63, 11.2, 30], [64.3, 63, 11.2, 30], [77.2, 63, 11.2, 30]]
+};
+const placeEl = (el, [x, y, w, h]) => Object.assign(el.style, { left: x + '%', top: y + '%', width: w + '%', height: h + '%' });
+function renderLiveImg(L, days){
+  const box = $('#liveImg'), sec = $('#live'); box.innerHTML = '';
+  const src = (L.img || '').trim();
+  sec.classList.toggle('img-mode', !!src);
+  if(!src) return;
+  const im = new Image(); im.alt = ''; im.onerror = () => sec.classList.remove('img-mode'); im.src = src; box.append(im);
+  const t = document.createElement('div'); t.className = 'lt'; placeEl(t, TPL.title);
+  const h = document.createElement('h4'); const dot = document.createElement('span'); dot.className = 'dot'; const ht = document.createElement('span'); ht.textContent = L.title || '¿Cuándo hago directo?'; h.append(dot, ht); t.append(h);
+  if(L.note){ const n = document.createElement('p'); n.textContent = L.note; t.append(n); }
+  box.append(t);
+  const sorted = [...days].sort((a,b) => DAYS.indexOf(a.day) - DAYS.indexOf(b.day) || (a.time||'').localeCompare(b.time||'')).slice(0, 3);
+  sorted.forEach((d, i) => {
+    const el = document.createElement('div'); el.className = 'ls' + (d.day === todayName() ? ' today' : ''); placeEl(el, TPL.slots[i]);
+    const b = document.createElement('b'); b.textContent = d.day.slice(0,3).toUpperCase();
+    const tm = document.createElement('span'); tm.textContent = d.time || '—';
+    const n = document.createElement('small'); n.textContent = d.note || '';
+    el.append(b, tm, n); box.append(el);
+  });
+  (L.platforms || []).slice(0, 6).forEach((p, i) => {
+    const url = (p.url || '').trim();
+    const a = document.createElement(url ? 'a' : 'span'); a.className = 'lh' + (url ? '' : ' off'); placeEl(a, TPL.hots[i]);
+    if(url){ a.href = /^https?:\/\//i.test(url) ? url : 'https://' + url; a.target = '_blank'; a.rel = 'noopener'; a.title = p.name || ''; a.setAttribute('aria-label', p.name || 'Enlace'); }
+    const tip = document.createElement('span'); tip.className = 'tip'; tip.textContent = p.name || ''; a.append(tip);
+    box.append(a);
+  });
+}
 const todayName = () => DAYS[(new Date().getDay() + 6) % 7];
 function renderLive(){
   const L = state.live || {};
@@ -286,7 +406,8 @@ function renderLive(){
   $('#liveTitle').textContent = L.title || '¿Cuándo hago directo?';
   $('#liveNote').textContent = L.note || ''; $('#liveNote').style.display = L.note ? '' : 'none';
   const sc = $('#liveSched'); sc.innerHTML = '';
-  [...days].sort((a,b) => DAYS.indexOf(a.day) - DAYS.indexOf(b.day) || (a.time||'').localeCompare(b.time||'')).forEach(d => {
+  [...days].sort((a,b) => DAYS.indexOf(a.day) - DAYS.indexOf(b.day) || (a.time||'').localeCompare(b.time||'')).forEach((d, i) => {
+    if(i){ const pi = document.createElement('div'); pi.className = 'pillar'; sc.append(pi); }
     const el = document.createElement('div'); el.className = 'slot' + (d.day === todayName() ? ' today' : '');
     const b = document.createElement('b'); b.textContent = d.day.slice(0,3);
     const t = document.createElement('span'); t.textContent = d.time || '—';
@@ -294,16 +415,19 @@ function renderLive(){
     if(d.note){ const n = document.createElement('small'); n.textContent = d.note; el.append(n); }
     sc.append(el);
   });
+  renderLiveImg(L, days, plats);
   const pl = $('#livePlats'); pl.innerHTML = '';
   if(plats.length){ const l = document.createElement('span'); l.className = 'lbl'; l.textContent = 'Sígueme en'; pl.append(l); }
-  plats.forEach(p => {
+  plats.forEach((p, idx) => {
     const a = document.createElement('a'); a.className = 'plat-btn'; a.target = '_blank'; a.rel = 'noopener';
     a.href = /^https?:\/\//i.test(p.url) ? p.url : 'https://' + p.url.trim();
-    if(p.icon){ const i = document.createElement('img'); i.src = p.icon; i.alt = ''; a.append(i); }
-    else { const ph = document.createElement('span'); ph.className = 'ph'; ph.textContent = '🔗'; a.append(ph); }
+    a.style.setProperty('--gem', gemColor(p, idx)); a.title = p.name || '';
+    const gem = document.createElement('span'); gem.className = 'gem';
+    if(p.icon){ const i = document.createElement('img'); i.src = p.icon; i.alt = ''; gem.append(i); }
+    else { const ph = document.createElement('span'); ph.className = 'ph'; ph.textContent = '🔗'; gem.append(ph); }
+    const ped = document.createElement('span'); ped.className = 'ped';
     const n = document.createElement('span'); n.textContent = p.name || 'Enlace';
-    const ar = document.createElement('span'); ar.className = 'arr'; ar.textContent = '➜';
-    a.append(n, ar); pl.append(a);
+    a.append(gem, ped, n); pl.append(a);
   });
 }
 
@@ -378,7 +502,7 @@ function updPrev(){
 let iconTarget = -1;
 function renderLiveAdmin(){
   const L = draft.live;
-  $('#lvShow').checked = L.show !== false; $('#lvTitle').value = L.title || ''; $('#lvNote').value = L.note || '';
+  $('#lvShow').checked = L.show !== false; $('#lvTitle').value = L.title || ''; $('#lvNote').value = L.note || ''; $('#lvImg').value = (L.img || '').startsWith('data:') ? '(imagen subida)' : (L.img || '');
   const dl = $('#lvDays'); dl.innerHTML = '';
   L.days.forEach((d, i) => {
     const row = document.createElement('div'); row.className = 'lrow';
@@ -396,12 +520,28 @@ function renderLiveAdmin(){
     const ic = document.createElement('div'); ic.className = 'ico'; ic.title = 'Subir icono';
     ic.style.backgroundImage = p.icon ? cssUrl(p.icon) : 'none'; ic.textContent = p.icon ? '' : 'ICONO';
     ic.onclick = () => { iconTarget = i; $('#lvIconFile').click(); };
+    const col = document.createElement('input'); col.type = 'color'; col.title = 'Color de la gema'; col.value = gemColor(p, i);
+    col.oninput = () => { p.color = col.value; preview(); };
     const nm = document.createElement('input'); nm.type = 'text'; nm.placeholder = 'Nombre'; nm.value = p.name || ''; nm.oninput = () => { p.name = nm.value; preview(); };
     const ur = document.createElement('input'); ur.type = 'text'; ur.className = 'w2'; ur.placeholder = 'Enlace (https://…)'; ur.value = p.url || ''; ur.oninput = () => { p.url = ur.value.trim(); preview(); };
     const del = document.createElement('button'); del.className = 'btn sm danger'; del.textContent = '✕'; del.onclick = () => { L.platforms.splice(i, 1); renderLiveAdmin(); preview(); };
-    row.append(ic, nm, ur, del); pl.append(row);
+    row.append(ic, col, nm, ur, del); pl.append(row);
   });
 }
+$('#lvImg').oninput = () => { draft.live.img = $('#lvImg').value.trim(); preview(); };
+$('#lvImgClear').onclick = () => { draft.live.img = ''; $('#lvImg').value = ''; preview(); };
+$('#lvImgUp').onclick = () => $('#lvImgFile').click();
+$('#lvImgFile').onchange = e => {
+  const f = e.target.files[0]; e.target.value = ''; if(!f || !f.type.startsWith('image/')) return;
+  const img = new Image();
+  img.onload = () => {
+    const sc = Math.min(1, 1600 / img.width), c = document.createElement('canvas');
+    c.width = Math.round(img.width * sc); c.height = Math.round(img.height * sc);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); URL.revokeObjectURL(img.src);
+    draft.live.img = c.toDataURL('image/webp', .85); $('#lvImg').value = '(imagen subida)'; preview();
+  };
+  img.src = URL.createObjectURL(f);
+};
 $('#lvShow').onchange = () => { draft.live.show = $('#lvShow').checked; preview(); };
 $('#lvTitle').oninput = () => { draft.live.title = $('#lvTitle').value; preview(); };
 $('#lvNote').oninput = () => { draft.live.note = $('#lvNote').value; preview(); };
