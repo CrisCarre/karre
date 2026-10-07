@@ -417,6 +417,7 @@ const resize = () => { ec.width = innerWidth; ec.height = innerHeight; }; resize
 })();
 
 render(); loadVotes(); setInterval(loadVotes, 30000);
+if(new URLSearchParams(location.search).has('admin')) $('#adminBtn').click();
 
 if(KDB.enabled){
   const apply = d => { const keep = { password: state.password }; state = { ...fromData(d), ...keep }; saveLocal(); render(); };
