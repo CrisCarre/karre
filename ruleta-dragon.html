@@ -524,12 +524,25 @@ const PAGE = 'ruleta';
 const PRIVATE = ['password','muted','current','legendPassword'];                 // nunca se suben a la BBDD
 let sessionPwd = '', remoteEmpty = false;
 let onSaved = ok => { if(ok) KDB.toast('✓ Guardado en la base de datos'); };
-const publicData = () => { const o = clone(state); PRIVATE.forEach(k => delete o[k]); return o; };
+// Los pesos nunca van a la parte pública: se guardan aparte (karre_weights) con la contraseña de admin
+const WHEELS = ['normal','legend'];
+let weightsLoaded = !KDB.enabled;   // true cuando este navegador tiene los pesos reales
+const weightsOf = s => { const o = {}; WHEELS.forEach(k => o[k] = s.wheels[k].items.map(it => Math.max(.1, +it.weight || 1))); return o; };
+function setWeights(w){
+  if(!w) return;
+  WHEELS.forEach(k => { const a = w[k]; if(Array.isArray(a)) state.wheels[k].items.forEach((it, i) => { if(a[i] != null) it.weight = a[i]; }); });
+}
+async function loadWeights(){
+  try{ setWeights(await KDB.getWeights(PAGE, sessionPwd)); weightsLoaded = true; saveLocal(); drawWheel(); }
+  catch(e){ KDB.toast('⚠ No se pudieron cargar los pesos: ' + e.message, false); }
+}
+const publicData = () => { const o = clone(state); PRIVATE.forEach(k => delete o[k]); WHEELS.forEach(k => o.wheels[k].items.forEach(it => delete it.weight)); return o; };
 function saveLocal(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); return true; }catch(e){ return false; } }
 function save(){
   const okLocal = saveLocal();
   if(KDB.enabled && sessionPwd){
     KDB.save(PAGE, publicData(), () => sessionPwd).then(() => onSaved(true)).catch(err => { onSaved(false); KDB.toast('⚠ No se guardó: ' + err.message, false); });
+    if(weightsLoaded) KDB.saveWeights(PAGE, () => sessionPwd, weightsOf(state)).catch(err => KDB.toast('⚠ Pesos no guardados: ' + err.message, false));
     return true;
   }
   return okLocal;
@@ -695,21 +708,38 @@ function pickWeighted(){
   return W().items.length-1;
 }
 
-let legendOk = false;
+let legendOk = false, legendPwd = '';
 $('#aLegendLock').onchange = () => $('#legendLockOpts').style.display = $('#aLegendLock').checked ? '' : 'none';
-function spin(){
+async function spin(){
   if(spinning || swapping || W().items.length < 2 || document.querySelector('.modal.show')) return;
-  if(state.current === 'legend' && state.legendLock !== false && !legendOk){
+  const isLegend = state.current === 'legend';
+  if(isLegend && state.legendLock !== false && !legendOk){
     $('#spinPwd').value = ''; $('#spinErr').textContent = ''; $('#spinLockModal').classList.add('show');
     setTimeout(() => $('#spinPwd').focus(), 50);
     return;
   }
-  if(state.current === 'legend' && state.legendAsk !== 'session') legendOk = false;   // se gasta en esta tirada
+  const pass = legendPwd;
+  if(isLegend && state.legendAsk !== 'session'){ legendOk = false; legendPwd = ''; }   // se gasta en esta tirada
   spinning = true; spinBtn.disabled = true;
-  wrap.classList.remove('win'); wrap.classList.add('spinning');
   try{ audio().resume(); }catch(e){}
 
-  const win = pickWeighted(), s = segs[win];
+  // Sortea el servidor con los pesos privados (en la Legendaria, además comprueba la contraseña)
+  let win;
+  if(KDB.enabled){
+    try{
+      const r = await KDB.spin(PAGE, state.current, isLegend ? pass : '');
+      win = W().items.findIndex((it, k) => k === r.idx && it.text === r.prize);
+      if(win < 0) win = W().items.findIndex(it => it.text === r.prize);
+      if(win < 0) win = Math.min(Math.max(0, r.idx), W().items.length - 1);
+    }catch(e){
+      spinning = false; spinBtn.disabled = false; legendOk = false; legendPwd = '';
+      KDB.toast('⚠ ' + e.message, false);
+      return;
+    }
+  } else win = pickWeighted();
+
+  wrap.classList.remove('win'); wrap.classList.add('spinning');
+  const s = segs[win];
   const theta = s.start + s.size*(.15 + Math.random()*.7);
   const dur = Math.max(3, +state.duration||14)*1000;
   const spins = 8 + Math.round(dur/1000);
@@ -737,7 +767,7 @@ async function trySpinPwd(){
     try{ ok = await KDB.login('ruleta_tirar', pwd); }catch(e){ $('#spinErr').textContent = 'Error de conexión: ' + e.message; return; }
   } else ok = pwd === (state.legendPassword || 'legendaria');
   if(!ok){ $('#spinErr').textContent = 'Contraseña incorrecta'; $('#spinPwd').select(); return; }
-  legendOk = true; $('#spinLockModal').classList.remove('show');
+  legendOk = true; legendPwd = pwd; $('#spinLockModal').classList.remove('show');
   setTimeout(spin, 150);
 }
 $('#spinPwdBtn').onclick = trySpinPwd;
@@ -775,6 +805,7 @@ $('#resultOk').onclick = async () => {
     } else ok = pwd === state.password;
     if(!ok){ $('#quickErr').textContent = 'Contraseña incorrecta'; $('#quickPwd').select(); return; }
     sessionPwd = pwd; unlocked = true; document.body.classList.add('admin-on'); $('#quickErr').textContent = '';
+    if(KDB.enabled && !weightsLoaded) loadWeights();
   }
   if(who && unlocked && lastWinner > -1){
     const it = W().items[lastWinner];
@@ -1035,7 +1066,8 @@ async function tryLogin(){
   } else ok = pwd === state.password;
   if(ok){
     sessionPwd = pwd; unlocked = true; document.body.classList.add('admin-on'); $('#loginErr').textContent = ''; $('#loginModal').classList.remove('show');
-    if(remoteEmpty){ remoteEmpty = false; save(); }   // primera vez: sube lo que había en este navegador
+    if(remoteEmpty){ remoteEmpty = false; weightsLoaded = true; save(); }   // primera vez: sube lo que había en este navegador
+    else if(KDB.enabled && !weightsLoaded) await loadWeights();
     openAdmin();
   }
   else $('#loginErr').textContent = 'Contraseña incorrecta';
@@ -1243,7 +1275,10 @@ applyTexts(); drawWheel();
 
 /* ---------- Cargar de la BBDD y escuchar cambios de otros dispositivos ---------- */
 if(KDB.enabled){
-  const apply = d => { const keep = { password: state.password, muted: state.muted, current: state.current }; state = { ...fromData(d), ...keep }; saveLocal(); if(!spinning && !swapping){ applyTexts(); drawWheel(); spinBtn.disabled = W().items.length < 2; } };
+  const apply = d => { const keep = { password: state.password, muted: state.muted, current: state.current }, prevW = weightsLoaded ? weightsOf(state) : null;
+    state = { ...fromData(d), ...keep };
+    if(prevW){ setWeights(prevW); if(unlocked) loadWeights(); }   // los datos públicos no traen pesos
+    saveLocal(); if(!spinning && !swapping){ applyTexts(); drawWheel(); spinBtn.disabled = W().items.length < 2; } };
   KDB.load(PAGE).then(row => {
     if(row && row.data && Object.keys(row.data).length) apply(row.data);
     else remoteEmpty = true;
