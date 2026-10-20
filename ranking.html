@@ -114,10 +114,37 @@ label{font-size:.7rem;color:var(--gold);letter-spacing:1px;text-transform:upperc
 .section-title{margin:20px 0 10px;color:var(--gold);font-size:.9rem;letter-spacing:2px;border-bottom:1px solid var(--gold-dark);padding-bottom:6px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
 .section-title div{display:flex;gap:6px}
 .list{display:flex;flex-direction:column;gap:8px}
-.prow{display:grid;grid-template-columns:48px 1fr 90px auto auto;gap:8px;align-items:center;background:rgba(0,0,0,.35);padding:8px;border-radius:12px;border:1px solid rgba(138,90,18,.45)}
+.prow{display:grid;grid-template-columns:48px 1fr 100px auto;gap:8px;align-items:center;background:rgba(0,0,0,.35);padding:8px;border-radius:12px;border:1px solid rgba(138,90,18,.45)}
 .prow .av{--c:245,196,81;width:44px;font-size:1.2rem;cursor:pointer;box-shadow:0 0 0 2px #1a0402,0 0 0 3px var(--gold)}
 .prow .av:hover{filter:brightness(1.2)}
 .quick,.acts{display:flex;gap:4px}
+.prow .quick{grid-column:1/-1;flex-wrap:wrap;gap:5px;padding-top:2px}
+.qa{display:inline-flex;align-items:center;gap:5px;padding:5px 9px;font-size:.75rem;border-radius:20px}
+.qa .em{font-size:.95rem}
+.qa b{color:#fff}
+.qa.neg b{color:#ff8a8a}
+.qa-in{width:84px!important;padding:5px 8px!important;font-size:.75rem!important;border-radius:20px!important}
+.prow input[type=number].bump{animation:bump .45s}
+@keyframes bump{30%{background:#3a5a10;border-color:#8aff5a;transform:scale(1.08)}}
+.qhint{grid-column:1/-1;font-size:.68rem;color:#8a6a3a}
+/* regalos del podio */
+.gift{position:absolute;top:-22px;right:-8px;z-index:3;width:44px;height:44px;border-radius:50%;border:2px solid rgb(var(--c));cursor:pointer;font-size:1.4rem;display:grid;place-items:center;
+  background:radial-gradient(circle at 40% 35%,rgba(var(--c),.55),#1a0402 75%);box-shadow:0 0 16px rgba(var(--c),.8);animation:giftBob 1.8s ease-in-out infinite;transition:transform .2s}
+.gift:hover{transform:scale(1.18) rotate(-10deg);animation-play-state:paused}
+@keyframes giftBob{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(-5px) rotate(-8deg)}75%{transform:translateY(-2px) rotate(8deg)}}
+.base{position:relative}
+.pz-card{max-width:480px;text-align:center}
+.pz-card .pz-pos{font-size:.75rem;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:6px}
+.pz-card .pz-img{width:100%;max-height:300px;object-fit:contain;border-radius:12px;margin:6px 0 12px;background:#0b0202}
+.pz-card .pz-em{font-size:4rem;filter:drop-shadow(0 0 16px rgba(255,190,0,.8));margin:4px 0 6px;animation:giftBob 2s ease-in-out infinite}
+.pz-card .pz-t{font-family:'Metal Mania',cursive;font-size:2rem;line-height:1.1;background:linear-gradient(180deg,#fff3b0,#ffb300 45%,#ff4d00);-webkit-background-clip:text;background-clip:text;color:transparent}
+.pz-card .pz-d{color:#e8cf9a;font-family:Georgia,serif;margin-top:10px;line-height:1.45;white-space:pre-line}
+.podrow{display:grid;grid-template-columns:52px 64px 54px 1fr;gap:8px;align-items:center;background:rgba(0,0,0,.35);padding:8px;border-radius:12px;border:1px solid rgba(138,90,18,.45);margin-bottom:8px}
+.podrow .medal{font-size:1.8rem;text-align:center}
+.podrow .pv{width:64px;height:48px;border-radius:8px;border:1px dashed var(--gold-dark);background:#0b0202 center/cover no-repeat;cursor:pointer;display:grid;place-items:center;font-size:.55rem;color:#8a6a3a;text-align:center}
+.podrow .f{display:grid;grid-template-columns:1fr;gap:6px}
+.podrow .pv-x{grid-column:2;font-size:.6rem;padding:3px}
+@media (max-width:640px){ .podrow{grid-template-columns:44px 64px 1fr}.podrow .em-in{display:none}.podrow .f{grid-column:1/-1} }
 .admin-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;position:sticky;bottom:-26px;background:#120302;padding:12px 0 4px}
 .hint{font-size:.7rem;color:#c9a46a}
 /* ===== PREMIOS ENTREGADOS (tarjetas flotantes) ===== */
@@ -189,8 +216,8 @@ label{font-size:.7rem;color:var(--gold);letter-spacing:1px;text-transform:upperc
   .spot .name{font-size:.8rem}.p1 .name{font-size:.9rem}
   .item{grid-template-columns:34px 44px 1fr auto;gap:10px;padding:8px 12px}.item .av{width:40px}
   .grid2{grid-template-columns:1fr}
-  .prow{grid-template-columns:44px 1fr 80px}
-  .quick{grid-column:1/3}.acts{justify-content:flex-end}
+  .prow{grid-template-columns:44px 1fr 80px}.prow .acts{grid-column:1/-1}
+  .acts{justify-content:flex-end}
 }
 </style>
 </head>
@@ -244,6 +271,18 @@ label{font-size:.7rem;color:var(--gold);letter-spacing:1px;text-transform:upperc
   </div>
 </div>
 
+<!-- Premio del podio (ventana) -->
+<div class="modal" id="pzModal">
+  <div class="card pz-card">
+    <button type="button" class="close-x" data-close="pzModal">×</button>
+    <div class="pz-pos" id="pzPos"></div>
+    <div class="pz-em" id="pzEm"></div>
+    <img class="pz-img" id="pzImg" alt="">
+    <div class="pz-t" id="pzT"></div>
+    <div class="pz-d" id="pzD"></div>
+  </div>
+</div>
+
 <!-- Login -->
 <div class="modal" id="loginModal">
   <div class="card">
@@ -294,6 +333,11 @@ label{font-size:.7rem;color:var(--gold);letter-spacing:1px;text-transform:upperc
     <div class="hint" style="margin:-4px 0 10px">Emoji · Nombre · Explicación · Cantidad (puedes poner «+10», «1 por minuto», «hasta 50»…). Si la dejas vacía, la sección no se muestra.</div>
     <div class="list" id="earnList"></div>
 
+    <div class="section-title"><span>PREMIOS DEL PODIO</span></div>
+    <div class="hint" style="margin:-4px 0 10px">Lo que ganará cada puesto del podio. Si pones nombre, sale un 🎁 en el podio y al pulsarlo se ve el premio. Pulsa el recuadro para subir una imagen (opcional).</div>
+    <div id="podPrizeList"></div>
+    <input type="file" id="pzFile" accept="image/*" hidden>
+
     <div class="section-title"><span>PREMIOS ENTREGADOS</span><div><button class="btn sm" id="addPrize">+ Añadir premio</button></div></div>
     <div class="hint" style="margin:-4px 0 10px">Salen como tarjetas flotando a los lados del ranking. No se borran al reiniciar los puntos.</div>
     <div class="przhead"><span>Ganador</span><span>Fecha</span><span>Evento</span><span>Premio</span><span></span></div>
@@ -322,6 +366,7 @@ const DEFAULTS = {
   bgOpacity: 50,   // intensidad 10-100
   lastReset: '',   // 'AAAA-MM-DD' del último reinicio manual
   prizes: [],      // [{ id, winner, date: 'AAAA-MM-DD', event, prize }]
+  podPrizes: [{ emoji: '🎁', title: '', desc: '', image: '' }, { emoji: '🎁', title: '', desc: '', image: '' }, { emoji: '🎁', title: '', desc: '', image: '' }],   // premio de cada puesto del podio
   earn: [          // formas de conseguir puntos
     { emoji: '🏆', title: 'Ganar un torneo',        desc: 'Queda primero en un torneo de la comunidad.',              amount: '+50' },
     { emoji: '🥈', title: 'Podio en un torneo',     desc: 'Termina segundo o tercero.',                                amount: '+25' },
@@ -339,7 +384,7 @@ const DEFAULTS = {
   ]
 };
 const clone = o => JSON.parse(JSON.stringify(o));
-function fromData(d){ const o = d && Array.isArray(d.players) ? { ...clone(DEFAULTS), ...d } : clone(DEFAULTS); if(!Array.isArray(o.prizes)) o.prizes = []; if(!Array.isArray(o.earn)) o.earn = []; return o; }
+function fromData(d){ const o = d && Array.isArray(d.players) ? { ...clone(DEFAULTS), ...d } : clone(DEFAULTS); if(!Array.isArray(o.prizes)) o.prizes = []; if(!Array.isArray(o.earn)) o.earn = []; if(!Array.isArray(o.podPrizes)) o.podPrizes = []; for(let i = 0; i < 3; i++) o.podPrizes[i] = { emoji: '🎁', title: '', desc: '', image: '', ...(o.podPrizes[i] || {}) }; return o; }
 function load(){ try{ return fromData(JSON.parse(localStorage.getItem(KEY))); }catch(e){ return clone(DEFAULTS); } }
 /* ---------- Base de datos (Supabase, ver db.js) ---------- */
 const PAGE = 'ranking';
@@ -361,6 +406,8 @@ if(new URLSearchParams(location.search).has('obs')) document.body.classList.add(
 
 const cssUrl = u => `url("${String(u).replace(/"/g,'%22')}")`;
 const fmt = n => Number(n||0).toLocaleString('es-ES');
+// «+25», «-10», «25 puntos» → número; «+??», «1 por minuto» con texto raro también coge el primer número; sin número → null
+const earnValue = a => { const m = String(a || '').replace(',', '.').match(/([+-])?\s*(\d+(?:\.\d+)?)/); if(!m) return null; return (m[1] === '-' ? -1 : 1) * parseFloat(m[2]); };
 function makeAv(p){
   const el = document.createElement('div'); el.className = 'av';
   el.style.backgroundImage = p.avatar ? cssUrl(p.avatar) : '';
@@ -480,6 +527,11 @@ function render(){
       const n = document.createElement('div'); n.className = 'name'; n.textContent = p.name;
       const pts = document.createElement('div'); pts.className = 'pts'; pts.textContent = `${fmt(p.points)} ${state.unit}`;
       const b = document.createElement('div'); b.className = 'base'; b.textContent = p.pos;
+      const pz = (state.podPrizes || [])[idx];
+      if(pz && (pz.title || '').trim()){
+        const g = document.createElement('button'); g.type = 'button'; g.className = 'gift'; g.textContent = (pz.emoji || '').trim() || '🎁';
+        g.title = 'Premio del ' + (idx+1) + 'º puesto'; g.onclick = () => openPodPrize(idx); b.append(g);
+      }
       s.append(crown, makeAv(p), n, pts, b);
     }
     pod.append(s);
@@ -495,6 +547,17 @@ function render(){
     it.append(ps, makeAv(p), n, pts, bar); rest.append(it);
   });
 }
+
+/* ---------- Premio del podio ---------- */
+function openPodPrize(i){
+  const pz = state.podPrizes[i]; if(!pz) return;
+  $('#pzPos').textContent = ['🥇 Premio del 1º puesto','🥈 Premio del 2º puesto','🥉 Premio del 3º puesto'][i];
+  $('#pzEm').textContent = pz.image ? '' : ((pz.emoji || '').trim() || '🎁'); $('#pzEm').style.display = pz.image ? 'none' : '';
+  $('#pzImg').style.display = pz.image ? '' : 'none'; if(pz.image) $('#pzImg').src = pz.image;
+  $('#pzT').textContent = pz.title || ''; $('#pzD').textContent = pz.desc || ''; $('#pzD').style.display = pz.desc ? '' : 'none';
+  $('#pzModal').classList.add('show');
+}
+$('#pzModal').addEventListener('click', e => { if(e.target.id === 'pzModal') $('#pzModal').classList.remove('show'); });
 
 /* ---------- Imágenes ---------- */
 function updBgPrev(){
@@ -562,7 +625,7 @@ function openAdmin(){
   $('#aPassword').value = ''; $('#adminErr').textContent = '';
   $('#bgOp').value = draft.bgOpacity || 50; updBgPrev();
   $('#resetInfo').textContent = draft.lastReset ? `Último reinicio: ${fmtDate(draft.lastReset)}. Toca el día 1 de cada mes.` : 'Reinicio mensual: el día 1 de cada mes pon los puntos a 0.';
-  renderList(); renderEarnList(); renderPrizeList(); $('#adminModal').classList.add('show');
+  renderEarnList(); renderPrizeList(); renderPodPrizeList(); $('#adminModal').classList.add('show');
 }
 function renderList(){
   const list = $('#playerList'); list.innerHTML = '';
@@ -574,17 +637,30 @@ function renderList(){
     const pts = document.createElement('input'); pts.type = 'number'; pts.value = p.points; pts.title = 'Puntos';
     pts.oninput = () => p.points = parseFloat(pts.value) || 0;
     const quick = document.createElement('div'); quick.className = 'quick';
-    [-10,-1,1,10].forEach(d => {
-      const b = document.createElement('button'); b.className = 'btn sm'; b.textContent = (d > 0 ? '+' : '') + d;
-      b.onclick = () => { p.points = (+p.points || 0) + d; pts.value = p.points; };
+    const add = d => { p.points = Math.round(((+p.points || 0) + d) * 100) / 100; pts.value = p.points; pts.classList.remove('bump'); void pts.offsetWidth; pts.classList.add('bump'); };
+    (draft.earn || []).filter(e => (e.title || '').trim()).forEach(e => {
+      const n = earnValue(e.amount);
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'btn sm qa' + (n !== null && n < 0 ? ' neg' : '');
+      b.title = e.title + (n === null ? ' (pulsa y escribe cuántos)' : ''); 
+      const em = document.createElement('span'); em.className = 'em'; em.textContent = (e.emoji || '').trim() || '➕';
+      const am = document.createElement('b'); am.textContent = n === null ? '+?' : (n > 0 ? '+' : '') + fmt(n);
+      b.append(em, am);
+      b.onclick = () => {
+        if(n !== null) return add(n);
+        const inp = document.createElement('input'); inp.type = 'number'; inp.className = 'qa-in'; inp.placeholder = e.title.slice(0, 12);
+        let fin = false; const done = ok => { if(fin) return; fin = true; if(ok && inp.value !== '') add(parseFloat(inp.value) || 0); inp.replaceWith(b); };
+        inp.onkeydown = ev => { if(ev.key === 'Enter'){ ev.preventDefault(); done(true); } if(ev.key === 'Escape') done(false); };
+        inp.onblur = () => done(true);
+        b.replaceWith(inp); inp.focus();
+      };
       quick.append(b);
     });
+    if(!quick.children.length){ const h = document.createElement('span'); h.className = 'qhint'; h.textContent = 'Añade formas de conseguir puntos (abajo) para tener botones rápidos aquí.'; quick.append(h); }
     const acts = document.createElement('div'); acts.className = 'acts';
     const up = document.createElement('button'); up.className = 'btn sm'; up.textContent = '📁 Foto'; up.title = 'Subir foto desde el ordenador'; up.onclick = () => { avTarget = i; $('#avFile').click(); };
-    const noav = document.createElement('button'); noav.className = 'btn sm'; noav.textContent = 'Sin foto'; noav.onclick = () => { p.avatar = ''; renderList(); };
     const del = document.createElement('button'); del.className = 'btn sm danger'; del.textContent = '✕'; del.title = 'Eliminar'; del.onclick = () => { draft.players.splice(i,1); renderList(); };
-    acts.append(up, noav, del);
-    row.append(av, name, pts, quick, acts); list.append(row);
+    acts.append(up, del);
+    row.append(av, name, pts, acts, quick); list.append(row);
   });
 }
 $('#avFile').onchange = async e => {
@@ -617,7 +693,7 @@ function renderEarnList(){
   const list = $('#earnList'); list.innerHTML = '';
   draft.earn.forEach((e, i) => {
     const row = document.createElement('div'); row.className = 'erow';
-    const mk = (field, ph, cls) => { const inp = document.createElement('input'); inp.type = 'text'; inp.value = e[field] || ''; inp.placeholder = ph; if(cls) inp.className = cls; inp.oninput = () => e[field] = inp.value; return inp; };
+    const mk = (field, ph, cls) => { const inp = document.createElement('input'); inp.type = 'text'; inp.value = e[field] || ''; inp.placeholder = ph; if(cls) inp.className = cls; inp.oninput = () => { e[field] = inp.value; if(field !== 'desc') renderList(); }; return inp; };
     const em = mk('emoji', '🐉', 'em-in'); em.maxLength = 8;
     const title = mk('title', 'Nombre (ej. Ganar un torneo)');
     const desc = mk('desc', 'Explicación', 'w2');
@@ -629,9 +705,34 @@ function renderEarnList(){
     btn('✕', 'Eliminar', () => { draft.earn.splice(i, 1); renderEarnList(); }, 'danger');
     row.append(em, title, desc, amt, acts); list.append(row);
   });
+  renderList();
 }
 $('#addEarn').onclick = () => { draft.earn.push({ emoji: '🐉', title: '', desc: '', amount: '+10' }); renderEarnList(); $('#earnList').lastElementChild.querySelectorAll('input')[1].focus(); };
 $('#aUnit').addEventListener('input', () => { if(draft) $('#earnAdminTitle').textContent = 'CÓMO CONSEGUIR ' + ($('#aUnit').value.trim() || 'puntos').toUpperCase(); });
+
+let pzTarget = -1;
+function renderPodPrizeList(){
+  const L = $('#podPrizeList'); L.innerHTML = '';
+  draft.podPrizes.forEach((pz, i) => {
+    const row = document.createElement('div'); row.className = 'podrow';
+    const md = document.createElement('div'); md.className = 'medal'; md.textContent = ['🥇','🥈','🥉'][i];
+    const pv = document.createElement('div'); pv.className = 'pv'; pv.title = 'Subir imagen del premio';
+    pv.style.backgroundImage = pz.image ? `url("${pz.image}")` : 'none'; pv.textContent = pz.image ? '' : '📁 Imagen';
+    pv.onclick = () => { pzTarget = i; $('#pzFile').click(); };
+    if(pz.image){ pv.title = 'Pulsa para cambiar · clic derecho para quitar'; pv.oncontextmenu = ev => { ev.preventDefault(); pz.image = ''; renderPodPrizeList(); }; }
+    const em = document.createElement('input'); em.type = 'text'; em.className = 'em-in'; em.maxLength = 8; em.value = pz.emoji || ''; em.placeholder = '🎁'; em.title = 'Icono del regalo'; em.oninput = () => pz.emoji = em.value;
+    const f = document.createElement('div'); f.className = 'f';
+    const t = document.createElement('input'); t.type = 'text'; t.value = pz.title || ''; t.placeholder = 'Premio (vacío = sin regalo en el podio)'; t.oninput = () => pz.title = t.value;
+    const d = document.createElement('input'); d.type = 'text'; d.value = pz.desc || ''; d.placeholder = 'Descripción (opcional)'; d.oninput = () => pz.desc = d.value;
+    f.append(t, d);
+    row.append(md, pv, em, f); L.append(row);
+  });
+}
+$('#pzFile').onchange = async e => {
+  const f = e.target.files[0]; e.target.value = ''; if(!f || pzTarget < 0) return;
+  try{ draft.podPrizes[pzTarget].image = await readImage(f, 700); $('#adminErr').textContent = ''; renderPodPrizeList(); }
+  catch(err){ $('#adminErr').textContent = err; }
+};
 
 $('#addPrize').onclick = () => {
   draft.prizes.unshift({ id: Math.random().toString(36).slice(2, 9), winner: '', date: todayISO(), event: '', prize: '' });
@@ -656,6 +757,7 @@ $('#saveBtn').onclick = () => {
   draft.subtitle = $('#aSubtitle').value.trim();
   draft.unit = $('#aUnit').value.trim() || 'puntos';
   draft.earn = draft.earn.filter(e => (e.title || e.desc || '').trim()).map(e => ({ emoji: (e.emoji||'').trim(), title: (e.title||'').trim(), desc: (e.desc||'').trim(), amount: (e.amount||'').trim() }));
+  draft.podPrizes = draft.podPrizes.map(z => ({ emoji: (z.emoji || '').trim(), title: (z.title || '').trim(), desc: (z.desc || '').trim(), image: z.image || '' }));
   draft.prizes = draft.prizes.filter(z => (z.winner||'').trim() || (z.prize||'').trim()).map(z => ({ ...z, winner: (z.winner||'').trim(), event: (z.event||'').trim(), prize: (z.prize||'').trim() }));
   const np = $('#aPassword').value.trim();
   if(np){
