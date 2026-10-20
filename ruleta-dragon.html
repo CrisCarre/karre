@@ -252,6 +252,12 @@ body.legend .wcard{background:linear-gradient(160deg,#2a0a5a,#0d0420);border-col
 .quick-win input.qw-pwd{display:none}
 .quick-win.open.need-pass input.qw-pwd{display:block}
 .quick-win .err{min-height:0;margin:0}
+.qw-del{display:none!important;align-items:center;gap:8px;cursor:pointer;font-family:'Cinzel',serif;font-size:.8rem;letter-spacing:1px;color:#e8cf9a;text-transform:none;margin:0;user-select:none}
+.quick-win.open .qw-del{display:inline-flex!important}
+.qw-del input{display:none!important}
+.qw-del .box{width:22px;height:22px;border-radius:6px;border:2px solid var(--gold-dark);display:grid;place-items:center;color:transparent;font-weight:900;background:#0b0202;transition:.15s}
+.qw-del input:checked + .box{background:linear-gradient(180deg,#39dc5a,#13702a);border-color:#b6ffc4;color:#fff;box-shadow:0 0 10px rgba(57,220,90,.6)}
+.qw-del:has(input:checked){color:#8aff9e}
 /* admin ganadores */
 .wrow{display:grid;grid-template-columns:1fr 1.2fr 130px 110px auto;gap:6px;align-items:center;margin-bottom:6px}
 .wrow input[type=date]{font-family:inherit;background:#0b0202;border:1px solid var(--gold-dark);color:#fff;border-radius:8px;padding:8px;font-size:.85rem;width:100%;color-scheme:dark}
@@ -327,6 +333,7 @@ body.legend .wcard{background:linear-gradient(160deg,#2a0a5a,#0d0420);border-col
     <div class="quick-win" id="quickWin">
       <button type="button" class="qw-toggle" id="qwToggle"><span class="ar">▸</span> Apuntar ganador</button>
       <input type="text" id="quickWinner" placeholder="¿Quién ha ganado?" list="winnerNames">
+      <label class="qw-del" id="qwDelLbl"><input type="checkbox" id="quickDelivered"><span class="box">✓</span> Entregado</label>
       <input type="password" id="quickPwd" class="qw-pwd" placeholder="Contraseña de admin" autocomplete="current-password">
       <div class="err" id="quickErr"></div>
     </div>
@@ -796,7 +803,7 @@ function finish(i){
   $('#resultText').textContent = it.text;
   fillWinnerNames(state.winners);
   $('#resultModal').classList.add('show');
-  $('#quickWin').classList.remove('open'); $('#quickWinner').value = ''; $('#quickPwd').value = ''; $('#quickErr').textContent = '';
+  $('#quickWin').classList.remove('open'); $('#quickWinner').value = ''; $('#quickPwd').value = ''; $('#quickErr').textContent = ''; $('#quickDelivered').checked = false;
   roar(); burst();
   history.unshift(`${it.emoji||''} ${it.text}`.trim()); if(history.length > 6) history.pop();
   renderHistory();
@@ -825,7 +832,7 @@ $('#resultOk').onclick = async () => {
   if(who && unlocked && lastWinner > -1){
     const it = W().items[lastWinner];
     state.winners = state.winners || [];
-    state.winners.unshift({ id: Math.random().toString(36).slice(2, 9), winner: who, prize: it ? it.text : '', date: todayISO(), delivered: false, wheel: state.current });
+    state.winners.unshift({ id: Math.random().toString(36).slice(2, 9), winner: who, prize: it ? it.text : '', date: todayISO(), delivered: $('#quickDelivered').checked, wheel: state.current });
     save(); renderWinners();
   }
   $('#quickWinner').value = ''; $('#quickPwd').value = '';
