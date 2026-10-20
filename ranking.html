@@ -303,27 +303,6 @@ label{font-size:.7rem;color:var(--gold);letter-spacing:1px;text-transform:upperc
   <div class="card admin-card">
     <button class="close-x" data-close="adminModal">×</button>
     <h2>Panel del Ranking</h2>
-    <div class="grid2">
-      <div><label>Título</label><input type="text" id="aTitle"></div>
-      <div><label>Subtítulo</label><input type="text" id="aSubtitle"></div>
-      <div><label>Nombre de los puntos</label><input type="text" id="aUnit" placeholder="puntos, victorias, pavos…"></div>
-      <div><label>Nueva contraseña (opcional)</label><input type="text" id="aPassword" placeholder="Dejar vacío para no cambiar"></div>
-    </div>
-    <div class="bg-row">
-      <div class="bg-prev" id="bgPrev">Sin fondo</div>
-      <div>
-        <label>Fondo detrás del ranking</label>
-        <div style="display:flex;gap:6px;margin-top:4px">
-          <button class="btn sm" id="bgUpload">📁 Subir imagen</button>
-          <button class="btn sm danger" id="bgClear">Quitar</button>
-        </div>
-      </div>
-      <div>
-        <label for="bgOp">Intensidad <span id="bgOpVal"></span></label>
-        <input type="range" id="bgOp" min="10" max="100" step="5">
-      </div>
-      <input type="file" id="bgFile" accept="image/*" hidden>
-    </div>
     <div class="reset-box">
       <span id="resetInfo">Reinicio mensual: el día 1 de cada mes pon los puntos a 0.</span>
       <button class="btn sm danger" id="resetPts">🔄 Reiniciar puntos del mes</button>
@@ -346,6 +325,28 @@ label{font-size:.7rem;color:var(--gold);letter-spacing:1px;text-transform:upperc
     <div class="przhead"><span>Ganador</span><span>Fecha</span><span>Evento</span><span>Premio</span><span></span></div>
     <div class="list" id="prizeList"></div>
     <datalist id="playerNames"></datalist>
+    <div class="section-title"><span>AJUSTES DE LA PÁGINA</span></div>
+    <div class="grid2">
+      <div><label>Título</label><input type="text" id="aTitle"></div>
+      <div><label>Subtítulo</label><input type="text" id="aSubtitle"></div>
+      <div><label>Nombre de los puntos</label><input type="text" id="aUnit" placeholder="puntos, victorias, pavos…"></div>
+      <div><label>Nueva contraseña (opcional)</label><input type="text" id="aPassword" placeholder="Dejar vacío para no cambiar"></div>
+    </div>
+    <div class="bg-row">
+      <div class="bg-prev" id="bgPrev">Sin fondo</div>
+      <div>
+        <label>Fondo detrás del ranking</label>
+        <div style="display:flex;gap:6px;margin-top:4px">
+          <button class="btn sm" id="bgUpload">📁 Subir imagen</button>
+          <button class="btn sm danger" id="bgClear">Quitar</button>
+        </div>
+      </div>
+      <div>
+        <label for="bgOp">Intensidad <span id="bgOpVal"></span></label>
+        <input type="range" id="bgOp" min="10" max="100" step="5">
+      </div>
+      <input type="file" id="bgFile" accept="image/*" hidden>
+    </div>
     <div class="admin-actions">
       <button class="btn" data-close="adminModal">Cancelar</button>
       <button class="btn primary" id="saveBtn">Guardar</button>
@@ -540,13 +541,13 @@ function render(){
     pod.append(s);
   });
 
-  const max = Math.max(1, list[0].points);
+  const max4 = Math.max(1, (list[3] || list[0]).points);   // la barra del 4º llega casi al final; las demás, en proporción a él
   list.slice(3).forEach((p,i) => {
     const it = document.createElement('div'); it.className = 'item'; it.style.animationDelay = (.5 + i*.05)+'s';
     const ps = document.createElement('div'); ps.className = 'pos'; ps.textContent = p.pos;
     const n = document.createElement('div'); n.className = 'name'; n.textContent = p.name;
     const pts = document.createElement('div'); pts.className = 'pts'; pts.textContent = `${fmt(p.points)} ${state.unit}`;
-    const bar = document.createElement('div'); bar.className = 'bar'; bar.style.width = Math.max(0, p.points/max*100)+'%';
+    const bar = document.createElement('div'); bar.className = 'bar'; bar.style.width = Math.max(0, Math.min(96, p.points / max4 * 96)) + '%';
     it.append(ps, makeAv(p), n, pts, bar); rest.append(it);
   });
 }
@@ -645,8 +646,8 @@ function renderList(){
     pts.onblur = resortSoon;
     const quick = document.createElement('div'); quick.className = 'quick';
     const add = d => { p.points = Math.round(((+p.points || 0) + d) * 100) / 100; pts.value = p.points; pts.classList.remove('bump'); void pts.offsetWidth; pts.classList.add('bump'); resortSoon(); };
-    (draft.earn || []).filter(e => (e.title || '').trim()).forEach(e => {
-      const n = earnValue(e.amount);
+    (draft.earn || []).filter(e => (e.title || '').trim()).map(e => ({ e, v: earnValue(e.amount) }))
+      .sort((x, y) => (y.v === null ? -Infinity : y.v) - (x.v === null ? -Infinity : x.v)).forEach(({ e, v: n }) => {
       const b = document.createElement('button'); b.type = 'button'; b.className = 'btn sm qa' + (n !== null && n < 0 ? ' neg' : '');
       b.title = e.title + (n === null ? ' (pulsa y escribe cuántos)' : ''); 
       const em = document.createElement('span'); em.className = 'em'; em.textContent = (e.emoji || '').trim() || '➕';
