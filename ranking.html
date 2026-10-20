@@ -128,11 +128,14 @@ label{font-size:.7rem;color:var(--gold);letter-spacing:1px;text-transform:upperc
 @keyframes bump{30%{background:#3a5a10;border-color:#8aff5a;transform:scale(1.08)}}
 .qhint{grid-column:1/-1;font-size:.68rem;color:#8a6a3a}
 /* regalos del podio */
-.gift{position:absolute;top:-22px;right:-8px;z-index:3;width:44px;height:44px;border-radius:50%;border:2px solid rgb(var(--c));cursor:pointer;font-size:1.4rem;display:grid;place-items:center;
+.gift{position:relative;z-index:3;margin-top:6px;width:44px;height:44px;flex:none;border-radius:50%;border:2px solid rgb(var(--c));cursor:pointer;font-size:1.4rem;display:grid;place-items:center;
   background:radial-gradient(circle at 40% 35%,rgba(var(--c),.55),#1a0402 75%);box-shadow:0 0 16px rgba(var(--c),.8);animation:giftBob 1.8s ease-in-out infinite;transition:transform .2s}
 .gift:hover{transform:scale(1.18) rotate(-10deg);animation-play-state:paused}
 @keyframes giftBob{0%,100%{transform:translateY(0) rotate(0)}25%{transform:translateY(-5px) rotate(-8deg)}75%{transform:translateY(-2px) rotate(8deg)}}
-.base{position:relative}
+.base{position:relative;display:flex!important;flex-direction:column;align-items:center;justify-content:center;font-family:'Times New Roman',Times,serif!important;font-weight:700;line-height:1}
+.base .gift{font-family:initial;font-weight:400;width:38px;height:38px;font-size:1.2rem}
+.p3 .base{height:108px}
+@media (max-width:640px){ .base .gift{width:30px;height:30px;font-size:.95rem;margin-top:4px} .p2 .base{height:100px!important} .p3 .base{height:88px!important} }
 .pz-card{max-width:480px;text-align:center}
 .pz-card .pz-pos{font-size:.75rem;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:6px}
 .pz-card .pz-img{width:100%;max-height:300px;object-fit:contain;border-radius:12px;margin:6px 0 12px;background:#0b0202}
@@ -625,8 +628,11 @@ function openAdmin(){
   $('#aPassword').value = ''; $('#adminErr').textContent = '';
   $('#bgOp').value = draft.bgOpacity || 50; updBgPrev();
   $('#resetInfo').textContent = draft.lastReset ? `Último reinicio: ${fmtDate(draft.lastReset)}. Toca el día 1 de cada mes.` : 'Reinicio mensual: el día 1 de cada mes pon los puntos a 0.';
-  renderEarnList(); renderPrizeList(); renderPodPrizeList(); $('#adminModal').classList.add('show');
+  sortDraft(); renderEarnList(); renderPrizeList(); renderPodPrizeList(); $('#adminModal').classList.add('show');
 }
+let resortT = 0;
+const sortDraft = () => draft.players.sort((a, b) => (+b.points || 0) - (+a.points || 0));
+const resortSoon = () => { clearTimeout(resortT); resortT = setTimeout(() => { const ae = document.activeElement; if(ae && ae.closest && ae.closest('#playerList') && ae.type !== 'button') return; sortDraft(); renderList(); }, 1200); };
 function renderList(){
   const list = $('#playerList'); list.innerHTML = '';
   draft.players.forEach((p,i) => {
@@ -636,8 +642,9 @@ function renderList(){
     name.oninput = () => { p.name = name.value; if(!p.avatar) av.textContent = ((p.name||'?').trim()[0]||'?').toUpperCase(); };
     const pts = document.createElement('input'); pts.type = 'number'; pts.value = p.points; pts.title = 'Puntos';
     pts.oninput = () => p.points = parseFloat(pts.value) || 0;
+    pts.onblur = resortSoon;
     const quick = document.createElement('div'); quick.className = 'quick';
-    const add = d => { p.points = Math.round(((+p.points || 0) + d) * 100) / 100; pts.value = p.points; pts.classList.remove('bump'); void pts.offsetWidth; pts.classList.add('bump'); };
+    const add = d => { p.points = Math.round(((+p.points || 0) + d) * 100) / 100; pts.value = p.points; pts.classList.remove('bump'); void pts.offsetWidth; pts.classList.add('bump'); resortSoon(); };
     (draft.earn || []).filter(e => (e.title || '').trim()).forEach(e => {
       const n = earnValue(e.amount);
       const b = document.createElement('button'); b.type = 'button'; b.className = 'btn sm qa' + (n !== null && n < 0 ? ' neg' : '');
