@@ -112,6 +112,8 @@ body::before{
 @keyframes chipIn{from{opacity:0;transform:scale(.6)}}
 
 .corner{position:fixed;right:14px;bottom:14px;z-index:20;display:flex;gap:8px}
+.corner #animBtn{opacity:0;border-color:transparent;background:transparent}   /* botón oculto: 1, 2 o 3 pulsaciones = animación 1, 2 o 3 */
+.anim-toast{position:fixed;right:14px;bottom:68px;z-index:30;padding:8px 14px;border-radius:12px;font-family:'Cinzel',serif;font-weight:900;font-size:.8rem;letter-spacing:1px;color:#fff;background:rgba(20,4,2,.92);border:1px solid var(--gold);box-shadow:0 0 14px rgba(255,140,0,.5);pointer-events:none;animation:pop .3s cubic-bezier(.2,1.6,.4,1)}
 .corner button{width:44px;height:44px;border-radius:50%;border:2px solid var(--gold-dark);background:rgba(20,4,2,.85);font-size:1.2rem;cursor:pointer;transition:.2s}
 .corner button:hover{border-color:var(--gold);box-shadow:0 0 12px rgba(255,150,0,.6)}
 body.obs .corner,body.obs .back{display:none}
@@ -370,6 +372,7 @@ body.legend .wcard{background:linear-gradient(160deg,#2a0a5a,#0d0420);border-col
 </main>
 
 <div class="corner">
+  <button id="animBtn" type="button" aria-label="Animación"></button>
   <button id="muteBtn" title="Sonido">🔊</button>
   <button id="adminBtn" title="Admin">⚙️</button>
 </div>
@@ -905,6 +908,18 @@ async function trySpinPwd(){
 }
 $('#spinPwdBtn').onclick = trySpinPwd;
 function nameGo(name){ spinFor = (name || '').trim().slice(0, 40); nameAsked = true; $('#nameModal').classList.remove('show'); setTimeout(spin, 120); }
+const ANIMS = [['tambor','🥁 Animación 1 · Tambores'],['cuenta','🔢 Animación 2 · Cuenta atrás'],['dragones','🐉 Animación 3 · Dragones y llamas']];
+let animClicks = 0, animT = null;
+$('#animBtn').onclick = () => {
+  animClicks = Math.min(3, animClicks + 1); clearTimeout(animT);
+  animT = setTimeout(() => {
+    const [key, label] = ANIMS[animClicks - 1]; animClicks = 0;
+    state.drum = { ...(state.drum || {}), anim: key };
+    if(unlocked) save(); else saveLocal();   // sin entrar al admin, el cambio vale solo en este navegador
+    document.querySelectorAll('.anim-toast').forEach(x => x.remove());
+    const t = document.createElement('div'); t.className = 'anim-toast'; t.textContent = label; document.body.append(t); setTimeout(() => t.remove(), 1600);
+  }, 450);
+};
 $('#spinNameOk').onclick = () => nameGo($('#spinName').value);
 $('#spinNameSkip').onclick = () => nameGo('');
 $('#spinName').addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); nameGo($('#spinName').value); } });
