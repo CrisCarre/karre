@@ -17,7 +17,12 @@
   const css = `
 .ktm-chip{position:fixed;left:14px;bottom:14px;z-index:60;display:none;align-items:center;gap:6px;padding:7px 13px;border-radius:20px;cursor:pointer;
   font-family:'Cinzel',serif;font-weight:900;font-size:.8rem;letter-spacing:1px;color:#ffe3a0;background:rgba(20,4,2,.9);border:2px solid #8a5a12}
-.ktm-chip.show{display:inline-flex}.ktm-chip:hover{border-color:#f5c451}
+.ktm-chip.show{display:inline-flex}
+.ktm-chip{opacity:0;transition:opacity .25s,transform .15s}   /* oculto: solo aparece al pasar el ratón por esa esquina */
+.ktm-chip:hover,.ktm-chip:focus-visible{opacity:1;border-color:#f5c451}
+.ktm-chip:active{transform:scale(.94)}
+.ktm-plus{position:fixed;left:40px;bottom:52px;z-index:61;font-family:'Cinzel',serif;font-weight:900;color:#8aff9e;text-shadow:0 0 8px #000;pointer-events:none;animation:ktmUp .9s ease-out forwards}
+@keyframes ktmUp{to{transform:translateY(-26px);opacity:0}}
 .ktm-chip.soon{color:#fff;border-color:#ff7a00;box-shadow:0 0 14px rgba(255,120,0,.7)}
 body.obs .ktm-chip{display:none!important}
 .ktm-modal{position:fixed;inset:0;z-index:70;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(0,0,0,.72);backdrop-filter:blur(4px)}
@@ -34,8 +39,8 @@ body.obs .ktm-chip{display:none!important}
   let chip, left, modal, img, txt;
   function build(){
     const st = document.createElement('style'); st.textContent = css; document.head.append(st);
-    chip = document.createElement('button'); chip.type = 'button'; chip.className = 'ktm-chip'; chip.title = 'Pulsa para reiniciar el temporizador';
-    chip.innerHTML = '⏰ <span></span>'; left = chip.querySelector('span'); chip.onclick = () => restart();
+    chip = document.createElement('button'); chip.type = 'button'; chip.className = 'ktm-chip'; chip.title = 'Pulsa para añadir 1 minuto';
+    chip.innerHTML = '⏰ <span></span>'; left = chip.querySelector('span'); chip.onclick = addMinute;
     modal = document.createElement('div'); modal.className = 'ktm-modal';
     modal.innerHTML = '<div class="ktm-card"><img alt=""><div class="ktm-t"></div><button type="button" class="ktm-ok">¡Hecho!</button></div>';
     img = modal.querySelector('img'); txt = modal.querySelector('.ktm-t');
@@ -59,6 +64,11 @@ body.obs .ktm-chip{display:none!important}
     if(!cfg.on){ ls.set(K_END, ''); return tick(); }
     const end = Date.now() + Math.max(5, +cfg.secs || 600) * 1000;
     ls.set(K_END, String(end)); ls.set(K_SIG, sig(cfg)); tick();
+  }
+  function addMinute(){
+    const end = +ls.get(K_END) || 0; if(!end) return;
+    ls.set(K_END, String(Math.max(end, Date.now()) + 60000)); tick();
+    const f = document.createElement('div'); f.className = 'ktm-plus'; f.textContent = '+1:00'; document.body.append(f); setTimeout(() => f.remove(), 950);
   }
   function done(){
     const end = +ls.get(K_END) || 0; ls.set(K_ACK, String(end)); modal.classList.remove('show');
