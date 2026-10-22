@@ -261,18 +261,6 @@ body.obs .corner{display:none}
 .nextT:hover .nt-go{background:var(--gold);color:#2a0704}
 @media (max-width:820px){ .nextT{grid-template-columns:1fr;max-width:460px}.nt-img{aspect-ratio:16/8;-webkit-mask-image:linear-gradient(180deg,#000 70%,transparent);mask-image:linear-gradient(180deg,#000 70%,transparent)}.nt-side{align-items:stretch;padding-top:0}.nt-cd{justify-content:center}.nt-go{text-align:center} }
 /* admin del banner */
-.tm-chip{position:fixed;left:14px;bottom:14px;z-index:20;display:none;align-items:center;gap:6px;padding:7px 13px;border-radius:20px;cursor:pointer;
-  font-family:'Cinzel',serif;font-weight:900;font-size:.8rem;letter-spacing:1px;color:#ffe3a0;background:rgba(20,4,2,.88);border:2px solid var(--gold-dark)}
-.tm-chip.show{display:inline-flex}
-.tm-chip:hover{border-color:var(--gold)}
-.tm-chip.soon{color:#fff;border-color:#ff7a00;box-shadow:0 0 14px rgba(255,120,0,.7)}
-body.obs .tm-chip{display:none!important}
-.tm-card{max-width:560px;text-align:center;border-width:3px;animation:tmPop .6s cubic-bezier(.2,1.8,.4,1)}
-@keyframes tmPop{from{transform:scale(.2) rotate(-12deg);opacity:0}}
-.tm-card img{max-width:100%;max-height:300px;object-fit:contain;border-radius:14px;margin:4px 0 12px}
-.tm-card .tm-t{font-family:'Metal Mania',cursive;font-size:clamp(2.2rem,7vw,3.6rem);line-height:1.05;background:linear-gradient(180deg,#fff6c2,#ffc53d 40%,#ff5a00 75%,#a80f07);
-  -webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 16px rgba(255,90,0,.9));animation:tmShake 1.2s ease-in-out infinite}
-@keyframes tmShake{0%,100%{transform:rotate(0) scale(1)}25%{transform:rotate(-2deg) scale(1.04)}75%{transform:rotate(2deg) scale(1.04)}}
 .tm-prev{width:64px;height:48px;flex:none;border-radius:8px;border:1px dashed var(--gold-dark);background:#0b0202 center/contain no-repeat;cursor:pointer;display:grid;place-items:center;font-size:.55rem;color:#8a6a3a}
 .sec{margin:20px 0 10px;color:var(--gold);font-size:.9rem;letter-spacing:2px;border-bottom:1px solid var(--gold-dark);padding-bottom:6px;display:flex;justify-content:space-between;align-items:center}
 .lrow{display:grid;grid-template-columns:120px 92px 92px 1fr auto;gap:6px;align-items:center;margin-bottom:6px}
@@ -350,14 +338,6 @@ body.obs .tm-chip{display:none!important}
 </main>
 
 <div class="corner"><button id="adminBtn" title="Admin">⚙️</button></div>
-<div class="modal" id="timerModal">
-  <div class="card tm-card">
-    <img id="tmImg" alt="">
-    <div class="tm-t" id="tmText"></div>
-    <div style="margin-top:16px"><button class="btn primary" type="button" id="tmOk">¡Hecho!</button></div>
-  </div>
-</div>
-<button type="button" class="tm-chip" id="tmChip" title="Pulsa para reiniciar el temporizador">⏰ <span id="tmLeft"></span></button>
 
 <!-- Login -->
 <div class="modal" id="loginModal">
@@ -452,6 +432,7 @@ body.obs .tm-chip{display:none!important}
 </div>
 
 <script src="db.js"></script>
+<script src="timer.js"></script>
 <script>
 (() => {
 'use strict';
@@ -657,7 +638,7 @@ async function tryLogin(){
   } else ok = pwd === state.password;
   if(ok){
     sessionPwd = pwd; unlocked = true; $('#loginErr').textContent = ''; $('#loginModal').classList.remove('show');
-    try{ localStorage.setItem(TM_HERE, '1'); }catch(e){}
+    if(window.KarreTimer) KarreTimer.allowHere();
     if(remoteEmpty){ remoteEmpty = false; save(); }
     openAdmin();
   } else $('#loginErr').textContent = KDB.enabled ? 'Contraseña incorrecta (¿has ejecutado el SQL de la portada?)' : 'Contraseña incorrecta';
@@ -788,43 +769,8 @@ $('#saveBtn').onclick = () => {
   const prev = state; state = draft;
   if(!save()){ state = prev; $('#adminErr').textContent = 'No se pudo guardar: la imagen ocupa demasiado.'; return; }
   render(); $('#adminModal').classList.remove('show');
-  if(timerChanged || !tmEnd) timerStart();
+  if(window.KarreTimer) KarreTimer.setConfig(state.timer, timerChanged);
 };
-
-/* ---------- Temporizador ---------- */
-const TM_HERE = 'karreTimerHere';   // solo salta en navegadores donde has entrado al admin (o con ?timer / ?obs en la dirección)
-const timerHere = () => { const q = /[?&](obs|timer)\b/.test(location.search); try{ return q || !!localStorage.getItem(TM_HERE); }catch(e){ return q; } };
-let tmEnd = 0, tmInt = null, tmAC = null;
-function timerStart(){
-  const T = state.timer || {}; clearInterval(tmInt); tmEnd = 0;
-  if(!T.on || !timerHere()){ $('#tmChip').classList.remove('show'); return; }
-  tmEnd = Date.now() + Math.max(5, +T.secs || 600) * 1000;
-  $('#tmChip').classList.add('show'); timerTick(); tmInt = setInterval(timerTick, 250);
-}
-function timerTick(){
-  const left = Math.max(0, Math.ceil((tmEnd - Date.now()) / 1000)), m = Math.floor(left / 60), sx = left % 60;
-  $('#tmLeft').textContent = (m >= 60 ? Math.floor(m / 60) + ':' + String(m % 60).padStart(2, '0') : m) + ':' + String(sx).padStart(2, '0');
-  $('#tmChip').classList.toggle('soon', left <= 10);
-  if(left <= 0){ clearInterval(tmInt); timerFire(); }
-}
-function fanfare(){
-  try{
-    tmAC = tmAC || new (window.AudioContext || window.webkitAudioContext)(); const A = tmAC; A.resume(); const t = A.currentTime;
-    [[523,0],[659,.12],[784,.24],[1047,.36],[784,.52],[1047,.62]].forEach(([f, d]) => {
-      const o = A.createOscillator(), g = A.createGain(); o.type = 'triangle'; o.frequency.value = f;
-      g.gain.setValueAtTime(.0001, t + d); g.gain.exponentialRampToValueAtTime(.18, t + d + .02); g.gain.exponentialRampToValueAtTime(.001, t + d + (d > .6 ? .9 : .3));
-      o.connect(g).connect(A.destination); o.start(t + d); o.stop(t + d + 1);
-    });
-  }catch(e){}
-}
-function timerFire(){
-  const T = state.timer || {};
-  $('#tmText').textContent = (T.text || '').trim() || TIMER_DEF.text;
-  $('#tmImg').style.display = T.image ? '' : 'none'; if(T.image) $('#tmImg').src = T.image;
-  $('#timerModal').classList.add('show'); fanfare();
-}
-$('#tmOk').onclick = () => { $('#timerModal').classList.remove('show'); if((state.timer || {}).repeat) timerStart(); else $('#tmChip').classList.remove('show'); };
-$('#tmChip').onclick = () => timerStart();
 
 /* ---------- Próximo torneo (datos de torneos.html) ---------- */
 const T_MES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'], T_DIA = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
@@ -859,10 +805,10 @@ function ntTick(){
 }
 setInterval(ntTick, 1000);
 
-render(); timerStart();
+render();
 loadNextTourney(); setInterval(loadNextTourney, 60000);
 if(KDB.enabled){
-  const apply = d => { const keep = { password: state.password }, oldT = JSON.stringify(state.timer || {}); state = { ...fromData(d), ...keep }; saveLocal(); render(); if(JSON.stringify(state.timer) !== oldT) timerStart(); };
+  const apply = d => { const keep = { password: state.password }, oldT = JSON.stringify(state.timer || {}); state = { ...fromData(d), ...keep }; saveLocal(); render(); if(window.KarreTimer && JSON.stringify(state.timer) !== oldT) KarreTimer.setConfig(state.timer); };
   KDB.load(PAGE).then(row => {
     if(row && row.data && Object.keys(row.data).length) apply(row.data);
     else remoteEmpty = true;

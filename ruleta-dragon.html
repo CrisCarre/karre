@@ -178,19 +178,33 @@ label{font-size:.75rem;color:var(--gold);letter-spacing:1px;text-transform:upper
   background:linear-gradient(90deg,#ff2d55,#ff9f0a,#ffd60a,#ff2d55);background-size:300% 100%;border:2px solid #fff3b0;box-shadow:0 0 14px rgba(255,120,0,.9);animation:happyRibbon 2s linear infinite;text-shadow:0 1px 2px rgba(0,0,0,.5)}
 @keyframes happyPulse{50%{box-shadow:0 6px 0 rgba(0,0,0,.6),0 0 46px #ffb300,0 0 80px rgba(255,80,0,.7),inset 0 2px 6px rgba(255,255,255,.45)}}
 @keyframes happyRibbon{to{background-position:300% 0}}
-/* temporizador */
-.tm-chip{position:fixed;left:14px;bottom:14px;z-index:20;display:none;align-items:center;gap:6px;padding:7px 13px;border-radius:20px;cursor:pointer;
-  font-family:'Cinzel',serif;font-weight:900;font-size:.8rem;letter-spacing:1px;color:#ffe3a0;background:rgba(20,4,2,.88);border:2px solid var(--gold-dark)}
-.tm-chip.show{display:inline-flex}
-.tm-chip:hover{border-color:var(--gold)}
-.tm-chip.soon{color:#fff;border-color:#ff7a00;box-shadow:0 0 14px rgba(255,120,0,.7)}
-body.obs .tm-chip{display:none!important}
-.tm-card{max-width:560px;text-align:center;border-width:3px;animation:tmPop .6s cubic-bezier(.2,1.8,.4,1)}
-@keyframes tmPop{from{transform:scale(.2) rotate(-12deg);opacity:0}}
-.tm-card img{max-width:100%;max-height:300px;object-fit:contain;border-radius:14px;margin:4px 0 12px}
-.tm-card .tm-t{font-family:'Metal Mania',cursive;font-size:clamp(2.2rem,7vw,3.6rem);line-height:1.05;background:linear-gradient(180deg,#fff6c2,#ffc53d 40%,#ff5a00 75%,#a80f07);
-  -webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 16px rgba(255,90,0,.9));animation:tmShake 1.2s ease-in-out infinite}
-@keyframes tmShake{0%,100%{transform:rotate(0) scale(1)}25%{transform:rotate(-2deg) scale(1.04)}75%{transform:rotate(2deg) scale(1.04)}}
+.for-tag{margin-top:6px;font-family:'Cinzel',serif;font-weight:900;letter-spacing:2px;font-size:clamp(.85rem,2.2vw,1.05rem);color:#fff;padding:5px 16px;border-radius:20px;
+  background:rgba(20,4,2,.75);border:1px solid var(--gold);box-shadow:0 0 14px rgba(255,140,0,.5);display:none}
+.for-tag.show{display:inline-block;animation:pop .4s cubic-bezier(.2,1.6,.4,1)}
+.res-for{font-family:'Cinzel',serif;font-size:.85rem;letter-spacing:2px;color:#ffe3a0;margin:-6px 0 10px}
+/* redoble */
+.drum{position:fixed;inset:0;z-index:25;display:none;align-items:center;justify-content:center;pointer-events:none;
+  background:radial-gradient(circle at 50% 50%,transparent 0,rgba(0,0,0,.35) 40%,rgba(0,0,0,.85) 100%)}
+.drum.show{display:flex;animation:drFade .3s both}
+@keyframes drFade{from{opacity:0}}
+.dr-in{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:18px 34px;border-radius:26px;background:rgba(10,2,1,.55);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);box-shadow:0 0 40px rgba(0,0,0,.6)}
+.dr-icons{font-size:clamp(3rem,10vw,5.5rem);display:flex;gap:.6em}
+.dr-icons span{display:inline-block;animation:drHit .18s ease-in-out infinite alternate;filter:drop-shadow(0 0 18px rgba(255,140,0,.9))}
+.dr-icons span:last-child{animation-delay:.09s}
+@keyframes drHit{from{transform:translateY(0) rotate(-8deg) scale(1)}to{transform:translateY(-14px) rotate(8deg) scale(1.08)}}
+.dr-for{font-family:'Cinzel',serif;font-weight:900;letter-spacing:4px;color:#ffe3a0;font-size:clamp(.9rem,2.5vw,1.2rem);text-transform:uppercase;text-shadow:0 2px 6px #000}
+.dr-big{font-family:'Metal Mania',cursive;font-size:clamp(2.6rem,9vw,5.5rem);line-height:1;background:linear-gradient(180deg,#fff6c2,#ffc53d 40%,#ff5a00 75%,#a80f07);
+  -webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 18px rgba(255,90,0,.9));animation:drPulse .35s ease-in-out infinite alternate;max-width:92vw;word-break:break-word}
+@keyframes drPulse{from{transform:scale(1)}to{transform:scale(1.07)}}
+.drum.cuenta .dr-big{animation:none}
+.drum.cuenta .dr-num{font-family:'Metal Mania',cursive;font-size:clamp(6rem,22vw,12rem);line-height:1;color:#fff;text-shadow:0 0 30px #ff7a00,0 0 60px #ff3a00;animation:drZoom 1s ease-out both}
+@keyframes drZoom{from{transform:scale(2.4);opacity:0}30%{opacity:1}to{transform:scale(.9);opacity:.85}}
+.drum.temblor{background:radial-gradient(circle at 50% 50%,transparent 0,rgba(0,0,0,.2) 25%,rgba(0,0,0,.92) 70%);animation:drDark var(--drd,3s) ease-in both}
+@keyframes drDark{from{opacity:0}to{opacity:1}}
+.drum.temblor .dr-icons{display:none}
+.wheel-wrap.drumming{animation:drShake .09s linear infinite}
+.wheel-wrap.drumming.hard{animation-duration:.06s}
+@keyframes drShake{0%{translate:0 0}25%{translate:-3px 2px}50%{translate:3px -2px}75%{translate:-2px -3px}100%{translate:2px 3px}}
 .extra-box{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:12px;border:1px solid var(--gold-dark);background:rgba(0,0,0,.3);margin-bottom:10px}
 .extra-box .rowx{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .extra-box .rowx > *{flex:1;min-width:150px}
@@ -315,6 +329,7 @@ body.legend .wcard{background:linear-gradient(160deg,#2a0a5a,#0d0420);border-col
 <main class="stage">
   <h1 class="title" id="titleText">Ruleta del Dragón</h1>
   <p class="subtitle" id="subtitleText">Retos y premios</p>
+  <div class="for-tag" id="forTag"></div>
 
   <div class="wheel-wrap" id="wheelWrap">
     <canvas id="fireBack"></canvas>
@@ -358,6 +373,7 @@ body.legend .wcard{background:linear-gradient(160deg,#2a0a5a,#0d0420);border-col
     <div class="roar">🐉 El dragón ha hablado 🐉</div>
     <div class="result-emoji" id="resultEmoji">🔥</div>
     <div class="result-text" id="resultText">—</div>
+    <div class="res-for" id="resFor"></div>
     <div class="quick-win" id="quickWin">
       <button type="button" class="qw-toggle" id="qwToggle"><span class="ar">▸</span> Apuntar ganador</button>
       <input type="text" id="quickWinner" placeholder="¿Quién ha ganado?" list="winnerNames">
@@ -381,15 +397,17 @@ body.legend .wcard{background:linear-gradient(160deg,#2a0a5a,#0d0420);border-col
   </div>
 </div>
 
-<!-- Aviso del temporizador -->
-<div class="modal" id="timerModal">
-  <div class="card tm-card">
-    <img id="tmImg" alt="">
-    <div class="tm-t" id="tmText"></div>
-    <div style="margin-top:16px"><button class="btn primary" type="button" id="tmOk">¡Hecho!</button></div>
+<!-- Nombre de la tirada -->
+<div class="modal" id="nameModal">
+  <div class="card" style="text-align:center">
+    <button type="button" class="close-x" data-close="nameModal">×</button>
+    <h2>🎯 ¿De quién es esta tirada?</h2>
+    <input type="text" id="spinName" list="winnerNames" placeholder="Nombre (opcional)" autocomplete="off">
+    <div style="margin-top:12px;display:flex;gap:8px;justify-content:center"><button class="btn" type="button" id="spinNameSkip">Sin nombre</button><button class="btn primary" type="button" id="spinNameOk">¡Tirar!</button></div>
   </div>
 </div>
-<button type="button" class="tm-chip" id="tmChip" title="Pulsa para reiniciar el temporizador">⏰ <span id="tmLeft"></span></button>
+<!-- Redoble -->
+<div class="drum" id="drum"><div class="dr-in"><div class="dr-icons" id="drIcons"></div><div class="dr-for" id="drFor"></div><div class="dr-big" id="drBig"></div></div></div>
 
 <!-- Login admin -->
 <div class="modal" id="loginModal">
@@ -420,24 +438,26 @@ body.legend .wcard{background:linear-gradient(160deg,#2a0a5a,#0d0420);border-col
       <div><label>Nueva contraseña para tirar (opcional)</label><input type="text" id="aLegendPwd" placeholder="Dejar vacío para no cambiar"></div>
     </div>
 
-    <div class="section-title"><span>HORA FELIZ Y TEMPORIZADOR</span></div>
+    <div class="section-title"><span>HORA FELIZ Y REDOBLE</span></div>
     <div class="extra-box">
       <label class="check" style="margin:0"><input type="checkbox" id="aHappy"> 🔥 Hora feliz en la Legendaria (precio rebajado y pesos de hora feliz)</label>
       <div class="rowx"><div><label>Texto del botón en hora feliz</label><input type="text" id="aHappyText" maxlength="30" placeholder="100 KICKS"></div></div>
     </div>
     <div class="extra-box">
-      <label class="check" style="margin:0"><input type="checkbox" id="aTimer"> ⏰ Temporizador</label>
+      <label class="check" style="margin:0"><input type="checkbox" id="aDrum"> 🥁 Redoble de tambores antes de girar</label>
+      <label class="check" style="margin:0"><input type="checkbox" id="aAskName"> Preguntar de quién es la tirada</label>
       <div class="rowx">
-        <div><label>Segundos</label><input type="number" id="aTimerSecs" min="5" step="5"></div>
-        <div><label>Texto del aviso</label><input type="text" id="aTimerText" placeholder="¡HORA DE DAR DRACOPAVOS!"></div>
+        <div><label>Duración del redoble (seg)</label><input type="number" id="aDrumSecs" min="1" max="15" step="0.5"></div>
+        <div><label>Animación</label><select id="aDrumAnim" style="width:100%;font-family:inherit;background:#0b0202;border:1px solid var(--gold-dark);color:#fff;border-radius:8px;padding:9px 10px">
+          <option value="tambor">🥁 Tambores y nombre latiendo</option><option value="cuenta">🔢 Cuenta atrás</option><option value="temblor">🌋 Temblor y oscuridad</option></select></div>
       </div>
       <div class="rowx">
-        <div class="tmprev" id="tmPrev" title="Subir imagen">📁 Imagen</div>
-        <input type="text" id="aTimerImg" placeholder="…o URL de imagen/GIF (opcional)">
-        <button class="btn sm danger" type="button" id="aTimerImgClear" style="flex:none;min-width:0">Quitar</button>
-        <input type="file" id="tmFile" accept="image/*" hidden>
+        <div class="tmprev" id="drPrev" title="Subir sonido (MP3, OGG, WAV)">🎵 Sonido</div>
+        <input type="text" id="aDrumSound" placeholder="Redoble incluido · o URL de un audio">
+        <button class="btn sm danger" type="button" id="aDrumSoundClear" style="flex:none;min-width:0">Quitar</button>
+        <button class="btn sm" type="button" id="aDrumTest" style="flex:none;min-width:0">▶ Probar</button>
+        <input type="file" id="drFile" accept="audio/*" hidden>
       </div>
-      <label class="check" style="margin:0"><input type="checkbox" id="aTimerRepeat"> Volver a empezar al cerrar el aviso</label>
     </div>
 
     <div class="tabs">
@@ -526,6 +546,7 @@ body.legend .wcard{background:linear-gradient(160deg,#2a0a5a,#0d0420);border-col
 </div>
 
 <script src="db.js?v=3"></script>
+<script src="timer.js"></script>
 <script>
 (() => {
 'use strict';
@@ -558,7 +579,7 @@ const DEFAULTS = {
   removeOnWin: false,
   showWinners: true,
   happy: false, happyText: '100 KICKS',
-  timer: { on: false, secs: 600, text: '¡HORA DE DAR DRACOPAVOS!', image: '', repeat: true },
+  drum: { on: true, askName: true, secs: 3, anim: 'tambor', sound: '' },
   winners: [],      // [{ id, winner, prize, date, delivered, wheel: 'normal' | 'legend' }]
   hiddenOdds: true,
   legendLock: true,        // la Legendaria pide contraseña para tirar
@@ -591,7 +612,7 @@ function fromData(d){
         wheels[k] = { ...def.wheels[k], ...w, btn: { ...def.wheels[k].btn, ...(w.btn || {}) }, items: Array.isArray(w.items) && w.items.length >= 2 ? w.items : def.wheels[k].items };
       }
       if(!d.duration || d.duration < 14) d.duration = 14;
-      d.timer = { ...def.timer, ...(d.timer || {}) };
+      d.drum = { ...def.drum, ...(d.drum || {}) };
       return { ...def, ...d, wheels, winners: Array.isArray(d.winners) ? d.winners : [], current: d.current === 'legend' ? 'legend' : 'normal' };
     }
   }catch(e){}
@@ -806,8 +827,15 @@ function pickWeighted(){
 
 let legendOk = false, legendPwd = '';
 $('#aLegendLock').onchange = () => $('#legendLockOpts').style.display = $('#aLegendLock').checked ? '' : 'none';
+let spinFor = '', nameAsked = false;
 async function spin(){
   if(spinning || swapping || W().items.length < 2 || document.querySelector('.modal.show')) return;
+  const D = state.drum || {};
+  if(D.askName !== false && !nameAsked){
+    fillWinnerNames(state.winners);
+    $('#spinName').value = ''; $('#nameModal').classList.add('show'); setTimeout(() => $('#spinName').focus(), 50);
+    return;
+  }
   const isLegend = state.current === 'legend';
   if(isLegend && state.legendLock !== false && !legendOk){
     $('#spinPwd').value = ''; $('#spinErr').textContent = ''; $('#spinLockModal').classList.add('show');
@@ -816,8 +844,10 @@ async function spin(){
   }
   const pass = legendPwd;
   if(isLegend && state.legendAsk !== 'session'){ legendOk = false; legendPwd = ''; }   // se gasta en esta tirada
-  spinning = true; spinBtn.disabled = true;
+  spinning = true; spinBtn.disabled = true; nameAsked = false;
   try{ audio().resume(); }catch(e){}
+  $('#forTag').textContent = spinFor ? '🎯 Tirada de ' + spinFor : ''; $('#forTag').classList.toggle('show', !!spinFor);
+  if(D.on !== false) await drumroll(D);
 
   // Sortea el servidor con los pesos privados (en la Legendaria, además comprueba la contraseña)
   let win;
@@ -828,7 +858,7 @@ async function spin(){
       if(win < 0) win = W().items.findIndex(it => it.text === r.prize);
       if(win < 0) win = Math.min(Math.max(0, r.idx), W().items.length - 1);
     }catch(e){
-      spinning = false; spinBtn.disabled = false; legendOk = false; legendPwd = '';
+      spinning = false; spinBtn.disabled = false; legendOk = false; legendPwd = ''; $('#forTag').classList.remove('show');
       KDB.toast('⚠ ' + e.message, false);
       return;
     }
@@ -867,6 +897,62 @@ async function trySpinPwd(){
   setTimeout(spin, 150);
 }
 $('#spinPwdBtn').onclick = trySpinPwd;
+function nameGo(name){ spinFor = (name || '').trim().slice(0, 40); nameAsked = true; $('#nameModal').classList.remove('show'); setTimeout(spin, 120); }
+$('#spinNameOk').onclick = () => nameGo($('#spinName').value);
+$('#spinNameSkip').onclick = () => nameGo('');
+$('#spinName').addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); nameGo($('#spinName').value); } });
+
+/* ---------- Redoble ---------- */
+let drumAudio = null;
+function playDrum(secs, src){
+  if(state.muted) return;
+  if(drumAudio){ try{ drumAudio.pause(); }catch(e){} drumAudio = null; }
+  if(src){
+    const a = new Audio(src); drumAudio = a; a.volume = .9; a.play().catch(() => {});
+    setTimeout(() => { if(drumAudio === a){ let v = a.volume; const f = setInterval(() => { v -= .1; if(v <= 0){ clearInterval(f); a.pause(); } else a.volume = v; }, 40); } }, secs * 1000);
+    return;
+  }
+  // redoble sintetizado: golpes cada vez más rápidos y fuertes + platillo final
+  const A = audio(), t0 = A.currentTime + .02, len = secs;
+  const nb = A.createBuffer(1, A.sampleRate * .25, A.sampleRate), nd = nb.getChannelData(0);
+  for(let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
+  let t = 0;
+  while(t < len){
+    const p = t / len, gap = .11 - .075 * p;
+    const src2 = A.createBufferSource(); src2.buffer = nb;
+    const bp = A.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1800 + Math.random() * 400; bp.Q.value = .8;
+    const g = A.createGain(), at = t0 + t, v = (.08 + .3 * p) * (.85 + Math.random() * .3);
+    g.gain.setValueAtTime(v, at); g.gain.exponentialRampToValueAtTime(.001, at + .09);
+    src2.connect(bp).connect(g).connect(A.destination); src2.start(at, Math.random() * .1, .1);
+    const o = A.createOscillator(), og = A.createGain(); o.type = 'triangle'; o.frequency.setValueAtTime(180, at); o.frequency.exponentialRampToValueAtTime(90, at + .08);
+    og.gain.setValueAtTime(v * .5, at); og.gain.exponentialRampToValueAtTime(.001, at + .1); o.connect(og).connect(A.destination); o.start(at); o.stop(at + .12);
+    t += gap;
+  }
+  const end = t0 + len;
+  const cb = A.createBuffer(1, A.sampleRate * 1.6, A.sampleRate), cd = cb.getChannelData(0);
+  for(let i = 0; i < cd.length; i++) cd[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / cd.length, 2.5);
+  const cs = A.createBufferSource(); cs.buffer = cb; const hp = A.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 3500;
+  const cg = A.createGain(); cg.gain.value = .35; cs.connect(hp).connect(cg).connect(A.destination); cs.start(end);
+  tone(70, .5, 'sine', .25, len);
+}
+function drumroll(D){
+  return new Promise(res => {
+    const secs = Math.min(15, Math.max(1, +D.secs || 3)), anim = D.anim || 'tambor', el = $('#drum');
+    el.className = 'drum show ' + anim; el.style.setProperty('--drd', secs + 's');
+    $('#drFor').textContent = spinFor ? 'Tirada de' : (state.current === 'legend' ? 'Ruleta Legendaria' : 'Ruleta del Dragón');
+    $('#drBig').textContent = spinFor || '¡Que gire!';
+    $('#drIcons').innerHTML = anim === 'tambor' ? '<span>🥁</span><span>🥁</span>' : '';
+    wrap.classList.add('drumming');
+    playDrum(secs, D.sound);
+    let n = Math.ceil(secs), cdT = null;
+    if(anim === 'cuenta'){
+      const show = () => { $('#drIcons').innerHTML = '<div class="dr-num">' + n + '</div>'; n--; };
+      show(); cdT = setInterval(() => { if(n > 0) show(); }, 1000 * secs / Math.ceil(secs));
+    }
+    setTimeout(() => wrap.classList.add('hard'), secs * 600);
+    setTimeout(() => { clearInterval(cdT); el.className = 'drum'; wrap.classList.remove('drumming', 'hard'); res(); }, secs * 1000);
+  });
+}
 $('#spinPwd').addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); trySpinPwd(); } });
 
 function finish(i){
@@ -878,6 +964,9 @@ function finish(i){
   fillWinnerNames(state.winners);
   $('#resultModal').classList.add('show');
   $('#quickWin').classList.remove('open'); $('#quickWinner').value = ''; $('#quickPwd').value = ''; $('#quickErr').textContent = ''; $('#quickDelivered').checked = false;
+  $('#resFor').textContent = spinFor ? '🎯 Para ' + spinFor : ''; $('#resFor').style.display = spinFor ? '' : 'none';
+  if(spinFor){ $('#quickWin').classList.add('open'); $('#quickWin').classList.toggle('need-pass', !unlocked); $('#quickWinner').value = spinFor; }
+  $('#forTag').classList.remove('show'); spinFor = '';
   roar(); burst();
   history.unshift(`${it.emoji||''} ${it.text}`.trim()); if(history.length > 6) history.pop();
   renderHistory();
@@ -1157,33 +1246,6 @@ function decorateHappy(){
   const t = document.createElement('span'); t.textContent = (state.happyText || '').trim() || '100 KICKS'; r.append(t); spinBtn.append(r);
 }
 
-/* ---------- Temporizador ---------- */
-const TM_HERE = 'karreTimerHere';
-const timerHere = () => { try{ return !!localStorage.getItem(TM_HERE) || /[?&](obs|timer)\b/.test(location.search); }catch(e){ return /[?&](obs|timer)\b/.test(location.search); } };
-let tmEnd = 0, tmInt = null;
-function timerStart(){
-  const T = state.timer || {}; clearInterval(tmInt); tmEnd = 0;
-  if(!T.on || !timerHere()){ $('#tmChip').classList.remove('show'); return; }
-  tmEnd = Date.now() + Math.max(5, +T.secs || 600) * 1000;
-  $('#tmChip').classList.add('show'); timerTick(); tmInt = setInterval(timerTick, 250);
-}
-function timerTick(){
-  const left = Math.max(0, Math.ceil((tmEnd - Date.now()) / 1000));
-  const m = Math.floor(left / 60), sx = left % 60;
-  $('#tmLeft').textContent = (m >= 60 ? Math.floor(m / 60) + ':' + String(m % 60).padStart(2, '0') : m) + ':' + String(sx).padStart(2, '0');
-  $('#tmChip').classList.toggle('soon', left <= 10);
-  if(left <= 0){ clearInterval(tmInt); timerFire(); }
-}
-function timerFire(){
-  const T = state.timer || {};
-  $('#tmText').textContent = (T.text || '').trim() || '¡HORA DE DAR DRACOPAVOS!';
-  $('#tmImg').style.display = T.image ? '' : 'none'; if(T.image) $('#tmImg').src = T.image;
-  $('#timerModal').classList.add('show');
-  try{ audio().resume(); }catch(e){}
-  roar(); burst();
-}
-$('#tmOk').onclick = () => { $('#timerModal').classList.remove('show'); if((state.timer || {}).repeat) timerStart(); else $('#tmChip').classList.remove('show'); };
-$('#tmChip').onclick = () => timerStart();
 
 /* ---------- Admin ---------- */
 let draft = null, adminTab = 'normal';
@@ -1202,7 +1264,6 @@ async function tryLogin(){
   } else ok = !!state.password && pwd === state.password;
   if(ok){
     sessionPwd = pwd; unlocked = true; document.body.classList.add('admin-on'); $('#loginErr').textContent = ''; $('#loginModal').classList.remove('show');
-    try{ localStorage.setItem(TM_HERE, '1'); }catch(e){}
     if(remoteEmpty){ remoteEmpty = false; weightsLoaded = true; save(); }   // primera vez: sube lo que había en este navegador
     else if(KDB.enabled && !weightsLoaded) await loadWeights();
     openAdmin();
@@ -1355,9 +1416,7 @@ $('#saveBtn').onclick = () => {
   draft.showWinners = $('#aShowWinners').checked;
   if($('#aHappy').checked !== !!state.happy && KDB.enabled && !weightsLoaded){ $('#adminErr').textContent = 'Los pesos aún no se han cargado: recarga la página (Ctrl+F5), entra otra vez y vuelve a activar la hora feliz.'; return; }
   draft.happy = $('#aHappy').checked; draft.happyText = $('#aHappyText').value.trim() || '100 KICKS';
-  const prevT = JSON.stringify(state.timer || {});
-  draft.timer = { ...draft.timer, on: $('#aTimer').checked, secs: Math.max(5, Math.round(+$('#aTimerSecs').value || 600)), text: $('#aTimerText').value.trim() || '¡HORA DE DAR DRACOPAVOS!', repeat: $('#aTimerRepeat').checked };
-  const timerChanged = JSON.stringify(draft.timer) !== prevT;
+  draft.drum = readDrumForm();
   draft.winners = (draft.winners || []).filter(z => (z.winner||'').trim() || (z.prize||'').trim()).map(z => ({ ...z, winner: (z.winner||'').trim(), prize: (z.prize||'').trim() }));
   draft.legendLock = $('#aLegendLock').checked;
   draft.legendAsk = $('#aLegendAsk').value;
@@ -1379,7 +1438,6 @@ $('#saveBtn').onclick = () => {
   applyTexts(); drawWheel();
   spinBtn.disabled = W().items.length < 2;
   $('#adminModal').classList.remove('show');
-  if(timerChanged || !tmEnd) timerStart();
 };
 
 let resetArmed = null;
@@ -1398,20 +1456,22 @@ $('#oddsToggle').onclick = () => setOdds(!$('#adminModal').classList.contains('o
 function openAdminFromDraft(){ $('#aDuration').value = draft.duration; $('#aRemove').checked = !!draft.removeOnWin; $('#aHidden').checked = draft.hiddenOdds !== false;
   $('#aLegendLock').checked = draft.legendLock !== false; $('#aLegendAsk').value = draft.legendAsk || 'spin'; $('#aLegendPwd').value = '';
   $('#legendLockOpts').style.display = $('#aLegendLock').checked ? '' : 'none'; $('#adminErr').textContent = ''; renderAdminWheel(); renderWinnersAdmin();
-  const T = draft.timer = { ...DEFAULTS.timer, ...(draft.timer || {}) };
+  const D = draft.drum = { ...DEFAULTS.drum, ...(draft.drum || {}) };
   $('#aHappy').checked = !!draft.happy; $('#aHappyText').value = draft.happyText || '';
-  $('#aTimer').checked = !!T.on; $('#aTimerSecs').value = T.secs; $('#aTimerText').value = T.text || ''; $('#aTimerRepeat').checked = T.repeat !== false;
-  $('#aTimerImg').value = (T.image || '').startsWith('data:') ? '' : (T.image || ''); updTmPrev(); }
-function updTmPrev(){ const i = draft && draft.timer && draft.timer.image; $('#tmPrev').style.backgroundImage = i ? cssUrl(i) : 'none'; $('#tmPrev').textContent = i ? '' : '📁 Imagen'; }
-$('#tmPrev').onclick = () => $('#tmFile').click();
-$('#tmFile').onchange = e => {
+  $('#aDrum').checked = D.on !== false; $('#aAskName').checked = D.askName !== false; $('#aDrumSecs').value = D.secs; $('#aDrumAnim').value = D.anim || 'tambor';
+  $('#aDrumSound').value = (D.sound || '').startsWith('data:') ? '(sonido subido)' : (D.sound || ''); updDrPrev(); }
+function updDrPrev(){ const s = draft && draft.drum && draft.drum.sound; $('#drPrev').textContent = s ? '🎵 Propio' : '🎵 Sonido'; $('#drPrev').style.borderColor = s ? 'var(--gold)' : ''; }
+$('#drPrev').onclick = () => $('#drFile').click();
+$('#drFile').onchange = e => {
   const f = e.target.files[0]; e.target.value = ''; if(!f) return;
-  if(!f.type.startsWith('image/')){ $('#adminErr').textContent = 'Ese archivo no es una imagen.'; return; }
-  if(f.size > 1.5*1024*1024){ $('#adminErr').textContent = 'La imagen pesa más de 1,5 MB. Usa una URL o una más ligera.'; return; }
-  const rd = new FileReader(); rd.onload = () => { draft.timer.image = rd.result; $('#aTimerImg').value = ''; $('#adminErr').textContent = ''; updTmPrev(); }; rd.readAsDataURL(f);
+  if(!f.type.startsWith('audio/')){ $('#adminErr').textContent = 'Ese archivo no es un audio.'; return; }
+  if(f.size > 1024*1024){ $('#adminErr').textContent = 'El audio pesa más de 1 MB. Recórtalo o usa una URL.'; return; }
+  const rd = new FileReader(); rd.onload = () => { draft.drum.sound = rd.result; $('#aDrumSound').value = '(sonido subido)'; $('#adminErr').textContent = ''; updDrPrev(); }; rd.readAsDataURL(f);
 };
-$('#aTimerImg').oninput = () => { draft.timer.image = $('#aTimerImg').value.trim(); updTmPrev(); };
-$('#aTimerImgClear').onclick = () => { draft.timer.image = ''; $('#aTimerImg').value = ''; updTmPrev(); };
+$('#aDrumSound').oninput = () => { const v = $('#aDrumSound').value.trim(); if(v !== '(sonido subido)'){ draft.drum.sound = v; updDrPrev(); } };
+$('#aDrumSoundClear').onclick = () => { draft.drum.sound = ''; $('#aDrumSound').value = ''; updDrPrev(); };
+$('#aDrumTest').onclick = () => { const d = readDrumForm(); playDrum(d.secs, d.sound); };
+const readDrumForm = () => ({ ...draft.drum, on: $('#aDrum').checked, askName: $('#aAskName').checked, secs: Math.min(15, Math.max(1, parseFloat($('#aDrumSecs').value) || 3)), anim: $('#aDrumAnim').value });
 
 $('#exportBtn').onclick = () => {
   const { password, ...data } = draft;
@@ -1444,14 +1504,12 @@ $('#importFile').onchange = e => {
 };
 
 /* ---------- Init ---------- */
-applyTexts(); drawWheel(); timerStart();
+applyTexts(); drawWheel();
 
 /* ---------- Cargar de la BBDD y escuchar cambios de otros dispositivos ---------- */
 if(KDB.enabled){
   const apply = d => { const keep = { password: state.password, muted: state.muted, current: state.current }, prevW = weightsLoaded ? weightsOf(state) : null;
-    const oldT = JSON.stringify(state.timer || {});
     state = { ...fromData(d), ...keep };
-    if(JSON.stringify(state.timer || {}) !== oldT) setTimeout(timerStart, 0);
     if(prevW){ setWeights(prevW); if(unlocked) loadWeights(); }   // los datos públicos no traen pesos
     saveLocal(); if(!spinning && !swapping){ applyTexts(); drawWheel(); spinBtn.disabled = W().items.length < 2; } };
   KDB.load(PAGE).then(row => {
