@@ -169,6 +169,34 @@ label{font-size:.75rem;color:var(--gold);letter-spacing:1px;text-transform:upper
   border:3px solid var(--gbd);background:var(--gimg) center/cover no-repeat,linear-gradient(180deg,var(--gb1),var(--gb2));
   text-shadow:0 2px 0 rgba(0,0,0,.55),0 0 10px var(--ggl);box-shadow:0 6px 0 rgba(0,0,0,.6),0 0 26px var(--ggl),inset 0 2px 6px rgba(255,255,255,.45);transition:transform .12s,filter .2s;
   display:inline-flex;align-items:center;gap:.4em;min-width:5em;justify-content:center}
+.girar-btn{position:relative}
+.girar-btn.happy{animation:happyPulse 1.2s ease-in-out infinite;flex-direction:column;gap:0;line-height:1.05}
+.girar-btn.happy .old{font-size:.55em;opacity:.75;text-decoration:line-through;text-decoration-thickness:2px;letter-spacing:1px}
+.girar-btn.happy .hrow{display:inline-flex;align-items:center;gap:.4em}
+.girar-btn.happy::before{content:"🔥 HORA FELIZ 🔥";position:absolute;top:-1.15em;left:50%;transform:translateX(-50%) rotate(-3deg);white-space:nowrap;
+  font-family:'Cinzel',serif;font-weight:900;font-size:.62em;letter-spacing:2px;padding:.2em .8em;border-radius:20px;color:#fff;
+  background:linear-gradient(90deg,#ff2d55,#ff9f0a,#ffd60a,#ff2d55);background-size:300% 100%;border:2px solid #fff3b0;box-shadow:0 0 14px rgba(255,120,0,.9);animation:happyRibbon 2s linear infinite;text-shadow:0 1px 2px rgba(0,0,0,.5)}
+@keyframes happyPulse{50%{box-shadow:0 6px 0 rgba(0,0,0,.6),0 0 46px #ffb300,0 0 80px rgba(255,80,0,.7),inset 0 2px 6px rgba(255,255,255,.45)}}
+@keyframes happyRibbon{to{background-position:300% 0}}
+/* temporizador */
+.tm-chip{position:fixed;left:14px;bottom:14px;z-index:20;display:none;align-items:center;gap:6px;padding:7px 13px;border-radius:20px;cursor:pointer;
+  font-family:'Cinzel',serif;font-weight:900;font-size:.8rem;letter-spacing:1px;color:#ffe3a0;background:rgba(20,4,2,.88);border:2px solid var(--gold-dark)}
+.tm-chip.show{display:inline-flex}
+.tm-chip:hover{border-color:var(--gold)}
+.tm-chip.soon{color:#fff;border-color:#ff7a00;box-shadow:0 0 14px rgba(255,120,0,.7)}
+body.obs .tm-chip{display:none!important}
+.tm-card{max-width:560px;text-align:center;border-width:3px;animation:tmPop .6s cubic-bezier(.2,1.8,.4,1)}
+@keyframes tmPop{from{transform:scale(.2) rotate(-12deg);opacity:0}}
+.tm-card img{max-width:100%;max-height:300px;object-fit:contain;border-radius:14px;margin:4px 0 12px}
+.tm-card .tm-t{font-family:'Metal Mania',cursive;font-size:clamp(2.2rem,7vw,3.6rem);line-height:1.05;background:linear-gradient(180deg,#fff6c2,#ffc53d 40%,#ff5a00 75%,#a80f07);
+  -webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 16px rgba(255,90,0,.9));animation:tmShake 1.2s ease-in-out infinite}
+@keyframes tmShake{0%,100%{transform:rotate(0) scale(1)}25%{transform:rotate(-2deg) scale(1.04)}75%{transform:rotate(2deg) scale(1.04)}}
+.extra-box{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:12px;border:1px solid var(--gold-dark);background:rgba(0,0,0,.3);margin-bottom:10px}
+.extra-box .rowx{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.extra-box .rowx > *{flex:1;min-width:150px}
+.extra-box .rowx .tmprev{flex:none;width:64px;min-width:64px;height:48px;border-radius:8px;border:1px dashed var(--gold-dark);background:#0b0202 center/contain no-repeat;cursor:pointer;display:grid;place-items:center;font-size:.55rem;color:#8a6a3a}
+.pct .hw{width:64px;display:inline-block;padding:3px 6px;margin:0 4px;font-size:.75rem}
+.pct .hwl{color:#ff9f0a;margin-left:10px}
 .girar-btn .gb-icon{display:block;width:auto;max-width:4em;object-fit:contain;margin:-.35em 0;filter:drop-shadow(0 2px 3px rgba(0,0,0,.6));pointer-events:none}
 .girar-btn.no-glow{box-shadow:0 6px 0 rgba(0,0,0,.6),inset 0 2px 6px rgba(255,255,255,.45);text-shadow:0 2px 0 rgba(0,0,0,.55)}
 .girar-btn:hover:not(:disabled){filter:brightness(1.15);transform:translateY(-2px)}
@@ -353,6 +381,16 @@ body.legend .wcard{background:linear-gradient(160deg,#2a0a5a,#0d0420);border-col
   </div>
 </div>
 
+<!-- Aviso del temporizador -->
+<div class="modal" id="timerModal">
+  <div class="card tm-card">
+    <img id="tmImg" alt="">
+    <div class="tm-t" id="tmText"></div>
+    <div style="margin-top:16px"><button class="btn primary" type="button" id="tmOk">¡Hecho!</button></div>
+  </div>
+</div>
+<button type="button" class="tm-chip" id="tmChip" title="Pulsa para reiniciar el temporizador">⏰ <span id="tmLeft"></span></button>
+
 <!-- Login admin -->
 <div class="modal" id="loginModal">
   <div class="card" id="loginForm">
@@ -380,6 +418,26 @@ body.legend .wcard{background:linear-gradient(160deg,#2a0a5a,#0d0420);border-col
     <div class="grid2" id="legendLockOpts">
       <div><label>Pedirla</label><select id="aLegendAsk" style="width:100%;font-family:inherit;background:#0b0202;border:1px solid var(--gold-dark);color:#fff;border-radius:8px;padding:9px 10px"><option value="spin">En cada tirada</option><option value="session">Una vez (hasta recargar la página)</option></select></div>
       <div><label>Nueva contraseña para tirar (opcional)</label><input type="text" id="aLegendPwd" placeholder="Dejar vacío para no cambiar"></div>
+    </div>
+
+    <div class="section-title"><span>HORA FELIZ Y TEMPORIZADOR</span></div>
+    <div class="extra-box">
+      <label class="check" style="margin:0"><input type="checkbox" id="aHappy"> 🔥 Hora feliz en la Legendaria (precio rebajado y pesos de hora feliz)</label>
+      <div class="rowx"><div><label>Texto del botón en hora feliz</label><input type="text" id="aHappyText" maxlength="30" placeholder="100 KICKS"></div></div>
+    </div>
+    <div class="extra-box">
+      <label class="check" style="margin:0"><input type="checkbox" id="aTimer"> ⏰ Temporizador</label>
+      <div class="rowx">
+        <div><label>Segundos</label><input type="number" id="aTimerSecs" min="5" step="5"></div>
+        <div><label>Texto del aviso</label><input type="text" id="aTimerText" placeholder="¡HORA DE DAR DRACOPAVOS!"></div>
+      </div>
+      <div class="rowx">
+        <div class="tmprev" id="tmPrev" title="Subir imagen">📁 Imagen</div>
+        <input type="text" id="aTimerImg" placeholder="…o URL de imagen/GIF (opcional)">
+        <button class="btn sm danger" type="button" id="aTimerImgClear" style="flex:none;min-width:0">Quitar</button>
+        <input type="file" id="tmFile" accept="image/*" hidden>
+      </div>
+      <label class="check" style="margin:0"><input type="checkbox" id="aTimerRepeat"> Volver a empezar al cerrar el aviso</label>
     </div>
 
     <div class="tabs">
@@ -499,6 +557,8 @@ const DEFAULTS = {
   password: '',             // sin contraseña por defecto (con base de datos se comprueba en Supabase)
   removeOnWin: false,
   showWinners: true,
+  happy: false, happyText: '100 KICKS',
+  timer: { on: false, secs: 600, text: '¡HORA DE DAR DRACOPAVOS!', image: '', repeat: true },
   winners: [],      // [{ id, winner, prize, date, delivered, wheel: 'normal' | 'legend' }]
   hiddenOdds: true,
   legendLock: true,        // la Legendaria pide contraseña para tirar
@@ -531,6 +591,7 @@ function fromData(d){
         wheels[k] = { ...def.wheels[k], ...w, btn: { ...def.wheels[k].btn, ...(w.btn || {}) }, items: Array.isArray(w.items) && w.items.length >= 2 ? w.items : def.wheels[k].items };
       }
       if(!d.duration || d.duration < 14) d.duration = 14;
+      d.timer = { ...def.timer, ...(d.timer || {}) };
       return { ...def, ...d, wheels, winners: Array.isArray(d.winners) ? d.winners : [], current: d.current === 'legend' ? 'legend' : 'normal' };
     }
   }catch(e){}
@@ -544,10 +605,23 @@ let onSaved = ok => { if(ok) KDB.toast('✓ Guardado en la base de datos'); };
 // Los pesos nunca van a la parte pública: se guardan aparte (karre_weights) con la contraseña de admin
 const WHEELS = ['normal','legend'];
 let weightsLoaded = !KDB.enabled;   // true cuando este navegador tiene los pesos reales
-const weightsOf = s => { const o = {}; WHEELS.forEach(k => o[k] = s.wheels[k].items.map(it => Math.max(.1, +it.weight || 1))); return o; };
+const wOf = it => Math.max(.1, +it.weight || 1);
+const hwOf = it => it.hw != null && it.hw !== '' ? Math.max(.1, +it.hw || .1) : wOf(it);
+// peso que se usa ahora mismo (en hora feliz, la Legendaria usa los pesos de hora feliz)
+const effW = (it, k = state.current, s = state) => k === 'legend' && s.happy ? hwOf(it) : wOf(it);
+// «legend» = pesos activos (los que usa el servidor); legendBase / legendHappy guardan los dos juegos
+const weightsOf = s => ({
+  normal: s.wheels.normal.items.map(wOf),
+  legend: s.wheels.legend.items.map(it => effW(it, 'legend', s)),
+  legendBase: s.wheels.legend.items.map(wOf),
+  legendHappy: s.wheels.legend.items.map(hwOf)
+});
 function setWeights(w, target){
   const t = target || state; if(!w) return;
-  WHEELS.forEach(k => { const a = w[k]; if(Array.isArray(a)) t.wheels[k].items.forEach((it, i) => { if(a[i] != null) it.weight = a[i]; }); });
+  const nA = w.normal, lA = Array.isArray(w.legendBase) ? w.legendBase : w.legend, hA = w.legendHappy;
+  if(Array.isArray(nA)) t.wheels.normal.items.forEach((it, i) => { if(nA[i] != null) it.weight = nA[i]; });
+  if(Array.isArray(lA)) t.wheels.legend.items.forEach((it, i) => { if(lA[i] != null) it.weight = lA[i]; });
+  if(Array.isArray(hA)) t.wheels.legend.items.forEach((it, i) => { if(hA[i] != null) it.hw = hA[i]; });
 }
 async function loadWeights(){
   if(typeof KDB.getWeights !== 'function'){ KDB.toast('⚠ db.js antiguo en caché: recarga con Ctrl+F5', false); return; }
@@ -558,7 +632,7 @@ async function loadWeights(){
   }
   catch(e){ KDB.toast('⚠ No se pudieron cargar los pesos: ' + e.message, false); }
 }
-const publicData = () => { const o = clone(state); PRIVATE.forEach(k => delete o[k]); WHEELS.forEach(k => o.wheels[k].items.forEach(it => delete it.weight)); return o; };
+const publicData = () => { const o = clone(state); PRIVATE.forEach(k => delete o[k]); WHEELS.forEach(k => o.wheels[k].items.forEach(it => { delete it.weight; delete it.hw; })); return o; };
 function saveLocal(){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(state)); return true; }catch(e){ return false; } }
 function save(){
   const okLocal = saveLocal();
@@ -606,7 +680,7 @@ function computeSegs(){
   const total = W().items.reduce((s,it)=>s+Math.max(0.1, +it.weight||1),0), n = W().items.length;
   let acc = 0;
   // con "probabilidad oculta" todas las casillas miden lo mismo; el sorteo sigue usando el peso
-  segs = W().items.map(it => { const size = state.hiddenOdds ? 360 / n : Math.max(0.1,+it.weight||1)/total*360; const s = { start: acc, size, item: it }; acc += size; return s; });
+  segs = W().items.map(it => { const size = state.hiddenOdds ? 360 / n : effW(it)/total*360; const s = { start: acc, size, item: it }; acc += size; return s; });
 }
 
 function wrapLines(text, maxW){
@@ -724,9 +798,9 @@ const wrap = $('#wheelWrap'), pointer = $('#pointer'), spinBtn = $('#spinBtn'), 
 const segAt = deg => { for(let i=0;i<segs.length;i++) if(deg >= segs[i].start && deg < segs[i].start+segs[i].size) return i; return segs.length-1; };
 
 function pickWeighted(){
-  const total = W().items.reduce((s,it)=>s+Math.max(.1,+it.weight||1),0);
+  const total = W().items.reduce((s,it)=>s+effW(it),0);
   let r = Math.random()*total;
-  for(let i=0;i<W().items.length;i++){ r -= Math.max(.1,+W().items[i].weight||1); if(r <= 0) return i; }
+  for(let i=0;i<W().items.length;i++){ r -= effW(W().items[i]); if(r <= 0) return i; }
   return W().items.length-1;
 }
 
@@ -1017,7 +1091,7 @@ function applyEye(){
 }
 function applyTexts(){ renderWinners(); const w = W(); $('#titleText').textContent = w.title; $('#subtitleText').textContent = w.subtitle; document.title = w.title;
   document.body.classList.toggle('legend', state.current === 'legend');
-  styleSpinBtn(spinBtn, W().btn);
+  styleSpinBtn(spinBtn, W().btn); decorateHappy();
   applyEye(); $('#muteBtn').textContent = state.muted ? '🔇' : '🔊'; }
 $('#muteBtn').onclick = () => { state.muted = !state.muted; saveLocal(); applyTexts(); };
 
@@ -1071,6 +1145,46 @@ function styleSpinBtn(el, b){
   const t = (b.text || '').trim(); if(t || !b.iconImg){ const sp = document.createElement('span'); sp.textContent = t || '¡GIRAR!'; el.append(sp); }
 }
 
+function decorateHappy(){
+  const on = !!state.happy && state.current === 'legend';
+  spinBtn.classList.toggle('happy', on);
+  if(!on) return;
+  const old = [...spinBtn.querySelectorAll('span')].map(x => x.textContent).join(' ').trim();
+  const img = spinBtn.querySelector('.gb-icon');
+  spinBtn.textContent = '';
+  if(old){ const o = document.createElement('span'); o.className = 'old'; o.textContent = old; spinBtn.append(o); }
+  const r = document.createElement('span'); r.className = 'hrow'; if(img) r.append(img);
+  const t = document.createElement('span'); t.textContent = (state.happyText || '').trim() || '100 KICKS'; r.append(t); spinBtn.append(r);
+}
+
+/* ---------- Temporizador ---------- */
+const TM_HERE = 'karreTimerHere';
+const timerHere = () => { try{ return !!localStorage.getItem(TM_HERE) || /[?&](obs|timer)\b/.test(location.search); }catch(e){ return /[?&](obs|timer)\b/.test(location.search); } };
+let tmEnd = 0, tmInt = null;
+function timerStart(){
+  const T = state.timer || {}; clearInterval(tmInt); tmEnd = 0;
+  if(!T.on || !timerHere()){ $('#tmChip').classList.remove('show'); return; }
+  tmEnd = Date.now() + Math.max(5, +T.secs || 600) * 1000;
+  $('#tmChip').classList.add('show'); timerTick(); tmInt = setInterval(timerTick, 250);
+}
+function timerTick(){
+  const left = Math.max(0, Math.ceil((tmEnd - Date.now()) / 1000));
+  const m = Math.floor(left / 60), sx = left % 60;
+  $('#tmLeft').textContent = (m >= 60 ? Math.floor(m / 60) + ':' + String(m % 60).padStart(2, '0') : m) + ':' + String(sx).padStart(2, '0');
+  $('#tmChip').classList.toggle('soon', left <= 10);
+  if(left <= 0){ clearInterval(tmInt); timerFire(); }
+}
+function timerFire(){
+  const T = state.timer || {};
+  $('#tmText').textContent = (T.text || '').trim() || '¡HORA DE DAR DRACOPAVOS!';
+  $('#tmImg').style.display = T.image ? '' : 'none'; if(T.image) $('#tmImg').src = T.image;
+  $('#timerModal').classList.add('show');
+  try{ audio().resume(); }catch(e){}
+  roar(); burst();
+}
+$('#tmOk').onclick = () => { $('#timerModal').classList.remove('show'); if((state.timer || {}).repeat) timerStart(); else $('#tmChip').classList.remove('show'); };
+$('#tmChip').onclick = () => timerStart();
+
 /* ---------- Admin ---------- */
 let draft = null, adminTab = 'normal';
 const DW = () => draft.wheels[adminTab];
@@ -1088,6 +1202,7 @@ async function tryLogin(){
   } else ok = !!state.password && pwd === state.password;
   if(ok){
     sessionPwd = pwd; unlocked = true; document.body.classList.add('admin-on'); $('#loginErr').textContent = ''; $('#loginModal').classList.remove('show');
+    try{ localStorage.setItem(TM_HERE, '1'); }catch(e){}
     if(remoteEmpty){ remoteEmpty = false; weightsLoaded = true; save(); }   // primera vez: sube lo que había en este navegador
     else if(KDB.enabled && !weightsLoaded) await loadWeights();
     openAdmin();
@@ -1187,7 +1302,9 @@ $('#imgClear').onclick = () => { DW().image = ''; $('#imgUrl').value = ''; updPr
 
 function renderItems(){
   const list = $('#itemsList'); list.innerHTML = '';
+  if(adminTab === 'legend' && weightsLoaded) DW().items.forEach(it => { if(it.hw == null || it.hw === ''){ const r = HAPPY_REC[normTxt(it.text)]; it.hw = r != null ? r : wOf(it); } });
   const total = DW().items.reduce((s,it)=>s+Math.max(.1,+it.weight||1),0);
+  const htotal = DW().items.reduce((s,it)=>s+hwOf(it),0);
   DW().items.forEach((it,i) => {
     const row = document.createElement('div'); row.className = 'row';
     row.innerHTML = `
@@ -1200,7 +1317,7 @@ function renderItems(){
         <button class="btn sm" data-a="down" title="Bajar">▼</button>
         <button class="btn sm danger" data-a="del" title="Eliminar">✕</button>
       </div>
-      <div class="pct odds-only">${(Math.max(.1,+it.weight||1)/total*100).toFixed(1)}% de probabilidad</div>`;
+      <div class="pct odds-only">${(Math.max(.1,+it.weight||1)/total*100).toFixed(1)}% de probabilidad${adminTab === 'legend' ? `<span class="hwl">🔥 Hora feliz: <input type="number" min="0.1" step="0.1" class="hw" title="Peso en hora feliz"> ${(hwOf(it)/htotal*100).toFixed(1)}%</span>` : ''}</div>`;
     const [color, emoji, txt, w] = row.querySelectorAll('input');
     emoji.value = it.emoji || ''; txt.value = it.text || ''; w.value = weightsLoaded ? it.weight : '';
     if(!weightsLoaded){ w.disabled = true; w.placeholder = '?'; }
@@ -1208,6 +1325,8 @@ function renderItems(){
     emoji.oninput = () => it.emoji = emoji.value;
     txt.oninput = () => it.text = txt.value;
     w.onchange = () => { it.weight = Math.max(.1, parseFloat(w.value)||1); renderItems(); };
+    const hwIn = row.querySelector('.hw');
+    if(hwIn){ hwIn.value = weightsLoaded ? hwOf(it) : ''; if(!weightsLoaded){ hwIn.disabled = true; hwIn.placeholder = '?'; } hwIn.onchange = () => { it.hw = Math.max(.1, parseFloat(hwIn.value) || .1); renderItems(); }; }
     row.querySelector('[data-a=up]').onclick = () => { if(i>0){ [DW().items[i-1],DW().items[i]] = [DW().items[i],DW().items[i-1]]; renderItems(); } };
     row.querySelector('[data-a=down]').onclick = () => { if(i<DW().items.length-1){ [DW().items[i+1],DW().items[i]] = [DW().items[i],DW().items[i+1]]; renderItems(); } };
     row.querySelector('[data-a=del]').onclick = () => { DW().items.splice(i,1); renderItems(); };
@@ -1215,6 +1334,10 @@ function renderItems(){
   });
 }
 
+// pesos recomendados para la hora feliz (100 Kicks, ~35 % de margen); se usan solo si el premio aún no tiene peso de hora feliz
+const normTxt = t => String(t || '').toLowerCase().replace(/\s+/g, ' ').trim();
+const HAPPY_REC = { 'skin de 1500 pavos': .3, 'gesto o 500 pavos': 1, 'lote de la tienda': .1, 'te regalo el pase de batalla': .3, 'skin de 800 pavos': .6, 'ala delta o 1000 pavos': .5,
+  'pico o 500 pavos': 1, 'mochila o 300 pavos': 1.3, '200 draco pavos': 7.6, '150 dracopavos': 7.4, 'vip del canal 1 mes': 5.6, 'x3 en dracopavos': 5.6, 'absolutamente nada': 6.5, '300 draco pavos': 6.6, '350 dracopavos': 6.6 };
 const PALETTE = ['#c92a2a','#f08c00','#2f9e44','#7a0f0f','#d9480f','#8c5a12','#1b6b34','#e67700','#a61e4d','#5c940d'];
 $('#addItem').onclick = () => { DW().items.push({ text:'Nuevo premio', emoji:'🐉', color: PALETTE[DW().items.length % PALETTE.length], weight:1 }); renderItems(); $('#itemsList').lastElementChild?.querySelector('.txt').select(); };
 
@@ -1230,6 +1353,11 @@ $('#saveBtn').onclick = () => {
   draft.removeOnWin = $('#aRemove').checked;
   draft.hiddenOdds = $('#aHidden').checked;
   draft.showWinners = $('#aShowWinners').checked;
+  if($('#aHappy').checked !== !!state.happy && KDB.enabled && !weightsLoaded){ $('#adminErr').textContent = 'Los pesos aún no se han cargado: recarga la página (Ctrl+F5), entra otra vez y vuelve a activar la hora feliz.'; return; }
+  draft.happy = $('#aHappy').checked; draft.happyText = $('#aHappyText').value.trim() || '100 KICKS';
+  const prevT = JSON.stringify(state.timer || {});
+  draft.timer = { ...draft.timer, on: $('#aTimer').checked, secs: Math.max(5, Math.round(+$('#aTimerSecs').value || 600)), text: $('#aTimerText').value.trim() || '¡HORA DE DAR DRACOPAVOS!', repeat: $('#aTimerRepeat').checked };
+  const timerChanged = JSON.stringify(draft.timer) !== prevT;
   draft.winners = (draft.winners || []).filter(z => (z.winner||'').trim() || (z.prize||'').trim()).map(z => ({ ...z, winner: (z.winner||'').trim(), prize: (z.prize||'').trim() }));
   draft.legendLock = $('#aLegendLock').checked;
   draft.legendAsk = $('#aLegendAsk').value;
@@ -1251,6 +1379,7 @@ $('#saveBtn').onclick = () => {
   applyTexts(); drawWheel();
   spinBtn.disabled = W().items.length < 2;
   $('#adminModal').classList.remove('show');
+  if(timerChanged || !tmEnd) timerStart();
 };
 
 let resetArmed = null;
@@ -1268,7 +1397,21 @@ function setOdds(on){
 $('#oddsToggle').onclick = () => setOdds(!$('#adminModal').classList.contains('odds-on'));
 function openAdminFromDraft(){ $('#aDuration').value = draft.duration; $('#aRemove').checked = !!draft.removeOnWin; $('#aHidden').checked = draft.hiddenOdds !== false;
   $('#aLegendLock').checked = draft.legendLock !== false; $('#aLegendAsk').value = draft.legendAsk || 'spin'; $('#aLegendPwd').value = '';
-  $('#legendLockOpts').style.display = $('#aLegendLock').checked ? '' : 'none'; $('#adminErr').textContent = ''; renderAdminWheel(); renderWinnersAdmin(); }
+  $('#legendLockOpts').style.display = $('#aLegendLock').checked ? '' : 'none'; $('#adminErr').textContent = ''; renderAdminWheel(); renderWinnersAdmin();
+  const T = draft.timer = { ...DEFAULTS.timer, ...(draft.timer || {}) };
+  $('#aHappy').checked = !!draft.happy; $('#aHappyText').value = draft.happyText || '';
+  $('#aTimer').checked = !!T.on; $('#aTimerSecs').value = T.secs; $('#aTimerText').value = T.text || ''; $('#aTimerRepeat').checked = T.repeat !== false;
+  $('#aTimerImg').value = (T.image || '').startsWith('data:') ? '' : (T.image || ''); updTmPrev(); }
+function updTmPrev(){ const i = draft && draft.timer && draft.timer.image; $('#tmPrev').style.backgroundImage = i ? cssUrl(i) : 'none'; $('#tmPrev').textContent = i ? '' : '📁 Imagen'; }
+$('#tmPrev').onclick = () => $('#tmFile').click();
+$('#tmFile').onchange = e => {
+  const f = e.target.files[0]; e.target.value = ''; if(!f) return;
+  if(!f.type.startsWith('image/')){ $('#adminErr').textContent = 'Ese archivo no es una imagen.'; return; }
+  if(f.size > 1.5*1024*1024){ $('#adminErr').textContent = 'La imagen pesa más de 1,5 MB. Usa una URL o una más ligera.'; return; }
+  const rd = new FileReader(); rd.onload = () => { draft.timer.image = rd.result; $('#aTimerImg').value = ''; $('#adminErr').textContent = ''; updTmPrev(); }; rd.readAsDataURL(f);
+};
+$('#aTimerImg').oninput = () => { draft.timer.image = $('#aTimerImg').value.trim(); updTmPrev(); };
+$('#aTimerImgClear').onclick = () => { draft.timer.image = ''; $('#aTimerImg').value = ''; updTmPrev(); };
 
 $('#exportBtn').onclick = () => {
   const { password, ...data } = draft;
@@ -1301,12 +1444,14 @@ $('#importFile').onchange = e => {
 };
 
 /* ---------- Init ---------- */
-applyTexts(); drawWheel();
+applyTexts(); drawWheel(); timerStart();
 
 /* ---------- Cargar de la BBDD y escuchar cambios de otros dispositivos ---------- */
 if(KDB.enabled){
   const apply = d => { const keep = { password: state.password, muted: state.muted, current: state.current }, prevW = weightsLoaded ? weightsOf(state) : null;
+    const oldT = JSON.stringify(state.timer || {});
     state = { ...fromData(d), ...keep };
+    if(JSON.stringify(state.timer || {}) !== oldT) setTimeout(timerStart, 0);
     if(prevW){ setWeights(prevW); if(unlocked) loadWeights(); }   // los datos públicos no traen pesos
     saveLocal(); if(!spinning && !swapping){ applyTexts(); drawWheel(); spinBtn.disabled = W().items.length < 2; } };
   KDB.load(PAGE).then(row => {
