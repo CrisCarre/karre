@@ -62,6 +62,18 @@ window.KDB = (() => {
     const out = {}; (rows || []).forEach(r => out[r.item] = { n: +r.n || 0, mine: !!r.mine }); return out;
   }
 
+  // Roles: ¿de quién es esta contraseña?  → 'super' | 'mod' | null
+  const role = pwd => rpc('karre_role', { p_password: pwd });
+
+  // Botonera de sonidos (cada sonido en su fila; el audio solo se envía si cambia)
+  async function loadSounds(){
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/karre_sounds?select=id,name,color,pos,audio&order=pos.asc`, { headers });
+    if(!r.ok) throw new Error('No se pudieron leer los sonidos (' + r.status + ')');
+    return r.json();
+  }
+  const saveSound = (getPass, s) => queue(() => rpc('karre_sound_save', { p_pass: getPass(), p_id: s.id, p_name: s.name, p_color: s.color, p_audio: s.audio === undefined ? null : s.audio, p_pos: s.pos }));
+  const deleteSound = (getPass, id) => queue(() => rpc('karre_sound_delete', { p_pass: getPass(), p_id: id }));
+
   // Avisos pequeños abajo a la izquierda
   function toast(msg, ok = true){
     let el = document.getElementById('kdbToast');
@@ -77,5 +89,5 @@ window.KDB = (() => {
     clearTimeout(el._t); el._t = setTimeout(() => el.style.opacity = '0', ok ? 1800 : 5000);
   }
 
-  return { enabled, load, login, spin, getWeights, saveWeights, save, changePassword, setPassword, watch, toast, vote, voteCounts };
+  return { enabled, load, login, role, spin, getWeights, saveWeights, save, changePassword, setPassword, watch, toast, vote, voteCounts, loadSounds, saveSound, deleteSound };
 })();
