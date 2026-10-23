@@ -390,6 +390,13 @@ body.is-super .gem-link:hover{background:radial-gradient(circle,rgba(255,60,80,.
       <button class="btn sm danger" type="button" id="tmImgClear">Quitar</button>
       <input type="file" id="tmFile" accept="image/*" hidden>
     </div>
+    <div class="row">
+      <div class="tm-prev" id="tmSndPrev" title="Subir sonido (MP3, OGG, WAV)">🎵 Sonido</div>
+      <input type="text" id="tmSndUrl" placeholder="Fanfarria incluida · o URL de un audio" style="flex:1;min-width:160px">
+      <button class="btn sm" type="button" id="tmSndTest">▶ Probar</button>
+      <button class="btn sm danger" type="button" id="tmSndClear">Quitar</button>
+      <input type="file" id="tmSndFile" accept="audio/*" hidden>
+    </div>
     <label class="check"><input type="checkbox" id="tmRepeat"> Volver a empezar al cerrar el aviso</label>
     <div class="sec"><span>TORNEOS</span><a class="btn sm" href="torneos.html?admin" style="text-decoration:none">⚔️ Gestionar torneos ➜</a></div>
     <div style="font-size:.72rem;color:#c9a46a;margin:-4px 0 10px">Abre el panel de torneos para añadir, editar o borrar. La tarjeta «Torneos» y el aviso solo salen en la portada si hay alguno de hoy en adelante.</div>
@@ -467,7 +474,7 @@ const DEFAULTS = { password: 'dragon', bg: '', bgOpacity: 100, gap: 260, showTex
   }
 };
 const clone = o => JSON.parse(JSON.stringify(o));
-const TIMER_DEF = { on: false, secs: 600, text: '¡HORA DE DAR DRACOPAVOS!', image: '', repeat: true };
+const TIMER_DEF = { on: false, secs: 600, text: '¡HORA DE DAR DRACOPAVOS!', image: '', sound: '', repeat: true };
 const fromData = d => { const o = { ...clone(DEFAULTS), ...(d && typeof d === 'object' ? d : {}) }; o.live = { ...clone(DEFAULTS.live), ...(o.live || {}) }; o.timer = { ...TIMER_DEF, ...(o.timer || {}) }; return o; };
 const load = () => { try{ return fromData(JSON.parse(localStorage.getItem(KEY))); }catch(e){ return clone(DEFAULTS); } };
 let state = load(), draft = null, unlocked = false, sessionPwd = '', remoteEmpty = false;
@@ -746,6 +753,7 @@ function openAdmin(){
   const T = draft.timer = { ...TIMER_DEF, ...(draft.timer || {}) };
   $('#tmOn').checked = !!T.on; $('#tmSecs').value = T.secs; $('#tmTxt').value = T.text || ''; $('#tmRepeat').checked = T.repeat !== false;
   $('#tmImgUrl').value = (T.image || '').startsWith('data:') ? '' : (T.image || ''); updTmPrev();
+  $('#tmSndUrl').value = (T.sound || '').startsWith('data:') ? '(sonido subido)' : (T.sound || ''); updSndPrev();
   $('#rpSuper').value = ''; $('#rpMod').value = ''; $('#roleBox').style.display = KDB.enabled && KAuth.role() === 'super' ? '' : 'none';
   updPrev(); renderLiveAdmin(); $('#adminModal').classList.add('show');
 }
@@ -759,6 +767,17 @@ $('#tmFile').onchange = async e => {
 };
 $('#tmImgUrl').oninput = () => { draft.timer.image = $('#tmImgUrl').value.trim(); updTmPrev(); };
 $('#tmImgClear').onclick = () => { draft.timer.image = ''; $('#tmImgUrl').value = ''; updTmPrev(); };
+function updSndPrev(){ const s = draft && draft.timer && draft.timer.sound; $('#tmSndPrev').textContent = s ? '🎵 Propio' : '🎵 Sonido'; $('#tmSndPrev').style.borderColor = s ? 'var(--gold)' : ''; }
+$('#tmSndPrev').onclick = () => $('#tmSndFile').click();
+$('#tmSndFile').onchange = e => {
+  const f = e.target.files[0]; e.target.value = ''; if(!f) return;
+  if(!f.type.startsWith('audio/')){ $('#adminErr').textContent = 'Ese archivo no es un audio.'; return; }
+  if(f.size > 1024 * 1024){ $('#adminErr').textContent = 'El audio pesa más de 1 MB. Recórtalo o usa una URL.'; return; }
+  const rd = new FileReader(); rd.onload = () => { draft.timer.sound = rd.result; $('#tmSndUrl').value = '(sonido subido)'; $('#adminErr').textContent = ''; updSndPrev(); }; rd.readAsDataURL(f);
+};
+$('#tmSndUrl').oninput = () => { const v = $('#tmSndUrl').value.trim(); if(v !== '(sonido subido)'){ draft.timer.sound = v; updSndPrev(); } };
+$('#tmSndClear').onclick = () => { draft.timer.sound = ''; $('#tmSndUrl').value = ''; updSndPrev(); };
+$('#tmSndTest').onclick = () => { const s = draft.timer.sound; if(s){ const a = new Audio(s); a.play().catch(() => {}); } else KDB.toast('Sin sonido propio: sonará la fanfarria incluida'); };
 // vista previa en vivo mientras ajustas
 const preview = () => { const prev = state; state = draft; render(); state = prev; };
 $('#heroUpload').onclick = () => $('#heroFile').click();

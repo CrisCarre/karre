@@ -2,7 +2,7 @@
    Se configura en el admin de la portada (index.html) y la cuenta atrás sigue al cambiar de página.
    Solo se muestra en navegadores donde has entrado al admin, o con ?timer / ?obs en la dirección. */
 (() => {
-  const DEF = { on: false, secs: 600, text: '¡HORA DE DAR DRACOPAVOS!', image: '', repeat: true };
+  const DEF = { on: false, secs: 600, text: '¡HORA DE DAR DRACOPAVOS!', image: '', sound: '', repeat: true };
   const K_HERE = 'karreTimerHere', K_END = 'karreTimerEnd', K_ACK = 'karreTimerAck', K_SIG = 'karreTimerSig', K_CFG = 'karreTimerCfg';
   const ls = {
     get: k => { try{ return localStorage.getItem(k); }catch(e){ return null; } },
@@ -50,7 +50,11 @@ body.obs .ktm-chip{display:none!important}
 
   /* ---------- lógica ---------- */
   let fanfared = 0, ac = null;
+  let snd = null;
   function fanfare(){
+    if(cfg.sound){   // sonido propio (subido en el ⚙️ de la portada)
+      try{ if(snd) snd.pause(); snd = new Audio(cfg.sound); snd.volume = .9; snd.play().catch(() => {}); return; }catch(e){}
+    }
     try{
       ac = ac || new (window.AudioContext || window.webkitAudioContext)(); ac.resume(); const t = ac.currentTime;
       [[523,0],[659,.12],[784,.24],[1047,.36],[784,.52],[1047,.62]].forEach(([f, d]) => {
@@ -71,7 +75,7 @@ body.obs .ktm-chip{display:none!important}
     const f = document.createElement('div'); f.className = 'ktm-plus'; f.textContent = '+1:00'; document.body.append(f); setTimeout(() => f.remove(), 950);
   }
   function done(){
-    const end = +ls.get(K_END) || 0; ls.set(K_ACK, String(end)); modal.classList.remove('show');
+    const end = +ls.get(K_END) || 0; ls.set(K_ACK, String(end)); modal.classList.remove('show'); if(snd){ try{ snd.pause(); }catch(e){} }
     if(cfg.repeat !== false) restart(); else { ls.set(K_END, ''); tick(); }
   }
   function tick(){
