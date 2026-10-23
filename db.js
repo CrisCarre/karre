@@ -67,11 +67,11 @@ window.KDB = (() => {
 
   // Botonera de sonidos (cada sonido en su fila; el audio solo se envía si cambia)
   async function loadSounds(){
-    const r = await fetch(`${SUPABASE_URL}/rest/v1/karre_sounds?select=id,name,color,pos,audio&order=pos.asc`, { headers });
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/karre_sounds?select=id,name,color,pos,audio,image&order=pos.asc`, { headers });
     if(!r.ok) throw new Error('No se pudieron leer los sonidos (' + r.status + ')');
     return r.json();
   }
-  const saveSound = (getPass, s) => queue(() => rpc('karre_sound_save', { p_pass: getPass(), p_id: s.id, p_name: s.name, p_color: s.color, p_audio: s.audio === undefined ? null : s.audio, p_pos: s.pos }));
+  const saveSound = (getPass, s) => queue(() => rpc('karre_sound_save', { p_pass: getPass(), p_id: s.id, p_name: s.name, p_color: s.color, p_audio: s.audio === undefined ? null : s.audio, p_pos: s.pos, p_image: s.image === undefined ? null : s.image }));
   const deleteSound = (getPass, id) => queue(() => rpc('karre_sound_delete', { p_pass: getPass(), p_id: id }));
 
   // Avisos pequeños abajo a la izquierda

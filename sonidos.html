@@ -77,17 +77,28 @@ body{overflow:hidden}
 .sbtn .lbl{font-weight:900;font-size:clamp(.6rem,calc(var(--s,130px) * .1),1rem);line-height:1.15;text-align:center;max-width:100%;word-break:break-word;
   text-decoration:underline;text-decoration-color:rgba(245,196,81,.5);text-underline-offset:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .sbtn.noaudio{opacity:.45}
+/* botón con imagen */
+.sbtn .face{--c:#e3192f;width:calc(var(--s,130px) * .86);aspect-ratio:1;border-radius:22%;position:relative;overflow:hidden;transition:transform .08s,filter .15s;
+  background:#0b0202 center/cover no-repeat;border:3px solid var(--c);
+  box-shadow:0 calc(var(--s,130px) * .05) 0 color-mix(in srgb,var(--c) 45%,#000),0 calc(var(--s,130px) * .09) calc(var(--s,130px) * .08) rgba(0,0,0,.6),0 0 14px color-mix(in srgb,var(--c) 50%,transparent)}
+.sbtn .face::after{content:"";position:absolute;inset:0;background:linear-gradient(160deg,rgba(255,255,255,.28),transparent 40%);pointer-events:none}
+.sbtn:hover .face{filter:brightness(1.12)}
+.sbtn:active .face,.sbtn.down .face{transform:translateY(calc(var(--s,130px) * .045)) scale(.96);box-shadow:0 calc(var(--s,130px) * .01) 0 color-mix(in srgb,var(--c) 45%,#000),0 2px 6px rgba(0,0,0,.6)}
+.sbtn.playing .face{animation:sbGlow2 .6s ease-in-out infinite alternate}
+@keyframes sbGlow2{to{box-shadow:0 calc(var(--s,130px) * .05) 0 color-mix(in srgb,var(--c) 45%,#000),0 0 calc(var(--s,130px) * .3) var(--c)}}
+.srow .imgp{width:44px;height:44px;border-radius:10px;border:1px dashed var(--gold-dark);background:#0b0202 center/cover no-repeat;cursor:pointer;display:grid;place-items:center;font-size:.5rem;color:#8a6a3a;text-align:center;flex:none}
+.srow .imgp:hover{border-color:var(--gold)}
 .empty{text-align:center;color:#c9a46a;font-family:Georgia,serif;align-self:center}
 .lock{position:fixed;inset:0;z-index:40;display:none;align-items:center;justify-content:center;padding:16px;background:radial-gradient(circle,#1a0402,#050101)}
 .lock.show{display:flex}
 /* admin */
-.srow{display:grid;grid-template-columns:44px 1fr 1.3fr auto;gap:8px;align-items:center;background:rgba(0,0,0,.35);padding:8px;border-radius:12px;border:1px solid rgba(138,90,18,.45);margin-bottom:8px}
+.srow{display:grid;grid-template-columns:44px 44px 1fr 1.3fr auto;gap:8px;align-items:center;background:rgba(0,0,0,.35);padding:8px;border-radius:12px;border:1px solid rgba(138,90,18,.45);margin-bottom:8px}
 .srow input[type=color]{width:44px;height:38px;padding:2px;border-radius:8px;border:1px solid var(--gold-dark);background:#0b0202;cursor:pointer}
 .srow .aud{display:flex;gap:6px;align-items:center;min-width:0}
 .srow .aud span{font-size:.72rem;color:#c9a46a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
 .srow .aud span.ok{color:#8aff9e}
 .srow .acts{display:flex;gap:4px}
-@media (max-width:640px){ .srow{grid-template-columns:44px 1fr auto}.srow .aud{grid-column:1/-1} }
+@media (max-width:640px){ .srow{grid-template-columns:44px 44px 1fr auto}.srow .aud{grid-column:1/-1} }
 </style>
 </head>
 <body>
@@ -133,6 +144,7 @@ body{overflow:hidden}
   </div>
 </div>
 <input type="file" id="audFile" accept="audio/*" hidden>
+<input type="file" id="imgFile" accept="image/*" hidden>
 
 <script src="db.js"></script>
 <script src="timer.js"></script>
@@ -179,8 +191,9 @@ function render(){
   if(!sounds.length){ g.innerHTML = '<p class="empty">Aún no hay botones. Pulsa ⚙️ para añadirlos.</p>'; g.style.gridTemplateColumns = ''; return; }
   sounds.forEach(s => {
     const b = document.createElement('button'); b.type = 'button'; b.className = 'sbtn' + (s.audio ? '' : ' noaudio'); b.dataset.id = s.id; b.title = s.name || '';
-    b.innerHTML = '<span class="cap"></span><span class="lbl"></span>';
-    b.querySelector('.cap').style.setProperty('--c', s.color || '#e3192f'); b.querySelector('.lbl').textContent = s.name || 'Sin nombre';
+    b.innerHTML = (s.image ? '<span class="face"></span>' : '<span class="cap"></span>') + '<span class="lbl"></span>';
+    const f = b.querySelector('.face, .cap'); f.style.setProperty('--c', s.color || '#e3192f'); if(s.image) f.style.backgroundImage = `url("${String(s.image).replace(/"/g, '%22')}")`;
+    b.querySelector('.lbl').textContent = s.name || 'Sin nombre';
     b.addEventListener('pointerdown', () => { b.classList.add('down'); play(s, b); });
     ['pointerup','pointerleave','pointercancel'].forEach(ev => b.addEventListener(ev, () => b.classList.remove('down')));
     g.append(b);
@@ -219,9 +232,9 @@ $('#vol').oninput = () => { try{ localStorage.setItem(VKEY, $('#vol').value); }c
 /* ---------- Admin ---------- */
 document.querySelectorAll('[data-close]').forEach(b => b.onclick = () => $('#' + b.dataset.close).classList.remove('show'));
 $('#adminBtn').onclick = () => { if(!isSuper()) return gate(); openAdmin(); };
-let audTarget = null;
+let audTarget = null, imgTarget = null;
 function openAdmin(){
-  draft = sounds.map(s => ({ ...s, _audioChanged: false }));
+  draft = sounds.map(s => ({ ...s, _audioChanged: false, _imageChanged: false }));
   $('#adminErr').textContent = ''; renderList(); $('#adminModal').classList.add('show');
 }
 function renderList(){
@@ -229,7 +242,11 @@ function renderList(){
   if(!draft.length){ L.innerHTML = '<p class="hint" style="text-align:center;padding:14px">Pulsa «+ Añadir botón».</p>'; return; }
   draft.forEach((s, i) => {
     const row = document.createElement('div'); row.className = 'srow';
-    const col = document.createElement('input'); col.type = 'color'; col.value = s.color || '#e3192f'; col.title = 'Color'; col.oninput = () => s.color = col.value;
+    const col = document.createElement('input'); col.type = 'color'; col.value = s.color || '#e3192f'; col.title = 'Color del borde'; col.oninput = () => s.color = col.value;
+    const ip = document.createElement('div'); ip.className = 'imgp'; ip.title = 'Imagen del botón (clic derecho para quitarla)';
+    const updIp = () => { ip.style.backgroundImage = s.image ? `url("${String(s.image).replace(/"/g, '%22')}")` : 'none'; ip.textContent = s.image ? '' : '🖼 Imagen'; };
+    updIp(); ip.onclick = () => { imgTarget = { s, updIp }; $('#imgFile').click(); };
+    ip.oncontextmenu = e => { e.preventDefault(); s.image = ''; s._imageChanged = true; updIp(); };
     const nm = document.createElement('input'); nm.type = 'text'; nm.placeholder = 'Nombre del botón'; nm.value = s.name || ''; nm.oninput = () => s.name = nm.value;
     const aud = document.createElement('div'); aud.className = 'aud';
     const st = document.createElement('span'); st.className = s.audio ? 'ok' : ''; st.textContent = s.audio ? (s.audio.startsWith('data:') ? '✓ Audio subido' : s.audio) : 'Sin audio';
@@ -243,10 +260,26 @@ function renderList(){
     mk('▲', 'Subir', () => { if(i > 0){ [draft[i-1], draft[i]] = [draft[i], draft[i-1]]; renderList(); } });
     mk('▼', 'Bajar', () => { if(i < draft.length - 1){ [draft[i+1], draft[i]] = [draft[i], draft[i+1]]; renderList(); } });
     mk('✕', 'Eliminar', () => { draft.splice(i, 1); renderList(); }, 'danger');
-    row.append(col, nm, aud, acts); L.append(row);
+    row.append(col, ip, nm, aud, acts); L.append(row);
   });
 }
-$('#addS').onclick = () => { draft.push({ id: newId(), name: '', color: COLORS[draft.length % COLORS.length], audio: '', pos: draft.length, _audioChanged: true }); renderList(); $('#sList').lastElementChild.querySelector('input[type=text]').focus(); };
+$('#addS').onclick = () => { draft.push({ id: newId(), name: '', color: COLORS[draft.length % COLORS.length], audio: '', pos: draft.length, image: '', _audioChanged: true, _imageChanged: true }); renderList(); $('#sList').lastElementChild.querySelector('input[type=text]').focus(); };
+$('#imgFile').onchange = e => {
+  const f = e.target.files[0]; e.target.value = ''; if(!f || !imgTarget) return;
+  if(!f.type.startsWith('image/')){ $('#adminErr').textContent = 'Ese archivo no es una imagen.'; return; }
+  const t = imgTarget;
+  if(f.type === 'image/gif'){
+    if(f.size > 1024 * 1024){ $('#adminErr').textContent = 'El GIF pesa más de 1 MB.'; return; }
+    const r = new FileReader(); r.onload = () => { t.s.image = r.result; t.s._imageChanged = true; t.updIp(); }; r.readAsDataURL(f); return;
+  }
+  const im = new Image();
+  im.onload = () => {
+    const k = Math.min(1, 400 / Math.max(im.width, im.height)), c = document.createElement('canvas');
+    c.width = Math.round(im.width * k); c.height = Math.round(im.height * k); c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); URL.revokeObjectURL(im.src);
+    t.s.image = c.toDataURL('image/webp', .85); t.s._imageChanged = true; t.updIp(); $('#adminErr').textContent = '';
+  };
+  im.src = URL.createObjectURL(f);
+};
 $('#audFile').onchange = e => {
   const f = e.target.files[0]; e.target.value = ''; if(!f || !audTarget) return;
   if(!f.type.startsWith('audio/')){ $('#adminErr').textContent = 'Ese archivo no es un audio.'; return; }
@@ -264,15 +297,15 @@ $('#saveBtn').onclick = async () => {
       const getPass = () => KAuth.pass();
       for(const s of list){
         const old = sounds.find(o => o.id === s.id);
-        const same = old && old.name === s.name && old.color === s.color && old.pos === s.pos && !s._audioChanged;
-        if(!same) await KDB.saveSound(getPass, { id: s.id, name: s.name, color: s.color, pos: s.pos, audio: s._audioChanged || !old ? (s.audio || '') : undefined });
+        const same = old && old.name === s.name && old.color === s.color && old.pos === s.pos && !s._audioChanged && !s._imageChanged;
+        if(!same) await KDB.saveSound(getPass, { id: s.id, name: s.name, color: s.color, pos: s.pos, audio: s._audioChanged || !old ? (s.audio || '') : undefined, image: s._imageChanged || !old ? (s.image || '') : undefined });
       }
       for(const o of removed) await KDB.deleteSound(getPass, o.id);
       KDB.toast('✓ Botonera guardada');
     } else {
-      try{ localStorage.setItem(LKEY, JSON.stringify(list.map(({ _audioChanged, ...s }) => s))); }catch(e){ throw new Error('Los audios no caben en este navegador. Usa la base de datos.'); }
+      try{ localStorage.setItem(LKEY, JSON.stringify(list.map(({ _audioChanged, _imageChanged, ...s }) => s))); }catch(e){ throw new Error('Los audios no caben en este navegador. Usa la base de datos.'); }
     }
-    sounds = list.map(({ _audioChanged, ...s }) => s); render();
+    sounds = list.map(({ _audioChanged, _imageChanged, ...s }) => s); render();
     $('#adminErr').textContent = ''; $('#adminModal').classList.remove('show');
   }catch(e){ $('#adminErr').textContent = '⚠ ' + e.message; }
   btn.disabled = false;
