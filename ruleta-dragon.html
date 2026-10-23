@@ -557,6 +557,7 @@ body.legend .wcard{background:linear-gradient(160deg,#2a0a5a,#0d0420);border-col
 
 <script src="db.js?v=3"></script>
 <script src="timer.js"></script>
+<script src="auth.js"></script>
 <script>
 (() => {
 'use strict';
@@ -847,6 +848,7 @@ async function spin(){
     return;
   }
   const isLegend = state.current === 'legend';
+  if(isLegend && KAuth.role() === 'super'){ legendOk = true; legendPwd = KAuth.pass(); }   // el superadmin no necesita la contraseña de la Legendaria
   if(isLegend && state.legendLock !== false && !legendOk){
     $('#spinPwd').value = ''; $('#spinErr').textContent = ''; $('#spinLockModal').classList.add('show');
     setTimeout(() => $('#spinPwd').focus(), 50);
@@ -915,7 +917,8 @@ $('#animBtn').onclick = () => {
   animT = setTimeout(() => {
     const [key, label] = ANIMS[animClicks - 1]; animClicks = 0;
     state.drum = { ...(state.drum || {}), anim: key };
-    if(unlocked) save(); else saveLocal();   // sin entrar al admin, el cambio vale solo en este navegador
+    if(!unlocked && KAuth.can(PAGE)){ sessionPwd = KAuth.pass(); unlocked = true; }
+    if(unlocked) save(); else saveLocal();   // sin sesión de admin, el cambio vale solo en este navegador
     document.querySelectorAll('.anim-toast').forEach(x => x.remove());
     const t = document.createElement('div'); t.className = 'anim-toast'; t.textContent = label; document.body.append(t); setTimeout(() => t.remove(), 1600);
   }, 450);
@@ -997,7 +1000,7 @@ function finish(i){
   $('#resultModal').classList.add('show');
   $('#quickWin').classList.remove('open'); $('#quickWinner').value = ''; $('#quickPwd').value = ''; $('#quickErr').textContent = ''; $('#quickDelivered').checked = false;
   $('#resFor').textContent = spinFor ? '🎯 Para ' + spinFor : ''; $('#resFor').style.display = spinFor ? '' : 'none';
-  if(spinFor){ $('#quickWin').classList.add('open'); $('#quickWin').classList.toggle('need-pass', !unlocked); $('#quickWinner').value = spinFor; }
+  if(spinFor){ $('#quickWin').classList.add('open'); $('#quickWin').classList.toggle('need-pass', !unlocked && !KAuth.can(PAGE)); $('#quickWinner').value = spinFor; }
   $('#forTag').classList.remove('show'); spinFor = '';
   roar(); burst();
   history.unshift(`${it.emoji||''} ${it.text}`.trim()); if(history.length > 6) history.pop();
@@ -1005,22 +1008,22 @@ function finish(i){
 }
 
 $('#qwToggle').onclick = () => {
-  const box = $('#quickWin'); box.classList.toggle('open'); box.classList.toggle('need-pass', !unlocked); $('#quickErr').textContent = '';
+  const box = $('#quickWin'); box.classList.toggle('open'); box.classList.toggle('need-pass', !unlocked && !KAuth.can(PAGE)); $('#quickErr').textContent = '';
   if(box.classList.contains('open')) setTimeout(() => $('#quickWinner').focus(), 50); else $('#quickWinner').value = '';
 };
 $('#quickWinner').addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); if(!unlocked && !$('#quickPwd').value) $('#quickPwd').focus(); else $('#resultOk').click(); } });
 $('#quickPwd').addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); $('#resultOk').click(); } });
 $('#resultOk').onclick = async () => {
   const who = $('#quickWin').classList.contains('open') ? $('#quickWinner').value.trim() : '';
+  if(who && !unlocked && KAuth.can(PAGE)){ sessionPwd = KAuth.pass(); unlocked = true; document.body.classList.add('admin-on'); if(KDB.enabled && !weightsLoaded) loadWeights(); }
   if(who && !unlocked){
     // apuntar un ganador exige la contraseña de admin
     const pwd = $('#quickPwd').value; let ok;
     if(!pwd){ $('#quickErr').textContent = 'Pon la contraseña para apuntarlo'; $('#quickPwd').focus(); return; }
-    if(KDB.enabled){
-      $('#quickErr').textContent = 'Comprobando…';
-      try{ ok = await KDB.login(PAGE, pwd); }catch(e){ $('#quickErr').textContent = 'Error de conexión: ' + e.message; return; }
-    } else ok = !!state.password && pwd === state.password;
-    if(!ok){ $('#quickErr').textContent = 'Contraseña incorrecta'; $('#quickPwd').select(); return; }
+    let why = '';
+    $('#quickErr').textContent = 'Comprobando…';
+    try{ const r = await KAuth.login(pwd, PAGE, state.password); ok = r.ok; why = r.msg || ''; KAuth.refresh(); }catch(e){ $('#quickErr').textContent = 'Error de conexión: ' + e.message; return; }
+    if(!ok){ $('#quickErr').textContent = why || 'Contraseña incorrecta'; $('#quickPwd').select(); return; }
     sessionPwd = pwd; unlocked = true; document.body.classList.add('admin-on'); $('#quickErr').textContent = '';
     if(KDB.enabled && !weightsLoaded) loadWeights();
   }
@@ -1286,21 +1289,24 @@ document.querySelectorAll('[data-close]').forEach(b => b.onclick = () => $('#'+b
 
 $('#adminBtn').onclick = () => {
   if(unlocked) return openAdmin();
+  if(KAuth.can(PAGE)) return tryLogin(true);
   $('#pwd').value = ''; $('#loginErr').textContent = ''; $('#loginModal').classList.add('show'); setTimeout(()=>$('#pwd').focus(),50);
 };
 async function tryLogin(){
-  const pwd = $('#pwd').value; let ok;
-  if(KDB.enabled){
+  const auto = arguments[0] === true && KAuth.can(PAGE);          // ya logueado en otra página: entra sin pedir nada
+  const pwd = auto ? KAuth.pass() : $('#pwd').value; let ok = auto, why = '';
+  if(!auto){
     $('#loginErr').textContent = 'Comprobando…';
-    try{ ok = await KDB.login(PAGE, pwd); }catch(e){ $('#loginErr').textContent = 'Error de conexión: ' + e.message; return; }
-  } else ok = !!state.password && pwd === state.password;
+    try{ const r = await KAuth.login(pwd, PAGE, state.password); ok = r.ok; why = r.msg || ''; KAuth.refresh(); }
+    catch(e){ $('#loginErr').textContent = 'Error de conexión: ' + e.message; return; }
+  }
   if(ok){
     sessionPwd = pwd; unlocked = true; document.body.classList.add('admin-on'); $('#loginErr').textContent = ''; $('#loginModal').classList.remove('show');
     if(remoteEmpty){ remoteEmpty = false; weightsLoaded = true; save(); }   // primera vez: sube lo que había en este navegador
     else if(KDB.enabled && !weightsLoaded) await loadWeights();
     openAdmin();
   }
-  else $('#loginErr').textContent = 'Contraseña incorrecta';
+  else $('#loginErr').textContent = why || ('Contraseña incorrecta');
 }
 $('#loginBtn').onclick = tryLogin;
 $('#pwd').addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); tryLogin(); } });

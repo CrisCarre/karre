@@ -262,6 +262,12 @@ body.obs .corner{display:none}
 @media (max-width:820px){ .nextT{grid-template-columns:1fr;max-width:460px}.nt-img{aspect-ratio:16/8;-webkit-mask-image:linear-gradient(180deg,#000 70%,transparent);mask-image:linear-gradient(180deg,#000 70%,transparent)}.nt-side{align-items:stretch;padding-top:0}.nt-cd{justify-content:center}.nt-go{text-align:center} }
 /* admin del banner */
 .tm-prev{width:64px;height:48px;flex:none;border-radius:8px;border:1px dashed var(--gold-dark);background:#0b0202 center/contain no-repeat;cursor:pointer;display:grid;place-items:center;font-size:.55rem;color:#8a6a3a}
+.gem-link{position:absolute;z-index:4;display:block;border-radius:50%;pointer-events:none;cursor:default}
+body.is-super .gem-link{pointer-events:auto;cursor:pointer}
+body.is-super .gem-link:hover{background:radial-gradient(circle,rgba(255,60,80,.55),transparent 70%);box-shadow:0 0 22px 6px rgba(255,40,60,.7);animation:gemPulse .8s ease-in-out infinite alternate}
+@keyframes gemPulse{to{box-shadow:0 0 34px 12px rgba(255,40,60,.9)}}
+.gem-link.css{left:10px;top:50%;width:40px;height:40px;transform:translateY(-50%)}
+.limg .gem-link.css{display:none}
 .sec{margin:20px 0 10px;color:var(--gold);font-size:.9rem;letter-spacing:2px;border-bottom:1px solid var(--gold-dark);padding-bottom:6px;display:flex;justify-content:space-between;align-items:center}
 .lrow{display:grid;grid-template-columns:120px 92px 92px 1fr auto;gap:6px;align-items:center;margin-bottom:6px}
 .prow input[type=color]{width:44px;height:40px;padding:2px;border-radius:8px;border:1px solid var(--gold-dark);background:#0b0202;cursor:pointer}
@@ -311,7 +317,7 @@ body.obs .corner{display:none}
 
   <section class="live hidden" id="live">
     <div>
-      <div class="plaque">
+      <div class="plaque"><a class="gem-link css" href="sonidos.html" title="🔊 Botonera" aria-label="Botonera"></a>
         <h3><span class="dot"></span><span id="liveTitle">¿Cuándo hago directo?</span></h3>
         <p class="note" id="liveNote"></p>
       </div>
@@ -420,9 +426,14 @@ body.obs .corner{display:none}
     <p class="hint" style="margin-top:0">Pulsa el icono para subir una imagen. Solo se muestran las que tengan enlace.</p>
     <div id="lvPlats"></div>
     <input type="file" id="lvIconFile" accept="image/*" hidden>
-    <div class="sec"><span>CONTRASEÑA</span></div>
-    <label for="aPassword">Nueva contraseña (opcional)</label>
-    <input type="text" id="aPassword" placeholder="Dejar vacío para no cambiar">
+    <div class="sec"><span>CUENTAS</span><button class="btn sm danger" type="button" id="logoutBtn">Cerrar sesión</button></div>
+    <div id="roleBox">
+      <div class="row">
+        <div style="flex:1;min-width:180px"><label for="rpSuper">Nueva contraseña de superadmin</label><input type="text" id="rpSuper" placeholder="Dejar vacío para no cambiar" autocomplete="off"></div>
+        <div style="flex:1;min-width:180px"><label for="rpMod">Nueva contraseña de moderadores</label><input type="text" id="rpMod" placeholder="Dejar vacío para no cambiar" autocomplete="off"></div>
+      </div>
+    </div>
+    <input type="hidden" id="aPassword">
     <div class="actions" style="margin-top:16px">
       <button class="btn" data-close="adminModal">Cancelar</button>
       <button class="btn primary" id="saveBtn">Guardar</button>
@@ -433,6 +444,7 @@ body.obs .corner{display:none}
 
 <script src="db.js"></script>
 <script src="timer.js"></script>
+<script src="auth.js"></script>
 <script>
 (() => {
 'use strict';
@@ -479,6 +491,7 @@ const gemColor = (p, i) => p.color || GEM_BY_NAME[(p.name || '').toLowerCase().r
 /* posiciones (en %) dentro de la plantilla banner-directo.png (1551×672) */
 const TPL = {
   title: [30.5, 5.5, 39, 13.5],
+  gem: [22.6, 10, 4.5, 9.5],          // gema roja de la izquierda → botonera (solo superadmin)
   slots: [[16.6, 24.6, 19.1, 31.4], [41.4, 24.6, 17.2, 31.4], [64.4, 24.6, 18.7, 31.4]],
   hots:  [277, 480, 680, 880, 1083, 1283].map(cx => [(cx - 92) / 15.51, 61, 184 / 15.51, 33]),
   sides: [[11.48, 22.3, 3.22, 35], [84.98, 22.3, 3.35, 35]]
@@ -509,6 +522,7 @@ function renderLiveImg(L, days){
   const im = new Image(); im.alt = ''; im.onerror = () => sec.classList.remove('img-mode'); im.onload = () => requestAnimationFrame(fitLiveImg); im.src = src; box.append(im);
   const tplOk = /banner-directo\.png$/i.test(src);   // las runas solo encajan con la plantilla original
   if(tplOk) TPL.sides.forEach(pos => { const sd = runeLayer(pos, 'side'); placeEl(sd, pos); box.append(sd); });
+  const gl = document.createElement('a'); gl.className = 'gem-link'; gl.href = 'sonidos.html'; gl.title = '🔊 Botonera'; gl.setAttribute('aria-label', 'Botonera'); placeEl(gl, TPL.gem); box.append(gl);
   const t = document.createElement('div'); t.className = 'lt'; placeEl(t, TPL.title);
   const h = document.createElement('h4'); const dot = document.createElement('span'); dot.className = 'dot'; const ht = document.createElement('span'); ht.textContent = L.title || '¿Cuándo hago directo?'; h.append(dot, ht); t.append(h);
   if(L.note){ const n = document.createElement('p'); n.textContent = L.note; t.append(n); }
@@ -628,20 +642,23 @@ function readImage(file, max){
 document.querySelectorAll('[data-close]').forEach(b => b.onclick = () => $('#'+b.dataset.close).classList.remove('show'));
 $('#adminBtn').onclick = () => {
   if(unlocked) return openAdmin();
+  if(KAuth.can(PAGE)) return tryLogin(true);
   $('#pwd').value = ''; $('#loginErr').textContent = ''; $('#loginModal').classList.add('show'); setTimeout(() => $('#pwd').focus(), 50);
 };
 async function tryLogin(){
-  const pwd = $('#pwd').value; let ok;
-  if(KDB.enabled){
+  const auto = arguments[0] === true && KAuth.can(PAGE);          // ya logueado en otra página: entra sin pedir nada
+  const pwd = auto ? KAuth.pass() : $('#pwd').value; let ok = auto, why = '';
+  if(!auto){
     $('#loginErr').textContent = 'Comprobando…';
-    try{ ok = await KDB.login(PAGE, pwd); }catch(e){ $('#loginErr').textContent = 'Error de conexión: ' + e.message; return; }
-  } else ok = pwd === state.password;
+    try{ const r = await KAuth.login(pwd, PAGE, state.password); ok = r.ok; why = r.msg || ''; KAuth.refresh(); }
+    catch(e){ $('#loginErr').textContent = 'Error de conexión: ' + e.message; return; }
+  }
   if(ok){
     sessionPwd = pwd; unlocked = true; $('#loginErr').textContent = ''; $('#loginModal').classList.remove('show');
     if(window.KarreTimer) KarreTimer.allowHere();
     if(remoteEmpty){ remoteEmpty = false; save(); }
     openAdmin();
-  } else $('#loginErr').textContent = KDB.enabled ? 'Contraseña incorrecta (¿has ejecutado el SQL de la portada?)' : 'Contraseña incorrecta';
+  } else $('#loginErr').textContent = why || (KDB.enabled ? 'Contraseña incorrecta (¿has ejecutado el SQL de la portada?)' : 'Contraseña incorrecta');
 }
 $('#loginBtn').onclick = tryLogin;
 $('#pwd').addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); tryLogin(); } });
@@ -729,8 +746,10 @@ function openAdmin(){
   const T = draft.timer = { ...TIMER_DEF, ...(draft.timer || {}) };
   $('#tmOn').checked = !!T.on; $('#tmSecs').value = T.secs; $('#tmTxt').value = T.text || ''; $('#tmRepeat').checked = T.repeat !== false;
   $('#tmImgUrl').value = (T.image || '').startsWith('data:') ? '' : (T.image || ''); updTmPrev();
+  $('#rpSuper').value = ''; $('#rpMod').value = ''; $('#roleBox').style.display = KDB.enabled && KAuth.role() === 'super' ? '' : 'none';
   updPrev(); renderLiveAdmin(); $('#adminModal').classList.add('show');
 }
+$('#logoutBtn').onclick = () => { KAuth.logout(); KAuth.refresh(); unlocked = false; sessionPwd = ''; $('#adminModal').classList.remove('show'); render(); KDB.toast('Sesión cerrada'); };
 function updTmPrev(){ const i = draft && draft.timer && draft.timer.image; $('#tmPrev').style.backgroundImage = i ? cssUrl(i) : 'none'; $('#tmPrev').textContent = i ? '' : '📁 Imagen'; }
 $('#tmPrev').onclick = () => $('#tmFile').click();
 $('#tmFile').onchange = async e => {
@@ -761,6 +780,8 @@ $('#saveBtn').onclick = () => {
     if(KDB.enabled) KDB.changePassword(PAGE, () => sessionPwd, np, () => { sessionPwd = np; KDB.toast('✓ Contraseña cambiada'); }).catch(e => KDB.toast('⚠ ' + e.message, false));
     else draft.password = np;
   }
+  const nSup = $('#rpSuper').value.trim(), nMod = $('#rpMod').value.trim();
+  if((nSup && nSup.length < 6) || (nMod && nMod.length < 6)){ $('#adminErr').textContent = 'Las contraseñas nuevas deben tener al menos 6 caracteres.'; return; }
   const prevT = JSON.stringify(state.timer || {});
   draft.timer = { ...draft.timer, on: $('#tmOn').checked, secs: Math.max(5, Math.round(+$('#tmSecs').value || 600)), text: $('#tmTxt').value.trim() || TIMER_DEF.text, repeat: $('#tmRepeat').checked };
   const timerChanged = JSON.stringify(draft.timer) !== prevT;
@@ -770,6 +791,10 @@ $('#saveBtn').onclick = () => {
   if(!save()){ state = prev; $('#adminErr').textContent = 'No se pudo guardar: la imagen ocupa demasiado.'; return; }
   render(); $('#adminModal').classList.remove('show');
   if(window.KarreTimer) KarreTimer.setConfig(state.timer, timerChanged);
+  if(KDB.enabled && KAuth.role() === 'super'){
+    if(nSup) KDB.changePassword('rol_super', () => KAuth.pass(), nSup, () => { KAuth.setPass(nSup); sessionPwd = nSup; KDB.toast('✓ Contraseña de superadmin cambiada'); }).catch(e => KDB.toast('⚠ ' + e.message, false));
+    if(nMod) KDB.changePassword('rol_mod', () => KAuth.pass(), nMod, () => KDB.toast('✓ Contraseña de moderadores cambiada')).catch(e => KDB.toast('⚠ ' + e.message, false));
+  }
 };
 
 /* ---------- Próximo torneo (datos de torneos.html) ---------- */

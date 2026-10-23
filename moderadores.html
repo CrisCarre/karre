@@ -229,6 +229,7 @@ label{font-size:.7rem;color:var(--gold);letter-spacing:1px;text-transform:upperc
 
 <script src="db.js"></script>
 <script src="timer.js"></script>
+<script src="auth.js"></script>
 <script>
 (() => {
 'use strict';
@@ -474,21 +475,23 @@ function askLogin(target){
   loginTarget = target;
   $('#pwd').value = ''; $('#loginErr').textContent = ''; $('#loginModal').classList.add('show'); setTimeout(() => $('#pwd').focus(), 50);
 }
-$('#adminBtn').onclick = () => { if(unlocked) return openAdmin(); askLogin('admin'); };
+$('#adminBtn').onclick = () => { if(unlocked) return openAdmin(); if(KAuth.can(PAGE)){ loginTarget = 'admin'; return tryLogin(true); } askLogin('admin'); };
 
 async function tryLogin(){
-  const pwd = $('#pwd').value; let ok;
-  if(KDB.enabled){
+  const auto = arguments[0] === true && KAuth.can(PAGE);          // ya logueado en otra página: entra sin pedir nada
+  const pwd = auto ? KAuth.pass() : $('#pwd').value; let ok = auto, why = '';
+  if(!auto){
     $('#loginErr').textContent = 'Comprobando…';
-    try{ ok = await KDB.login(PAGE, pwd); }catch(e){ $('#loginErr').textContent = 'Error de conexión: ' + e.message; return; }
-  } else ok = pwd === state.password;
+    try{ const r = await KAuth.login(pwd, PAGE, state.password); ok = r.ok; why = r.msg || ''; KAuth.refresh(); }
+    catch(e){ $('#loginErr').textContent = 'Error de conexión: ' + e.message; return; }
+  }
   if(ok){
     sessionPwd = pwd; unlocked = true; $('#loginErr').textContent = ''; $('#loginModal').classList.remove('show');
     if(remoteEmpty){ remoteEmpty = false; save(); }   // primera vez: sube lo que había en este navegador
     setUnlocked(true);
     if(loginTarget === 'admin') openAdmin();
   }
-  else $('#loginErr').textContent = 'Contraseña incorrecta';
+  else $('#loginErr').textContent = why || ('Contraseña incorrecta');
 }
 $('#loginBtn').onclick = tryLogin;
 $('#pwd').addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); tryLogin(); } });
