@@ -74,9 +74,9 @@ label{font-size:.7rem;color:var(--gold);letter-spacing:1px;text-transform:upperc
 .fname{font-weight:900;font-size:1.15rem;word-break:break-word;min-width:0;color:#fff}
 .fname small{display:block;font-size:.68rem;letter-spacing:1.5px;color:#c9a46a;font-weight:700;margin-top:2px}
 /* línea de fidelidad: barra de vida tipo videojuego */
-.flife{display:flex;flex-direction:column;gap:6px;width:100%}
-.hp{position:relative;height:18px;border-radius:9px;background:#000;border:1px solid #5a3a1a;overflow:hidden;box-shadow:inset 0 2px 4px rgba(0,0,0,.8)}
-.hp i{display:block;height:100%;border-radius:9px;transition:width .4s;background:linear-gradient(180deg,color-mix(in srgb,var(--lc) 55%,#fff),var(--lc) 60%,color-mix(in srgb,var(--lc) 70%,#000));box-shadow:0 0 10px var(--lc)}
+.flife{display:flex;flex-direction:column;gap:6px;width:100%;margin-top:auto;padding-top:4px}
+.hp{position:relative;height:18px;border-radius:4px;background:#000;border:1px solid #5a3a1a;overflow:hidden;box-shadow:inset 0 2px 4px rgba(0,0,0,.8)}
+.hp i{display:block;height:100%;border-radius:3px;transition:width .4s;background:linear-gradient(180deg,color-mix(in srgb,var(--lc) 55%,#fff),var(--lc) 60%,color-mix(in srgb,var(--lc) 70%,#000));box-shadow:0 0 10px var(--lc)}
 .hp span{position:absolute;inset:0;font-size:.62rem;line-height:18px;letter-spacing:1.5px;color:#fff;font-weight:900;text-shadow:0 1px 2px #000,0 0 4px #000}
 .fdead{font-size:.72rem;letter-spacing:2px;color:#ff6b6b;font-weight:900;text-transform:uppercase}
 /* regalos */
@@ -246,7 +246,7 @@ function card(f){
   const wins = winsOf(f);
   const all = [...f.gifts.map(x => ({ ...x, lost: x.lost || dead })), ...wins.map(w => ({ ...w, lost: dead || f.lostWins.includes(w.id) }))];
   const act = all.filter(x => !x.lost).length;
-  if(act){ const sm = document.createElement('small'); sm.textContent = '🎁 ' + act + (act === 1 ? ' regalo activo' : ' regalos activos'); nm.append(sm); }
+  if(act){ const sm = document.createElement('small'); sm.textContent = '🎁 ' + act + (act === 1 ? ' premio acumulado' : ' premios acumulados'); nm.append(sm); }
   if(!rp && rank.length){ const sm = document.createElement('small'); sm.className = 'nork'; sm.textContent = 'Ya no está en el ranking'; nm.append(sm); }
   top.append(av, nm);
   // línea de fidelidad
@@ -255,8 +255,8 @@ function card(f){
   bar.innerHTML = '<i></i><span></span>'; bar.querySelector('i').style.width = (max ? life / max * 100 : 0) + '%';
   bar.querySelector('span').textContent = dead ? '💀 FIDELIDAD PERDIDA' : 'FIDELIDAD ' + life + ' / ' + max;
   lf.append(bar);
-  if(dead){ const d = document.createElement('div'); d.className = 'fdead'; d.textContent = 'Regalos perdidos'; lf.append(d); }
-  else if(life <= 2){ const d = document.createElement('div'); d.className = 'fdead'; d.style.color = '#ffb300'; d.textContent = life === 1 ? '⚠ Mañana pierde sus regalos' : '⚠ Pierde sus regalos en ' + life + ' días'; lf.append(d); }
+  if(dead){ const d = document.createElement('div'); d.className = 'fdead'; d.textContent = 'Premios perdidos'; lf.append(d); }
+  else if(life <= 2){ const d = document.createElement('div'); d.className = 'fdead'; d.style.color = '#ffb300'; d.textContent = life === 1 ? '⚠ Mañana pierde sus premios' : '⚠ Pierde sus premios en ' + life + ' días'; lf.append(d); }
   // regalos (los de la ruleta salen solos mientras no estén entregados)
   const gl = document.createElement('div'); gl.className = 'fgifts';
   all.forEach(x => {
@@ -269,7 +269,7 @@ function card(f){
     gl.append(c);
   });
   if(!all.length){ const n = document.createElement('span'); n.className = 'nogift'; n.textContent = 'Sin regalos todavía'; gl.append(n); }
-  el.append(top, lf, gl);
+  el.append(top, gl, lf);
   if(editing){
     // añadir regalo: premios de las ruletas u «Otro…»
     const ad = document.createElement('div'); ad.className = 'addg ed';
