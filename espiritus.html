@@ -30,6 +30,7 @@ body.obs .corner,body.obs .back{display:none}
 .ktabs{display:flex;justify-content:center;gap:8px;margin:0 auto 18px;flex-wrap:wrap}
 .ktabs a{font-family:'Cinzel',serif;font-weight:900;font-size:.85rem;letter-spacing:2px;text-decoration:none;color:#ffe3a0;padding:9px 20px;border-radius:30px;border:2px solid var(--gold-dark);background:rgba(20,4,2,.85);transition:.2s}
 .ktabs a:hover{border-color:var(--gold);color:#fff}
+.ktabs a .tchest{width:1.15em;height:1em;vertical-align:-.15em;margin-right:2px;filter:drop-shadow(0 1px 1px #0008)}
 .ktabs a.on{color:#fff;border-color:var(--gold);background:linear-gradient(180deg,#ffb300,#ff5a00 50%,#b3130f);text-shadow:0 1px 0 #5a0704;box-shadow:0 0 16px rgba(255,120,0,.5)}
 
 /* ===== BARRA ===== */
@@ -142,7 +143,7 @@ body.editing .sheet-wrap{border-color:var(--gold);box-shadow:0 12px 30px rgba(0,
 <a class="back" href="index.html">Menú</a>
 
 <main class="page">
-  <nav class="ktabs"><a href="seguidores.html">🐲 Seguidores</a><a class="on" href="espiritus.html">👻 Espíritus</a></nav>
+  <nav class="ktabs"><a href="seguidores.html"><svg class="tchest" viewBox="0 0 24 20" aria-hidden="true"><path d="M2 9h20v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z" fill="#7a3e12"/><path d="M2 9C2 4 5 1 12 1s10 3 10 8z" fill="#9a5418"/><path d="M2 9h20v2H2zM6 1.6v17.4M18 1.6v17.4" stroke="#f5c451" stroke-width="1.6" fill="none"/><rect x="10" y="8" width="4" height="5" rx="1" fill="#f5c451"/></svg> Baúl de premios</a><a class="on" href="espiritus.html">👻 Espíritus</a></nav>
   <h1 class="title" id="titleText">Lista de Espíritus</h1>
   <p class="subtitle" id="subtitleText">Lo que el dragón ha repartido</p>
 

@@ -58,6 +58,7 @@ label{font-size:.7rem;color:var(--gold);letter-spacing:1px;text-transform:upperc
 .ktabs{display:flex;justify-content:center;gap:8px;margin:0 auto 18px;flex-wrap:wrap}
 .ktabs a{font-family:'Cinzel',serif;font-weight:900;font-size:.85rem;letter-spacing:2px;text-decoration:none;color:#ffe3a0;padding:9px 20px;border-radius:30px;border:2px solid var(--gold-dark);background:rgba(20,4,2,.85);transition:.2s}
 .ktabs a:hover{border-color:var(--gold);color:#fff}
+.ktabs a .tchest{width:1.15em;height:1em;vertical-align:-.15em;margin-right:2px;filter:drop-shadow(0 1px 1px #0008)}
 .ktabs a.on{color:#fff;border-color:var(--gold);background:linear-gradient(180deg,#ffb300,#ff5a00 50%,#b3130f);text-shadow:0 1px 0 #5a0704;box-shadow:0 0 16px rgba(255,120,0,.5)}
 
 /* ===== SEGUIDORES ===== */
@@ -111,6 +112,37 @@ select{font-family:inherit;background:#0b0202;border:1px solid var(--gold-dark);
 .addg input.em{width:46px;flex:none;text-align:center}
 .fname input{font-weight:900;font-size:1rem}
 @media (max-width:560px){ .fgrid{grid-template-columns:1fr} }
+/* ===== animación: se abre el baúl ===== */
+.chestFx{position:fixed;inset:0;z-index:60;display:grid;place-items:center;background:radial-gradient(circle at 50% 55%,rgba(60,14,4,.88),rgba(5,1,0,.96));cursor:pointer;animation:cfOut .5s ease 2.3s forwards}
+.chestFx.skip{animation:cfOut .25s ease forwards}
+@keyframes cfOut{to{opacity:0;visibility:hidden}}
+.chest{position:relative;width:200px;height:170px;perspective:700px;animation:cDrop .55s cubic-bezier(.3,1.6,.5,1) both,cShake .45s ease-in-out .6s 1}
+@keyframes cDrop{from{transform:translateY(-60vh) scale(.6);opacity:0}}
+@keyframes cShake{20%{transform:rotate(-4deg)}40%{transform:rotate(4deg)}60%{transform:rotate(-3deg)}80%{transform:rotate(2deg)}}
+.chest .body,.chest .lid{position:absolute;left:0;right:0;background:linear-gradient(90deg,#4a2208,#9a5418 18%,#7a3e12 50%,#9a5418 82%,#4a2208);border:4px solid #f5c451;box-shadow:inset 0 0 18px rgba(0,0,0,.6)}
+.chest .body{bottom:0;height:58%;border-radius:4px 4px 14px 14px;z-index:2}
+.chest .lid{top:6%;height:38%;border-radius:100px 100px 4px 4px / 60px 60px 4px 4px;transform-origin:6% 100%;z-index:3;animation:lidOpen .55s cubic-bezier(.3,1.5,.5,1) 1.05s forwards}
+@keyframes lidOpen{60%{transform:translate(-4px,-46px) rotate(-34deg)}to{transform:translate(-4px,-38px) rotate(-26deg)}}
+.chest .body::before,.chest .lid::before,.chest .body::after,.chest .lid::after{content:"";position:absolute;top:0;bottom:0;width:12px;background:linear-gradient(90deg,#b8860b,#ffe9a0,#b8860b)}
+.chest .body::before,.chest .lid::before{left:22px}.chest .body::after,.chest .lid::after{right:22px}
+.chest .lock{position:absolute;left:50%;top:-12px;width:30px;height:36px;margin-left:-15px;border-radius:6px;z-index:4;background:linear-gradient(180deg,#ffe9a0,#d4a017 60%,#8a5a12);border:2px solid #5a3a08;box-shadow:0 3px 6px rgba(0,0,0,.6)}
+.chest .lock::after{content:"";position:absolute;left:50%;top:11px;width:8px;height:12px;margin-left:-4px;border-radius:4px 4px 1px 1px;background:#2a1404}
+.chest .glow{position:absolute;left:50%;top:48%;width:10px;height:10px;margin:-5px;border-radius:50%;z-index:1;opacity:0;
+  box-shadow:0 0 60px 40px rgba(255,214,90,.9),0 0 140px 90px rgba(255,140,0,.55);animation:glow .9s ease-out 1.1s forwards}
+@keyframes glow{30%{opacity:1}to{opacity:.85;transform:scale(1.4)}}
+.chest .rays{position:absolute;left:50%;top:45%;width:520px;height:520px;margin:-260px;z-index:0;opacity:0;border-radius:50%;
+  background:repeating-conic-gradient(rgba(255,220,120,.35) 0 6deg,transparent 6deg 22deg);-webkit-mask:radial-gradient(circle,#000 20%,transparent 65%);mask:radial-gradient(circle,#000 20%,transparent 65%);
+  animation:rays 1.6s ease-out 1.1s forwards}
+@keyframes rays{20%{opacity:1}to{opacity:.6;transform:rotate(40deg) scale(1.15)}}
+.chestFx .bit{position:absolute;left:50%;top:50%;font-size:1.6rem;opacity:0;z-index:5;pointer-events:none;animation:bit 1.2s cubic-bezier(.2,.7,.4,1) forwards}
+@keyframes bit{0%{opacity:1;transform:translate(-50%,-50%) scale(.4)}100%{opacity:0;transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y))) scale(1.1) rotate(var(--r))}}
+.chestFx .cap{position:absolute;left:0;right:0;top:calc(50% + 120px);text-align:center;font-family:'Metal Mania',cursive;font-size:2.2rem;opacity:0;
+  background:linear-gradient(180deg,#fff6c2,#ffc53d 45%,#ff5a00);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 12px rgba(255,90,0,.8));animation:cap .6s ease 1.3s forwards}
+@keyframes cap{from{transform:scale(.6)}to{opacity:1}}
+body.opening .fcard{opacity:0}
+body.opened .fcard{animation:cardIn .5s cubic-bezier(.3,1.5,.5,1) both;animation-delay:calc(var(--i,0) * 80ms)}
+@keyframes cardIn{from{opacity:0;transform:translateY(30px) scale(.85)}}
+@media (prefers-reduced-motion:reduce){.chestFx{display:none}}
 </style>
 </head>
 <body>
@@ -118,8 +150,8 @@ select{font-family:inherit;background:#0b0202;border:1px solid var(--gold-dark);
 <a class="back" href="index.html">Menú</a>
 
 <main class="page">
-  <nav class="ktabs"><a class="on" href="seguidores.html">🐲 Seguidores</a><a href="espiritus.html">👻 Espíritus</a></nav>
-  <h1 class="title" id="titleText">Seguidores</h1>
+  <nav class="ktabs"><a class="on" href="seguidores.html"><svg class="tchest" viewBox="0 0 24 20" aria-hidden="true"><path d="M2 9h20v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z" fill="#7a3e12"/><path d="M2 9C2 4 5 1 12 1s10 3 10 8z" fill="#9a5418"/><path d="M2 9h20v2H2zM6 1.6v17.4M18 1.6v17.4" stroke="#f5c451" stroke-width="1.6" fill="none"/><rect x="10" y="8" width="4" height="5" rx="1" fill="#f5c451"/></svg> Baúl de premios</a><a href="espiritus.html">👻 Espíritus</a></nav>
+  <h1 class="title" id="titleText">Baúl de premios</h1>
   <p class="subtitle" id="subtitleText">Fieles a la guarida</p>
 
   <div class="edbar ed" id="edbar">
@@ -175,6 +207,8 @@ const fromData = d => {
 };
 const load = () => { try{ return fromData(JSON.parse(localStorage.getItem(KEY))); }catch(e){ return clone(DEFAULTS); } };
 let state = load(), editing = false, dirty = false, sessionPwd = '', remoteEmpty = false;
+let snap = JSON.stringify(state);   // lo último guardado o cargado
+const changed = () => JSON.stringify(state) !== snap;
 let rank = [], ruleta = { winners: [], items: [] };   // datos de las otras páginas (solo lectura)
 if(new URLSearchParams(location.search).has('obs')) document.body.classList.add('obs');
 
@@ -182,7 +216,7 @@ if(new URLSearchParams(location.search).has('obs')) document.body.classList.add(
 const publicData = () => { const o = clone(state); delete o.password; return o; };
 const saveLocal = () => { try{ localStorage.setItem(KEY, JSON.stringify(state)); return true; }catch(e){ return false; } };
 function save(){
-  const ok = saveLocal();
+  const ok = saveLocal(); snap = JSON.stringify(state);
   if(KDB.enabled && sessionPwd){ KDB.save(PAGE, publicData(), () => sessionPwd).then(() => KDB.toast('✓ Guardado')).catch(e => KDB.toast('⚠ No se guardó: ' + e.message, false)); return true; }
   return ok;
 }
@@ -225,11 +259,11 @@ const cssUrl = u => `url("${String(u).replace(/"/g, '%22')}")`;
 
 /* ---------- Pintar ---------- */
 function render(){
-  $('#titleText').textContent = state.title || 'Seguidores'; $('#subtitleText').textContent = state.subtitle || ''; document.title = state.title || 'Seguidores';
+  $('#titleText').textContent = state.title || 'Baúl de premios'; $('#subtitleText').textContent = state.subtitle || ''; document.title = state.title || 'Baúl de premios';
   const list = [...state.followers].sort((a, b) => (lifeOf(b) > 0) - (lifeOf(a) > 0) || lifeOf(b) - lifeOf(a) || (a.name || '').localeCompare(b.name || ''));
   const g = $('#grid'); g.innerHTML = '';
   $('#empty').style.display = list.length ? 'none' : '';
-  list.forEach(f => g.append(card(f)));
+  list.forEach((f, i) => { const c = card(f); c.style.setProperty('--i', i); g.append(c); });
   // selector para añadir: solo los del ranking que aún no están
   const sel = $('#newName'), have = new Set(state.followers.map(f => f.key));
   const opts = rank.filter(p => !have.has(p.key));
@@ -314,15 +348,15 @@ $('#addF').onclick = () => {
 };
 $('#newName').onchange = () => $('#addF').click();
 $('#maxLives').onchange = () => { state.maxLives = Math.max(1, Math.min(60, Math.round(+$('#maxLives').value || 7))); $('#maxLives').value = state.maxLives; dirty = true; render(); };
-$('#edTitle').oninput = () => { state.title = $('#edTitle').value; dirty = true; $('#titleText').textContent = state.title || 'Seguidores'; };
+$('#edTitle').oninput = () => { state.title = $('#edTitle').value; dirty = true; $('#titleText').textContent = state.title || 'Baúl de premios'; };
 $('#edSub').oninput = () => { state.subtitle = $('#edSub').value; dirty = true; $('#subtitleText').textContent = state.subtitle; };
-$('#saveBtn').onclick = () => { state.title = (state.title || '').trim() || 'Seguidores'; save(); dirty = false; setEditing(false); };
-addEventListener('beforeunload', e => { if(dirty){ e.preventDefault(); e.returnValue = ''; } });
+$('#saveBtn').onclick = () => { state.title = (state.title || '').trim() || 'Baúl de premios'; save(); dirty = false; setEditing(false); };
+addEventListener('beforeunload', e => { if(editing && changed()){ e.preventDefault(); e.returnValue = ''; } });
 
 /* ---------- Login ---------- */
 document.querySelectorAll('[data-close]').forEach(b => b.onclick = () => $('#' + b.dataset.close).classList.remove('show'));
 $('#adminBtn').onclick = () => {
-  if(editing){ if(dirty){ save(); dirty = false; } return setEditing(false); }
+  if(editing){ if(changed()) save(); dirty = false; return setEditing(false); }
   if(sessionPwd) return setEditing(true);
   if(KAuth.can(PAGE)) return tryLogin(true);
   $('#pwd').value = ''; $('#loginErr').textContent = ''; $('#loginModal').classList.add('show'); setTimeout(() => $('#pwd').focus(), 50);
@@ -362,11 +396,28 @@ const resize = () => { ec.width = innerWidth; ec.height = innerHeight; }; resize
 })();
 
 render(); loadLinked();
+/* animación de entrada: se abre el baúl (clic para saltarla) */
+(function openChest(){
+  if(document.body.classList.contains('obs') || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.body.classList.add('opening');
+  const fx = document.createElement('div'); fx.className = 'chestFx';
+  fx.innerHTML = '<div class="chest"><div class="rays"></div><div class="glow"></div><div class="lid"></div><div class="body"><div class="lock"></div></div></div><div class="cap"></div>';
+  fx.querySelector('.cap').textContent = state.title || 'Baúl de premios';
+  document.body.append(fx);
+  const bits = ['🪙','🪙','💰','💎','✨','🎁','⭐','🪙'];
+  setTimeout(() => { for(let i = 0; i < 22; i++){ const b = document.createElement('span'); b.className = 'bit'; b.textContent = bits[i % bits.length];
+    const a = -Math.PI / 2 + (Math.random() - .5) * 2.4, d = 140 + Math.random() * 220;
+    b.style.cssText = `--x:${Math.cos(a) * d}px;--y:${Math.sin(a) * d}px;--r:${(Math.random() - .5) * 360}deg;animation-delay:${Math.random() * .25}s`; fx.append(b); } }, 1150);
+  let done = false;
+  const finish = () => { if(done) return; done = true; document.body.classList.remove('opening'); document.body.classList.add('opened'); setTimeout(() => fx.remove(), 600); setTimeout(() => document.body.classList.remove('opened'), 2500); };
+  fx.onclick = () => { fx.classList.add('skip'); finish(); };
+  setTimeout(finish, 2400);
+})();
 // a medianoche cambia el día y cada minuto se miran los premios nuevos de la ruleta
 setInterval(() => { if(!editing) loadLinked(); }, 60000);
 
 if(KDB.enabled){
-  const apply = d => { if(editing) return; const keep = { password: state.password }; state = { ...fromData(d), ...keep }; saveLocal(); render(); };
+  const apply = d => { if(editing) return; const keep = { password: state.password }; state = { ...fromData(d), ...keep }; saveLocal(); snap = JSON.stringify(state); render(); };
   KDB.load(PAGE).then(row => { if(row && row.data && Object.keys(row.data).length) apply(row.data); else remoteEmpty = true; }).catch(e => KDB.toast('⚠ ' + e.message, false));
   KDB.watch(PAGE, apply, () => editing || !!document.querySelector('.modal.show'));
 }
