@@ -27,6 +27,10 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.10;b
 .corner button{width:44px;height:44px;border-radius:50%;border:2px solid var(--gold-dark);background:rgba(20,4,2,.85);font-size:1.2rem;cursor:pointer;transition:.2s}
 .corner button:hover{border-color:var(--gold);box-shadow:0 0 12px rgba(255,150,0,.6)}
 body.obs .corner,body.obs .back{display:none}
+.ktabs{display:flex;justify-content:center;gap:8px;margin:0 auto 18px;flex-wrap:wrap}
+.ktabs a{font-family:'Cinzel',serif;font-weight:900;font-size:.85rem;letter-spacing:2px;text-decoration:none;color:#ffe3a0;padding:9px 20px;border-radius:30px;border:2px solid var(--gold-dark);background:rgba(20,4,2,.85);transition:.2s}
+.ktabs a:hover{border-color:var(--gold);color:#fff}
+.ktabs a.on{color:#fff;border-color:var(--gold);background:linear-gradient(180deg,#ffb300,#ff5a00 50%,#b3130f);text-shadow:0 1px 0 #5a0704;box-shadow:0 0 16px rgba(255,120,0,.5)}
 
 /* ===== BARRA ===== */
 .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin:34px 0 14px}
@@ -138,6 +142,7 @@ body.editing .sheet-wrap{border-color:var(--gold);box-shadow:0 12px 30px rgba(0,
 <a class="back" href="index.html">Menú</a>
 
 <main class="page">
+  <nav class="ktabs"><a href="seguidores.html">👥 Seguidores</a><a class="on" href="espiritus.html">👻 Espíritus</a></nav>
   <h1 class="title" id="titleText">Lista de Espíritus</h1>
   <p class="subtitle" id="subtitleText">Lo que el dragón ha repartido</p>
 
