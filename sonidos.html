@@ -92,13 +92,40 @@ body{overflow:hidden}
 .lock{position:fixed;inset:0;z-index:40;display:none;align-items:center;justify-content:center;padding:16px;background:radial-gradient(circle,#1a0402,#050101)}
 .lock.show{display:flex}
 /* admin */
-.srow{display:grid;grid-template-columns:44px 44px 1fr 1.3fr auto;gap:8px;align-items:center;background:rgba(0,0,0,.35);padding:8px;border-radius:12px;border:1px solid rgba(138,90,18,.45);margin-bottom:8px}
+.srow{display:grid;grid-template-columns:44px 44px 1fr 1.3fr auto auto;gap:8px;align-items:center;background:rgba(0,0,0,.35);padding:8px;border-radius:12px;border:1px solid rgba(138,90,18,.45);margin-bottom:8px}
 .srow input[type=color]{width:44px;height:38px;padding:2px;border-radius:8px;border:1px solid var(--gold-dark);background:#0b0202;cursor:pointer}
 .srow .aud{display:flex;gap:6px;align-items:center;min-width:0}
 .srow .aud span{font-size:.72rem;color:#c9a46a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
 .srow .aud span.ok{color:#8aff9e}
 .srow .acts{display:flex;gap:4px}
-@media (max-width:640px){ .srow{grid-template-columns:44px 44px 1fr auto}.srow .aud{grid-column:1/-1} }
+@media (max-width:640px){ .srow{grid-template-columns:44px 44px 1fr auto}.srow .aud,.srow .mix{grid-column:1/-1} }
+/* volumen, teclas y navegación sin cortar el sonido */
+.sb-tools .vol .muteB{padding:5px 8px;font-size:.95rem;line-height:1}
+.sb-tools .vol b{min-width:46px;text-align:right;color:#fff;font-size:.8rem}
+body.muted .sb-tools .vol b{color:#ff6b6b}
+body.muted .volR{filter:grayscale(1) opacity(.5)}
+.sbtn{position:relative}
+.sbtn .kbd{position:absolute;top:0;left:calc(50% - var(--s,130px) * .43);min-width:22px;height:22px;padding:0 5px;border-radius:6px;font:900 .75rem/20px 'Cinzel',serif;
+  color:#1a0402;background:linear-gradient(180deg,#fff3c4,#f5c451);border:1px solid #8a5a12;box-shadow:0 2px 0 #5a3a08;z-index:2}
+.srow .mix{display:flex;align-items:center;gap:6px;font-size:.68rem;color:#c9a46a}
+.srow .mix select{background:#0b0202;border:1px solid var(--gold-dark);color:#fff;border-radius:8px;padding:6px 4px;font-family:inherit;font-size:.8rem}
+.srow .mix input[type=range]{width:80px;accent-color:#ff7a00}
+.srow .mix b{min-width:34px;color:#fff}
+#navFrame{position:fixed;inset:0;width:100%;height:100%;border:0;z-index:50;display:none;background:#120302}
+body.framed #navFrame{display:block}
+body.framed .ktm-chip,body.framed .ktm-modal{display:none!important}
+.mini{position:fixed;top:10px;right:12px;z-index:60;display:none;align-items:center;gap:6px;padding:5px 8px;border-radius:24px;background:rgba(20,4,2,.92);
+  border:1px solid var(--gold-dark);box-shadow:0 4px 14px rgba(0,0,0,.6);opacity:.6;transition:opacity .2s}
+.mini:hover,body.isplaying .mini{opacity:1}
+body.framed .mini{display:flex}
+body.isplaying .mini{border-color:var(--gold);box-shadow:0 0 14px rgba(255,120,0,.55)}
+.mini .mbtn{background:none;border:1px solid var(--gold-dark);color:#ffe3a0;border-radius:16px;padding:4px 9px;cursor:pointer;font:700 .72rem 'Cinzel',serif}
+.mini .mbtn:hover{border-color:var(--gold);color:#fff}
+.mini input[type=range]{width:90px;accent-color:#ff7a00}
+.kflash{position:fixed;left:50%;top:40%;transform:translate(-50%,-50%);z-index:80;pointer-events:none;font:900 2.4rem 'Cinzel',serif;color:#fff;
+  padding:14px 26px;border-radius:18px;background:rgba(20,4,2,.85);border:2px solid var(--gold);text-shadow:0 0 12px #ff5a00;opacity:0;transition:opacity .3s}
+.kflash.show{opacity:1;transition:none}
+@media (max-width:640px){ .mini input[type=range]{width:60px} }
 </style>
 </head>
 <body>
@@ -109,12 +136,15 @@ body{overflow:hidden}
   <div class="sb-head">
     <h1 class="title" id="titleText">Botonera</h1>
     <div class="sb-tools">
-      <label class="vol">🔊 <input type="range" id="vol" min="0" max="100" step="5"></label>
+      <div class="vol"><button class="btn sm muteB" type="button" title="Silenciar (tecla 0)">🔊</button><input type="range" class="volR" id="vol" min="0" max="100" step="1"><b id="volPct"></b></div>
       <button class="btn sm" type="button" id="stopAll">⏹ Parar todo</button>
     </div>
   </div>
   <div class="grid" id="grid"></div>
 </main>
+<iframe id="navFrame" title="Página"></iframe>
+<div class="mini" id="mini"><button class="mbtn" type="button" id="backBtn" title="Volver a la botonera">🎛 Botonera</button><button class="mbtn muteB" type="button" title="Silenciar (tecla 0)">🔊</button><input type="range" class="volR" min="0" max="100" step="1" title="Volumen"><button class="mbtn" type="button" id="stopMini" title="Parar todo">⏹</button></div>
+<div class="kflash" id="kflash"></div>
 
 <div class="corner"><button id="adminBtn" title="Admin">⚙️</button></div>
 
@@ -157,6 +187,13 @@ const PAGE = 'sonidos', LKEY = 'karreSonidos_v1', VKEY = 'karreSonidosVol';
 const COLORS = ['#e3192f','#111111','#5be39a','#7a3e12','#2ecc40','#f2a7c9','#f5d000','#f0b84a','#3fd6e8','#8b0000','#ff00aa','#1d3fd6','#3a8bff'];
 const newId = () => Math.random().toString(36).slice(2, 12).replace(/[^a-z0-9]/g, 'x').padEnd(8, 'x');
 let sounds = [], draft = null, audios = {}, playing = new Set();
+// volumen de cada sonido y teclas: se guardan en este navegador
+const CKEY = 'karreSonidosCfg';
+let cfg = { keys: {}, vols: {}, muted: false };
+try{ cfg = { ...cfg, ...(JSON.parse(localStorage.getItem(CKEY)) || {}) }; }catch(e){}
+const saveCfg = () => { try{ localStorage.setItem(CKEY, JSON.stringify(cfg)); }catch(e){} };
+const keyOf = id => Object.keys(cfg.keys).find(k => cfg.keys[k] === id) || '';
+const svol = id => (cfg.vols[id] ?? 100) / 100;
 if(new URLSearchParams(location.search).has('obs')) document.body.classList.add('obs');
 
 /* ---------- Acceso ---------- */
@@ -194,6 +231,7 @@ function render(){
     b.innerHTML = (s.image ? '<span class="face"></span>' : '<span class="cap"></span>') + '<span class="lbl"></span>';
     const f = b.querySelector('.face, .cap'); f.style.setProperty('--c', s.color || '#e3192f'); if(s.image) f.style.backgroundImage = `url("${String(s.image).replace(/"/g, '%22')}")`;
     b.querySelector('.lbl').textContent = s.name || 'Sin nombre';
+    const k = keyOf(s.id); if(k){ const kb = document.createElement('span'); kb.className = 'kbd'; kb.textContent = k; b.title += ' (tecla ' + k + ')'; b.append(kb); }
     b.addEventListener('pointerdown', () => { b.classList.add('down'); play(s, b); });
     ['pointerup','pointerleave','pointercancel'].forEach(ev => b.addEventListener(ev, () => b.classList.remove('down')));
     g.append(b);
@@ -217,24 +255,86 @@ function fit(){
 addEventListener('resize', () => { clearTimeout(fit.t); fit.t = setTimeout(fit, 80); });
 
 /* ---------- Sonar ---------- */
-const vol = () => Math.max(0, Math.min(1, (+$('#vol').value || 0) / 100));
+// curva: el volumen se ajusta más fino en la parte baja
+const vol = () => cfg.muted ? 0 : Math.pow(Math.max(0, Math.min(100, +$('#vol').value || 0)) / 100, 2);
+const btnOf = id => document.querySelector(`.sbtn[data-id="${id}"]`);
+const busy = () => document.body.classList.toggle('isplaying', playing.size > 0);
 function play(s, btn){
   if(!s.audio) return;
-  const a = new Audio(s.audio); a.volume = vol();
-  playing.add(a); btn.classList.add('playing');
-  const end = () => { playing.delete(a); if(![...playing].some(x => x._id === s.id)) btn.classList.remove('playing'); };
-  a._id = s.id; a.onended = end; a.onerror = end; a.play().catch(end);
+  btn = btn || btnOf(s.id);
+  const a = new Audio(s.audio); a._id = s.id; a.volume = Math.min(1, vol() * svol(s.id));
+  playing.add(a); if(btn) btn.classList.add('playing'); busy();
+  const end = () => { playing.delete(a); busy(); const b = btnOf(s.id); if(b && ![...playing].some(x => x._id === s.id)) b.classList.remove('playing'); };
+  a.onended = end; a.onerror = end; a.play().catch(end);
 }
-$('#stopAll').onclick = () => { playing.forEach(a => { try{ a.pause(); }catch(e){} }); playing.clear(); document.querySelectorAll('.sbtn.playing').forEach(b => b.classList.remove('playing')); };
+function stopAll(){ playing.forEach(a => { try{ a.pause(); }catch(e){} }); playing.clear(); busy(); document.querySelectorAll('.sbtn.playing').forEach(b => b.classList.remove('playing')); }
+$('#stopAll').onclick = stopAll; $('#stopMini').onclick = stopAll;
+function paintVol(){
+  const v = $('#vol').value;
+  document.querySelectorAll('.volR').forEach(r => r.value = v);
+  document.querySelectorAll('.muteB').forEach(b => b.textContent = cfg.muted ? '🔇' : '🔊');
+  $('#volPct').textContent = cfg.muted ? 'MUTE' : v + '%';
+  document.body.classList.toggle('muted', !!cfg.muted);
+  playing.forEach(a => a.volume = Math.min(1, vol() * svol(a._id)));
+}
+let flashT;
+function flash(t){ const f = $('#kflash'); f.textContent = t; f.classList.add('show'); clearTimeout(flashT); flashT = setTimeout(() => f.classList.remove('show'), 700); }
+function toggleMute(){ cfg.muted = !cfg.muted; saveCfg(); paintVol(); flash(cfg.muted ? '🔇 SILENCIO' : '🔊 ' + $('#vol').value + '%'); }
+document.querySelectorAll('.muteB').forEach(b => b.onclick = toggleMute);
+document.querySelectorAll('.volR').forEach(r => r.oninput = () => {
+  $('#vol').value = r.value; cfg.muted = false; saveCfg();
+  try{ localStorage.setItem(VKEY, r.value); }catch(e){} paintVol();
+});
 try{ $('#vol').value = localStorage.getItem(VKEY) ?? 80; }catch(e){ $('#vol').value = 80; }
-$('#vol').oninput = () => { try{ localStorage.setItem(VKEY, $('#vol').value); }catch(e){} playing.forEach(a => a.volume = vol()); };
+paintVol();
+
+/* ---------- Teclas: 1-9 = sonidos, 0 = silenciar / volver al volumen ---------- */
+const TYPING = /^(text|password|number|search|email|url|tel|date|time)$/;
+function onKey(e){
+  if(e.ctrlKey || e.metaKey || e.altKey || !/^[0-9]$/.test(e.key)) return;
+  const t = e.target;
+  if(t && (t.isContentEditable || t.tagName === 'TEXTAREA' || (t.tagName === 'INPUT' && TYPING.test(t.type)))) return;
+  if($('#lock').classList.contains('show')) return;
+  e.preventDefault(); if(e.repeat) return;
+  if(e.key === '0') return toggleMute();
+  const s = sounds.find(x => x.id === cfg.keys[e.key]); if(!s) return;
+  const b = btnOf(s.id); play(s, b);
+  if(b){ b.classList.add('down'); setTimeout(() => b.classList.remove('down'), 130); }
+}
+addEventListener('keydown', onKey);
+
+/* ---------- Ir a otras páginas sin cortar el sonido ----------
+   Los enlaces se abren dentro de esta misma página (en un marco a pantalla completa),
+   así lo que suena sigue sonando y las teclas siguen funcionando. */
+const frame = $('#navFrame'), baseTitle = document.title;
+const isSonidos = u => /(^|\/)sonidos\.html$/.test(u.pathname);
+function linkOf(e){
+  if(e.defaultPrevented || e.button !== 0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return null;
+  const a = e.target.closest && e.target.closest('a[href]');
+  if(!a || (a.target && a.target !== '_self') || a.hasAttribute('download')) return null;
+  let u; try{ u = new URL(a.getAttribute('href'), a.ownerDocument.baseURI); }catch(x){ return null; }
+  if(u.origin !== location.origin || !/(\.html?|\/)$/.test(u.pathname)) return null;
+  if(u.pathname === new URL(a.ownerDocument.baseURI).pathname && u.hash) return null;   // ancla en la misma página
+  return u;
+}
+function openFrame(href){ frame.src = href; document.body.classList.add('framed'); }
+function closeFrame(){ document.body.classList.remove('framed'); frame.src = 'about:blank'; document.title = baseTitle; setTimeout(fit, 30); }
+$('#backBtn').onclick = closeFrame;
+document.addEventListener('click', e => { const u = linkOf(e); if(!u || isSonidos(u)) return; e.preventDefault(); openFrame(u.href); }, true);
+frame.addEventListener('load', () => {
+  let d, w; try{ w = frame.contentWindow; d = frame.contentDocument; if(!d || w.location.href === 'about:blank') return; }catch(e){ return; }
+  if(isSonidos(new URL(w.location.href))) return closeFrame();
+  document.title = (d.title || baseTitle) + ' · 🎛';
+  d.addEventListener('click', e => { const u = linkOf(e); if(u && isSonidos(u)){ e.preventDefault(); closeFrame(); } }, true);
+  d.addEventListener('keydown', onKey);
+});
 
 /* ---------- Admin ---------- */
 document.querySelectorAll('[data-close]').forEach(b => b.onclick = () => $('#' + b.dataset.close).classList.remove('show'));
 $('#adminBtn').onclick = () => { if(!isSuper()) return gate(); openAdmin(); };
 let audTarget = null, imgTarget = null;
 function openAdmin(){
-  draft = sounds.map(s => ({ ...s, _audioChanged: false, _imageChanged: false }));
+  draft = sounds.map(s => ({ ...s, _audioChanged: false, _imageChanged: false, _key: keyOf(s.id), _vol: Math.round(svol(s.id) * 100) }));
   $('#adminErr').textContent = ''; renderList(); $('#adminModal').classList.add('show');
 }
 function renderList(){
@@ -253,17 +353,26 @@ function renderList(){
     const up = document.createElement('button'); up.className = 'btn sm'; up.type = 'button'; up.textContent = '🎵 Subir'; up.onclick = () => { audTarget = { s, st }; $('#audFile').click(); };
     const url = document.createElement('button'); url.className = 'btn sm'; url.type = 'button'; url.textContent = '🔗'; url.title = 'Usar una URL de audio';
     url.onclick = () => { const v = (window.prompt ? prompt('URL del audio (mp3, ogg, wav…)', s.audio && !s.audio.startsWith('data:') ? s.audio : '') : null); if(v != null){ s.audio = v.trim(); s._audioChanged = true; st.textContent = s.audio || 'Sin audio'; st.className = s.audio ? 'ok' : ''; } };
-    const pl = document.createElement('button'); pl.className = 'btn sm'; pl.type = 'button'; pl.textContent = '▶'; pl.title = 'Probar'; pl.onclick = () => { if(s.audio){ const a = new Audio(s.audio); a.volume = vol(); a.play().catch(() => {}); } };
+    const pl = document.createElement('button'); pl.className = 'btn sm'; pl.type = 'button'; pl.textContent = '▶'; pl.title = 'Probar'; pl.onclick = () => { if(s.audio){ const a = new Audio(s.audio); a.volume = Math.min(1, vol() * s._vol / 100); a.play().catch(() => {}); } };
     aud.append(st, up, url, pl);
+    const mix = document.createElement('div'); mix.className = 'mix';
+    const ks = document.createElement('select'); ks.title = 'Tecla del teclado';
+    ks.append(new Option('Tecla —', '')); for(let n = 1; n <= 9; n++) ks.append(new Option('Tecla ' + n, String(n)));
+    ks.value = s._key || '';
+    ks.onchange = () => { draft.forEach(o => { if(o !== s && o._key === ks.value) o._key = ''; }); s._key = ks.value; renderList(); };
+    const vr = document.createElement('input'); vr.type = 'range'; vr.min = 0; vr.max = 100; vr.step = 1; vr.value = s._vol; vr.title = 'Volumen de este sonido';
+    const vp = document.createElement('b'); vp.textContent = s._vol + '%';
+    vr.oninput = () => { s._vol = +vr.value; vp.textContent = s._vol + '%'; };
+    mix.append(ks, '🔉', vr, vp);
     const acts = document.createElement('div'); acts.className = 'acts';
     const mk = (t, title, fn, cls = '') => { const b = document.createElement('button'); b.type = 'button'; b.className = 'btn sm ' + cls; b.textContent = t; b.title = title; b.onclick = fn; acts.append(b); };
     mk('▲', 'Subir', () => { if(i > 0){ [draft[i-1], draft[i]] = [draft[i], draft[i-1]]; renderList(); } });
     mk('▼', 'Bajar', () => { if(i < draft.length - 1){ [draft[i+1], draft[i]] = [draft[i], draft[i+1]]; renderList(); } });
     mk('✕', 'Eliminar', () => { draft.splice(i, 1); renderList(); }, 'danger');
-    row.append(col, ip, nm, aud, acts); L.append(row);
+    row.append(col, ip, nm, aud, mix, acts); L.append(row);
   });
 }
-$('#addS').onclick = () => { draft.push({ id: newId(), name: '', color: COLORS[draft.length % COLORS.length], audio: '', pos: draft.length, image: '', _audioChanged: true, _imageChanged: true }); renderList(); $('#sList').lastElementChild.querySelector('input[type=text]').focus(); };
+$('#addS').onclick = () => { draft.push({ id: newId(), name: '', color: COLORS[draft.length % COLORS.length], audio: '', pos: draft.length, image: '', _audioChanged: true, _imageChanged: true, _key: '', _vol: 100 }); renderList(); $('#sList').lastElementChild.querySelector('input[type=text]').focus(); };
 $('#imgFile').onchange = e => {
   const f = e.target.files[0]; e.target.value = ''; if(!f || !imgTarget) return;
   if(!f.type.startsWith('image/')){ $('#adminErr').textContent = 'Ese archivo no es una imagen.'; return; }
@@ -303,9 +412,11 @@ $('#saveBtn').onclick = async () => {
       for(const o of removed) await KDB.deleteSound(getPass, o.id);
       KDB.toast('✓ Botonera guardada');
     } else {
-      try{ localStorage.setItem(LKEY, JSON.stringify(list.map(({ _audioChanged, _imageChanged, ...s }) => s))); }catch(e){ throw new Error('Los audios no caben en este navegador. Usa la base de datos.'); }
+      try{ localStorage.setItem(LKEY, JSON.stringify(list.map(({ _audioChanged, _imageChanged, _key, _vol, ...s }) => s))); }catch(e){ throw new Error('Los audios no caben en este navegador. Usa la base de datos.'); }
     }
-    sounds = list.map(({ _audioChanged, _imageChanged, ...s }) => s); render();
+    cfg.keys = {}; cfg.vols = {};
+    list.forEach(s => { if(s._key) cfg.keys[s._key] = s.id; if(s._vol !== 100) cfg.vols[s.id] = s._vol; }); saveCfg();
+    sounds = list.map(({ _audioChanged, _imageChanged, _key, _vol, ...s }) => s); render();
     $('#adminErr').textContent = ''; $('#adminModal').classList.remove('show');
   }catch(e){ $('#adminErr').textContent = '⚠ ' + e.message; }
   btn.disabled = false;
