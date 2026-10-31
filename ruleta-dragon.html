@@ -300,6 +300,8 @@ body.legend .wcard{background:linear-gradient(160deg,#2a0a5a,#0d0420);border-col
 .quick-win.open .qw-toggle .ar{transform:rotate(90deg)}
 .quick-win input{display:none;max-width:240px}
 .quick-win.open input{display:block}
+.quick-win select{display:none;max-width:240px;width:100%}
+.quick-win.open select{display:block}
 .quick-win input.qw-pwd{display:none}
 .quick-win.open.need-pass input.qw-pwd{display:block}
 .quick-win .err{min-height:0;margin:0}
@@ -386,7 +388,7 @@ body.legend .wcard{background:linear-gradient(160deg,#2a0a5a,#0d0420);border-col
     <div class="res-for" id="resFor"></div>
     <div class="quick-win" id="quickWin">
       <button type="button" class="qw-toggle" id="qwToggle"><span class="ar">▸</span> Apuntar ganador</button>
-      <input type="text" id="quickWinner" placeholder="¿Quién ha ganado?" list="winnerNames">
+      <select id="quickWinner"></select>
       <label class="qw-del" id="qwDelLbl"><input type="checkbox" id="quickDelivered"><span class="box">✓</span> Entregado</label>
       <input type="password" id="quickPwd" class="qw-pwd" placeholder="Contraseña de admin" autocomplete="current-password">
       <div class="err" id="quickErr"></div>
@@ -412,7 +414,7 @@ body.legend .wcard{background:linear-gradient(160deg,#2a0a5a,#0d0420);border-col
   <div class="card" style="text-align:center">
     <button type="button" class="close-x" data-close="nameModal">×</button>
     <h2>🎯 ¿De quién es esta tirada?</h2>
-    <input type="text" id="spinName" list="winnerNames" placeholder="Nombre (opcional)" autocomplete="off">
+    <select id="spinName" style="width:100%"></select>
     <div style="margin-top:12px;display:flex;gap:8px;justify-content:center"><button class="btn" type="button" id="spinNameSkip">Sin nombre</button><button class="btn primary" type="button" id="spinNameOk">¡Tirar!</button></div>
   </div>
 </div>
@@ -844,7 +846,7 @@ async function spin(){
   const D = state.drum || {};
   if(D.askName !== false && !nameAsked){
     fillWinnerNames(state.winners);
-    $('#spinName').value = ''; $('#nameModal').classList.add('show'); setTimeout(() => $('#spinName').focus(), 50);
+    $('#spinName').value = ''; loadRankNames(); $('#nameModal').classList.add('show'); setTimeout(() => $('#spinName').focus(), 50);
     return;
   }
   const isLegend = state.current === 'legend';
@@ -1128,9 +1130,26 @@ function attachDrag(f){
   el.onpointerup = up; el.onpointercancel = up;
 }
 addEventListener('resize', () => { for(const f of floaters.values()){ f.x = Math.min(f.x, innerWidth - 200); f.y = Math.min(f.y, innerHeight - 140); } });
-function fillWinnerNames(list){
-  const names = [...new Set((list || []).map(z => (z.winner || '').trim()).filter(Boolean))];
-  $('#winnerNames').innerHTML = ''; names.forEach(n => $('#winnerNames').append(new Option(n)));
+// Los nombres salen siempre del Ranking: allí se dan de alta los seguidores
+let rankNames = [];
+async function loadRankNames(){
+  try{
+    let rk;
+    if(KDB.enabled){ const r = await KDB.load('ranking'); rk = r && r.data; }
+    else rk = JSON.parse(localStorage.getItem('karreRanking_v1') || 'null');
+    rankNames = [...new Set(((rk && rk.players) || []).map(p => (p.name || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+  }catch(e){}
+  fillWinnerNames();
+}
+function nameOptions(sel, first, cur){
+  sel.innerHTML = ''; sel.append(new Option(rankNames.length ? first : 'Añade seguidores en el Ranking', ''));
+  rankNames.forEach(n => sel.append(new Option(n, n)));
+  if(cur && !rankNames.includes(cur)) sel.append(new Option(cur + ' (no está en el ranking)', cur));
+  sel.value = cur || '';
+}
+function fillWinnerNames(){
+  nameOptions($('#spinName'), '— Sin nombre —', $('#spinName').value);
+  nameOptions($('#quickWinner'), '— ¿Quién ha ganado? —', $('#quickWinner').value);
 }
 
 function renderHistory(){
@@ -1321,7 +1340,7 @@ function renderWinnersAdmin(){
   draft.winners.forEach((z, i) => {
     const row = document.createElement('div'); row.className = 'wrow';
     const mk = (type, field, ph, cls) => { const inp = document.createElement('input'); inp.type = type; inp.value = z[field] || ''; if(ph) inp.placeholder = ph; if(cls) inp.className = cls; inp.oninput = () => z[field] = inp.value; return inp; };
-    const w = mk('text', 'winner', 'Ganador'); w.setAttribute('list', 'winnerNames');
+    const w = document.createElement('select'); nameOptions(w, '— Ganador —', (z.winner || '').trim()); w.onchange = () => z.winner = w.value;
     const pr = mk('text', 'prize', 'Qué ha ganado'); pr.setAttribute('list', 'prizeNames');
     const dt = mk('date', 'date');
     const lb = document.createElement('label'); lb.className = 'chk';
@@ -1542,7 +1561,7 @@ $('#importFile').onchange = e => {
 };
 
 /* ---------- Init ---------- */
-applyTexts(); drawWheel();
+applyTexts(); drawWheel(); loadRankNames();
 
 /* ---------- Cargar de la BBDD y escuchar cambios de otros dispositivos ---------- */
 if(KDB.enabled){

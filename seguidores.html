@@ -96,7 +96,11 @@ body.editing .gift .x{display:inline}
 body.editing .fav{cursor:pointer}
 .edbar{position:sticky;top:8px;z-index:5;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;margin:18px auto 0;padding:10px 12px;border-radius:14px;
   background:rgba(20,4,2,.92);border:1px solid var(--gold);box-shadow:0 6px 20px rgba(0,0,0,.6)}
-.edbar input{width:auto;flex:1;min-width:160px}
+.edbar input,.edbar select{width:auto;flex:1;min-width:160px}
+select{font-family:inherit;background:#0b0202;border:1px solid var(--gold-dark);color:#fff;border-radius:8px;padding:8px 10px;font-size:.85rem}
+.addg select{flex:1;min-width:0;padding:6px 8px;font-size:.8rem}
+.gift .src{font-size:.7rem;opacity:.8}
+.nork{font-size:.65rem;color:#ff8a3a;letter-spacing:1px}
 .edbar .mx{display:flex;align-items:center;gap:6px;font-size:.75rem;color:#ffe3a0}
 .edbar .mx input{width:64px;min-width:0;flex:none}
 .fctl{gap:5px;flex-wrap:wrap;align-items:center}
@@ -119,7 +123,7 @@ body.editing .fav{cursor:pointer}
   <p class="subtitle" id="subtitleText">Fieles a la guarida</p>
 
   <div class="edbar ed" id="edbar">
-    <input type="text" id="newName" placeholder="Nombre del nuevo seguidor" autocomplete="off">
+    <select id="newName"></select>
     <button class="btn sm" type="button" id="addF">+ Añadir</button>
     <label class="mx">Vidas máx. <input type="number" id="maxLives" min="1" max="60"></label>
     <input type="text" id="edTitle" placeholder="Título" style="max-width:180px">
@@ -144,7 +148,7 @@ body.editing .fav{cursor:pointer}
     <div style="text-align:center;margin-top:10px"><button class="btn primary" type="button" id="loginBtn">Entrar</button></div>
   </div>
 </div>
-<input type="file" id="avFile" accept="image/*" hidden>
+
 
 <script src="db.js"></script>
 <script src="timer.js"></script>
@@ -159,12 +163,19 @@ const DEFAULTS = {
   subtitle: 'Fieles a la guarida',
   maxLives: 7,          // vidas de fidelidad; se pierde una cada día
   password: 'dragon',   // solo sin base de datos
-  followers: []         // [{ id, name, avatar, lives, base:'AAAA-MM-DD', gifts:[{ id, emoji, text, date, lost }] }]
+  followers: []         // [{ key, name, lives, base:'AAAA-MM-DD', gifts:[{ id, emoji, text, date, lost }], lostWins:[ids] }]
 };
+const norm = n => String(n || '').trim().toLowerCase();
 const clone = o => JSON.parse(JSON.stringify(o));
-const fromData = d => { const o = { ...clone(DEFAULTS), ...(d && typeof d === 'object' ? d : {}) }; if(!Array.isArray(o.followers)) o.followers = []; o.maxLives = Math.max(1, Math.min(60, +o.maxLives || 7)); return o; };
+const fromData = d => {
+  const o = { ...clone(DEFAULTS), ...(d && typeof d === 'object' ? d : {}) };
+  if(!Array.isArray(o.followers)) o.followers = [];
+  o.followers.forEach(f => { f.key = f.key || norm(f.name); if(!Array.isArray(f.gifts)) f.gifts = []; if(!Array.isArray(f.lostWins)) f.lostWins = []; });
+  o.maxLives = Math.max(1, Math.min(60, +o.maxLives || 7)); return o;
+};
 const load = () => { try{ return fromData(JSON.parse(localStorage.getItem(KEY))); }catch(e){ return clone(DEFAULTS); } };
 let state = load(), editing = false, dirty = false, sessionPwd = '', remoteEmpty = false;
+let rank = [], ruleta = { winners: [], items: [] };   // datos de las otras páginas (solo lectura)
 if(new URLSearchParams(location.search).has('obs')) document.body.classList.add('obs');
 
 /* ---------- Guardar ---------- */
@@ -176,13 +187,37 @@ function save(){
   return ok;
 }
 
+/* ---------- Ranking (quién existe) y ruleta (premios y ganadores) ---------- */
+async function loadLinked(){
+  try{
+    let rk, rl;
+    if(KDB.enabled){ const [a, b] = await Promise.all([KDB.load('ranking'), KDB.load('ruleta')]); rk = a && a.data; rl = b && b.data; }
+    else { rk = JSON.parse(localStorage.getItem('karreRanking_v1') || 'null'); rl = JSON.parse(localStorage.getItem('ruletaDragon_v1') || 'null'); }
+    rank = ((rk && rk.players) || []).filter(p => (p.name || '').trim()).map(p => ({ key: norm(p.name), name: p.name.trim(), avatar: p.avatar || '' }))
+      .sort((x, y) => x.name.localeCompare(y.name));
+    const items = []; const seen = new Set();
+    ['normal', 'legend'].forEach(k => (((rl && rl.wheels && rl.wheels[k]) || {}).items || []).forEach(it => { const t = (it.text || '').trim(); if(t && !seen.has(t)){ seen.add(t); items.push({ text: t, emoji: it.emoji || '🎁' }); } }));
+    ruleta = { winners: (rl && rl.winners) || [], items };
+  }catch(e){}
+  render();
+}
+
 /* ---------- Fidelidad: se pierde una vida cada día ---------- */
 const iso = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 const today = () => iso(new Date());
 const dayNum = s => { const [y, m, d] = String(s || today()).split('-').map(Number); return Math.round(Date.UTC(y, m - 1, d) / 864e5); };
 const lifeOf = f => Math.max(0, Math.min(state.maxLives, (+f.lives || 0) - Math.max(0, dayNum(today()) - dayNum(f.base))));
-// si ya llegó a 0, sus regalos quedan perdidos para siempre (aunque luego recargues las vidas)
-const commitLoss = f => { if(lifeOf(f) === 0) (f.gifts || []).forEach(g => g.lost = true); };
+const zeroDay = f => dayNum(f.base) + Math.max(0, +f.lives || 0);   // día en que se queda (o se quedó) a 0
+// premios de la ruleta que le han tocado y aún no se le han entregado
+const winsOf = f => ruleta.winners.filter(w => norm(w.winner) === f.key && !w.delivered)
+  .map(w => ({ id: 'w_' + w.id, text: w.prize || '', date: w.date || '', emoji: (ruleta.items.find(it => it.text === w.prize) || {}).emoji || '🎡', wheel: true }));
+// al llegar a 0, los regalos que tenía hasta ese día quedan perdidos para siempre (aunque luego recargues)
+function commitLoss(f){
+  if(lifeOf(f) > 0) return;
+  const z = zeroDay(f);
+  f.gifts.forEach(g => { if(dayNum(g.date) <= z) g.lost = true; });
+  winsOf(f).forEach(w => { if(dayNum(w.date) <= z && !f.lostWins.includes(w.id)) f.lostWins.push(w.id); });
+}
 function setLives(f, n){ commitLoss(f); f.lives = Math.max(0, Math.min(state.maxLives, n)); f.base = today(); if(f.lives === 0) commitLoss(f); }
 const lifeColor = (l, m) => l / m > .5 ? '#39dc5a' : l / m > .25 ? '#ffb300' : '#ff3b3b';
 const newId = () => Math.random().toString(36).slice(2, 9);
@@ -195,57 +230,69 @@ function render(){
   const g = $('#grid'); g.innerHTML = '';
   $('#empty').style.display = list.length ? 'none' : '';
   list.forEach(f => g.append(card(f)));
+  // selector para añadir: solo los del ranking que aún no están
+  const sel = $('#newName'), have = new Set(state.followers.map(f => f.key));
+  const opts = rank.filter(p => !have.has(p.key));
+  sel.innerHTML = ''; sel.append(new Option(opts.length ? '— Añadir seguidor del ranking —' : (rank.length ? 'Ya están todos los del ranking' : 'Añade primero los nombres en el Ranking'), ''));
+  opts.forEach(p => sel.append(new Option(p.name, p.key)));
 }
 function card(f){
-  const life = lifeOf(f), max = state.maxLives, dead = life === 0;
+  const life = lifeOf(f), max = state.maxLives, dead = life === 0, rp = rank.find(p => p.key === f.key);
   const el = document.createElement('article'); el.className = 'fcard' + (dead ? ' dead' : life <= 2 ? ' warn' : '');
-  // cabecera
   const top = document.createElement('div'); top.className = 'ftop';
   const av = document.createElement('div'); av.className = 'fav';
-  if(f.avatar) av.style.backgroundImage = cssUrl(f.avatar); else av.textContent = ((f.name || '?').trim()[0] || '?').toUpperCase();
-  av.onclick = () => { if(!editing) return; avTarget = f; $('#avFile').click(); };
-  const nm = document.createElement('div'); nm.className = 'fname';
-  if(editing){ const i = document.createElement('input'); i.type = 'text'; i.value = f.name || ''; i.oninput = () => { f.name = i.value; dirty = true; }; nm.append(i); }
-  else nm.textContent = f.name || 'Sin nombre';
-  const act = dead ? 0 : (f.gifts || []).filter(x => !x.lost).length;
-  if(act && !editing){ const sm = document.createElement('small'); sm.textContent = '🎁 ' + act + (act === 1 ? ' regalo activo' : ' regalos activos'); nm.append(sm); }
+  if(rp && rp.avatar) av.style.backgroundImage = cssUrl(rp.avatar); else av.textContent = ((f.name || '?').trim()[0] || '?').toUpperCase();
+  const nm = document.createElement('div'); nm.className = 'fname'; nm.textContent = (rp && rp.name) || f.name || 'Sin nombre';
+  const wins = winsOf(f);
+  const all = [...f.gifts.map(x => ({ ...x, lost: x.lost || dead })), ...wins.map(w => ({ ...w, lost: dead || f.lostWins.includes(w.id) }))];
+  const act = all.filter(x => !x.lost).length;
+  if(act){ const sm = document.createElement('small'); sm.textContent = '🎁 ' + act + (act === 1 ? ' regalo activo' : ' regalos activos'); nm.append(sm); }
+  if(!rp && rank.length){ const sm = document.createElement('small'); sm.className = 'nork'; sm.textContent = 'Ya no está en el ranking'; nm.append(sm); }
   top.append(av, nm);
   // línea de fidelidad
   const lf = document.createElement('div'); lf.className = 'flife';
   const lbl = document.createElement('div'); lbl.className = 'lbl';
   lbl.innerHTML = '<span>Fidelidad</span><b></b>'; lbl.querySelector('b').textContent = dead ? '0 / ' + max : '❤ ' + life + ' / ' + max;
   const bar = document.createElement('div'); bar.className = 'fbar'; bar.style.setProperty('--lc', lifeColor(life, max));
-  for(let i = 0; i < max; i++){ const s = document.createElement('i'); if(i < life) s.className = 'on'; bar.append(s); }
+  for(let i = 0; i < max; i++){ const sg = document.createElement('i'); if(i < life) sg.className = 'on'; bar.append(sg); }
   lf.append(lbl, bar);
   if(dead){ const d = document.createElement('div'); d.className = 'fdead'; d.textContent = '💀 Fidelidad perdida · regalos perdidos'; lf.append(d); }
   else if(life <= 2){ const d = document.createElement('div'); d.className = 'fdead'; d.style.color = '#ffb300'; d.textContent = life === 1 ? '⚠ Mañana pierde sus regalos' : '⚠ Pierde sus regalos en ' + life + ' días'; lf.append(d); }
-  // regalos
+  // regalos (los de la ruleta salen solos mientras no estén entregados)
   const gl = document.createElement('div'); gl.className = 'fgifts';
-  (f.gifts || []).forEach(x => {
-    const c = document.createElement('span'); c.className = 'gift' + (x.lost || dead ? ' lost' : ''); c.title = x.date ? 'Desde ' + x.date.split('-').reverse().join('/') : '';
+  all.forEach(x => {
+    const c = document.createElement('span'); c.className = 'gift' + (x.lost ? ' lost' : '');
+    c.title = (x.wheel ? 'Premio de la ruleta · ' : '') + (x.date ? 'desde ' + x.date.split('-').reverse().join('/') : '');
     c.textContent = ((x.emoji || '🎁') + ' ' + (x.text || '')).trim();
-    const del = document.createElement('button'); del.type = 'button'; del.className = 'x'; del.textContent = '✕'; del.title = 'Quitar regalo';
-    del.onclick = () => { f.gifts = f.gifts.filter(y => y !== x); dirty = true; render(); };
-    c.append(del); gl.append(c);
+    if(x.wheel){ const t = document.createElement('span'); t.className = 'src'; t.textContent = '🎡'; c.append(t); }
+    else { const del = document.createElement('button'); del.type = 'button'; del.className = 'x'; del.textContent = '✕'; del.title = 'Quitar regalo';
+      del.onclick = () => { f.gifts = f.gifts.filter(y => y.id !== x.id); dirty = true; render(); }; c.append(del); }
+    gl.append(c);
   });
-  if(!(f.gifts || []).length){ const n = document.createElement('span'); n.className = 'nogift'; n.textContent = 'Sin regalos todavía'; gl.append(n); }
+  if(!all.length){ const n = document.createElement('span'); n.className = 'nogift'; n.textContent = 'Sin regalos todavía'; gl.append(n); }
   el.append(top, lf, gl);
-  // controles de edición
   if(editing){
+    // añadir regalo: premios de las ruletas u «Otro…»
     const ad = document.createElement('div'); ad.className = 'addg ed';
-    const em = document.createElement('input'); em.type = 'text'; em.className = 'em'; em.maxLength = 8; em.placeholder = '🎁';
-    const tx = document.createElement('input'); tx.type = 'text'; tx.placeholder = 'Nuevo regalo (Enter)';
-    const add = () => { const t = tx.value.trim(); if(!t) return; f.gifts = f.gifts || []; f.gifts.push({ id: newId(), emoji: em.value.trim() || '🎁', text: t, date: today(), lost: false }); dirty = true; render(); };
-    tx.onkeydown = e => { if(e.key === 'Enter'){ e.preventDefault(); add(); } };
-    const ab = document.createElement('button'); ab.type = 'button'; ab.className = 'btn sm'; ab.textContent = '+'; ab.onclick = add;
-    ad.append(em, tx, ab);
+    const sel = document.createElement('select');
+    sel.append(new Option('— Añadir regalo —', ''));
+    ruleta.items.forEach((it, i) => sel.append(new Option((it.emoji ? it.emoji + ' ' : '') + it.text, String(i))));
+    sel.append(new Option('✏️ Otro…', 'otro'));
+    const tx = document.createElement('input'); tx.type = 'text'; tx.placeholder = 'Escribe el regalo (Enter)'; tx.style.display = 'none';
+    const push = (emoji, text) => { if(!text) return; f.gifts.push({ id: newId(), emoji: emoji || '🎁', text, date: today(), lost: false }); dirty = true; render(); };
+    sel.onchange = () => {
+      if(sel.value === 'otro'){ sel.style.display = 'none'; tx.style.display = ''; tx.focus(); return; }
+      const it = ruleta.items[+sel.value]; if(it) push(it.emoji, it.text);
+    };
+    tx.onkeydown = e => { if(e.key === 'Enter'){ e.preventDefault(); push('🎁', tx.value.trim()); } if(e.key === 'Escape') render(); };
+    ad.append(sel, tx);
     const ctl = document.createElement('div'); ctl.className = 'fctl ed';
     const b = (t, title, fn, cls = '') => { const x = document.createElement('button'); x.type = 'button'; x.className = 'btn sm ' + cls; x.textContent = t; x.title = title; x.onclick = fn; ctl.append(x); return x; };
     b('−1', 'Quitar una vida', () => { setLives(f, life - 1); dirty = true; render(); });
     b('+1', 'Dar una vida', () => { setLives(f, life + 1); dirty = true; render(); });
     b('❤ Recargar', 'Llenar todas las vidas', () => { setLives(f, max); dirty = true; render(); }, 'primary');
-    if((f.gifts || []).some(x => x.lost)) b('🧹 Perdidos', 'Borrar los regalos perdidos', () => { f.gifts = f.gifts.filter(x => !x.lost); dirty = true; render(); });
-    const del = b('✕', 'Eliminar seguidor', () => {
+    if(f.gifts.some(x => x.lost)) b('🧹 Perdidos', 'Borrar los regalos perdidos', () => { f.gifts = f.gifts.filter(x => !x.lost); dirty = true; render(); });
+    const del = b('✕', 'Quitar de la lista de seguidores', () => {
       if(!del.dataset.armed){ del.dataset.armed = 1; del.textContent = '¿Seguro?'; setTimeout(() => { if(del.isConnected){ delete del.dataset.armed; del.textContent = '✕'; } }, 3000); return; }
       state.followers = state.followers.filter(y => y !== f); dirty = true; render();
     }, 'danger del');
@@ -255,30 +302,22 @@ function card(f){
 }
 
 /* ---------- Edición (solo superadmin) ---------- */
-let avTarget = null;
 function setEditing(on){
   editing = on; document.body.classList.toggle('editing', on);
-  if(on){ $('#maxLives').value = state.maxLives; $('#edTitle').value = state.title || ''; $('#edSub').value = state.subtitle || ''; }
+  if(on){ $('#maxLives').value = state.maxLives; $('#edTitle').value = state.title || ''; $('#edSub').value = state.subtitle || ''; loadLinked(); }
   render();
 }
 $('#addF').onclick = () => {
-  const n = $('#newName').value.trim(); if(!n) return $('#newName').focus();
-  state.followers.push({ id: newId(), name: n, avatar: '', lives: state.maxLives, base: today(), gifts: [] });
-  $('#newName').value = ''; dirty = true; render();
+  const k = $('#newName').value; if(!k) return $('#newName').focus();
+  const p = rank.find(x => x.key === k); if(!p || state.followers.some(f => f.key === k)) return;
+  state.followers.push({ key: k, name: p.name, lives: state.maxLives, base: today(), gifts: [], lostWins: [] });
+  dirty = true; render();
 };
-$('#newName').addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); $('#addF').click(); } });
+$('#newName').onchange = () => $('#addF').click();
 $('#maxLives').onchange = () => { state.maxLives = Math.max(1, Math.min(60, Math.round(+$('#maxLives').value || 7))); $('#maxLives').value = state.maxLives; dirty = true; render(); };
 $('#edTitle').oninput = () => { state.title = $('#edTitle').value; dirty = true; $('#titleText').textContent = state.title || 'Seguidores'; };
 $('#edSub').oninput = () => { state.subtitle = $('#edSub').value; dirty = true; $('#subtitleText').textContent = state.subtitle; };
 $('#saveBtn').onclick = () => { state.title = (state.title || '').trim() || 'Seguidores'; save(); dirty = false; setEditing(false); };
-$('#avFile').onchange = e => {
-  const f = e.target.files[0]; e.target.value = ''; if(!f || !avTarget) return;
-  if(!f.type.startsWith('image/')) return KDB.toast('Ese archivo no es una imagen', false);
-  const t = avTarget, im = new Image();
-  im.onload = () => { const k = Math.min(1, 160 / Math.max(im.width, im.height)), c = document.createElement('canvas'); c.width = Math.round(im.width * k); c.height = Math.round(im.height * k);
-    c.getContext('2d').drawImage(im, 0, 0, c.width, c.height); URL.revokeObjectURL(im.src); t.avatar = c.toDataURL('image/webp', .85); dirty = true; render(); };
-  im.src = URL.createObjectURL(f);
-};
 addEventListener('beforeunload', e => { if(dirty){ e.preventDefault(); e.returnValue = ''; } });
 
 /* ---------- Login ---------- */
@@ -297,7 +336,7 @@ async function tryLogin(auto){
     try{ const r = await KAuth.login(pwd, PAGE, state.password); ok = r.ok; why = r.msg || ''; KAuth.refresh(); }
     catch(e){ $('#loginErr').textContent = 'Error de conexión: ' + e.message; return; }
   }
-  if(!ok){ $('#loginErr').textContent = why === 'Con la contraseña de moderador solo puedes editar Moderadores y Espíritus' ? 'Los seguidores solo los edita el superadmin' : (why || 'Contraseña incorrecta'); return; }
+  if(!ok){ $('#loginErr').textContent = /moderador/i.test(why) ? 'Los seguidores solo los edita el superadmin' : (why || 'Contraseña incorrecta'); return; }
   sessionPwd = pwd; $('#loginErr').textContent = ''; $('#loginModal').classList.remove('show');
   if(remoteEmpty){ remoteEmpty = false; save(); }
   setEditing(true);
@@ -323,9 +362,9 @@ const resize = () => { ec.width = innerWidth; ec.height = innerHeight; }; resize
   requestAnimationFrame(loop);
 })();
 
-render();
-// a medianoche cambia el día: volver a pintar para restar la vida sin recargar
-setInterval(() => { if(!editing && render.day !== today()){ render.day = today(); render(); } }, 60000); render.day = today();
+render(); loadLinked();
+// a medianoche cambia el día y cada minuto se miran los premios nuevos de la ruleta
+setInterval(() => { if(!editing) loadLinked(); }, 60000);
 
 if(KDB.enabled){
   const apply = d => { if(editing) return; const keep = { password: state.password }; state = { ...fromData(d), ...keep }; saveLocal(); render(); };
