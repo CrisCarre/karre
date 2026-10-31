@@ -142,7 +142,6 @@ select{font-family:inherit;background:#0b0202;border:1px solid var(--gold-dark);
 body.opening .fcard{opacity:0}
 body.opened .fcard{animation:cardIn .5s cubic-bezier(.3,1.5,.5,1) both;animation-delay:calc(var(--i,0) * 80ms)}
 @keyframes cardIn{from{opacity:0;transform:translateY(30px) scale(.85)}}
-@media (prefers-reduced-motion:reduce){.chestFx{display:none}}
 </style>
 </head>
 <body>
@@ -398,7 +397,7 @@ const resize = () => { ec.width = innerWidth; ec.height = innerHeight; }; resize
 render(); loadLinked();
 /* animación de entrada: se abre el baúl (clic para saltarla) */
 (function openChest(){
-  if(document.body.classList.contains('obs') || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if(document.body.classList.contains('obs')) return;
   document.body.classList.add('opening');
   const fx = document.createElement('div'); fx.className = 'chestFx';
   fx.innerHTML = '<div class="chest"><div class="rays"></div><div class="glow"></div><div class="lid"></div><div class="body"><div class="lock"></div></div></div><div class="cap"></div>';
